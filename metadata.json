@@ -1,0 +1,7 @@
+{
+  "name": "AI Smart-Diet Lens",
+  "description": "A comprehensive AI-powered nutrition tracking application featuring camera-based food recognition, smart shopping lists, daily logging, and health analytics.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

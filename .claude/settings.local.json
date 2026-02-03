@@ -1,0 +1,36 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm --filter @zenspace/core test:*)",
+      "Bash(pnpm install)",
+      "Bash(pnpm install:*)",
+      "Bash(dir:*)",
+      "Bash(powershell -Command:*)",
+      "Bash(pnpm remove:*)",
+      "Bash(pnpm add:*)",
+      "Bash(netstat:*)",
+      "mcp__web-search-prime__webSearchPrime",
+      "mcp__zread__search_doc",
+      "Bash(git add:*)",
+      "Bash(git config:*)",
+      "Bash(git remote add:*)",
+      "Bash(git push:*)",
+      "Bash(taskkill:*)",
+      "Bash(pnpm test)",
+      "Bash(pnpm test:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx prettier:*)",
+      "Bash(npx eslint:*)",
+      "Bash(echo:*)",
+      "Bash(npx vue-tsc:*)",
+      "Bash(git pull:*)",
+      "Bash(npm run build:*)",
+      "Bash(timeout 10 npm run start)",
+      "Bash(findstr:*)",
+      "Bash(npx prisma db seed:*)",
+      "Bash(npx ts-node:*)",
+      "Bash(npx prisma generate:*)",
+      "Bash(npm run start)"
+    ]
+  }
+}

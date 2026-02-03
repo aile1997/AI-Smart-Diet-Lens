@@ -28,7 +28,7 @@ const navigateTo = (path: string) => {
 </script>
 
 <template>
-  <>
+  <div>
     <!-- Floating Action Button - Positioned absolutely -->
     <div class="fixed bottom-[4.5rem] left-1/2 transform -translate-x-1/2 z-50">
       <button 
@@ -42,7 +42,7 @@ const navigateTo = (path: string) => {
     <!-- Navigation Bar -->
     <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto h-20 bg-white/90 backdrop-blur-xl border-t border-slate-100 z-40 flex items-center justify-between px-2 pb-2">
       <template v-for="item in navItems" :key="item.path">
-        <div v-if="item.isFab" key="fab-spacer" class="flex-[0.8]"></div>
+        <div v-if="item.isFab" class="flex-[0.8]"></div>
         <div v-else class="flex-1 flex justify-center">
           <button 
             @click="navigateTo(item.path)"
@@ -68,7 +68,7 @@ const navigateTo = (path: string) => {
         </div>
       </template>
     </nav>
-  </>
+  </div>
 </template>
 
 <style scoped>

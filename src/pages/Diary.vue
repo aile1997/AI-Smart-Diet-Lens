@@ -1,7 +1,13 @@
 <script setup lang="ts">
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
+const selectedDayIndex = ref(2);
+
+const selectDay = (index: number) => {
+  selectedDayIndex.value = index;
+};
 
 interface MacroItem {
   label: string;
@@ -106,10 +112,10 @@ const navigateToHome = () => {
       <div class="flex justify-between px-4 pb-4 overflow-x-auto no-scrollbar gap-2">
         <template v-for="(day, idx) in ['周日', '周一', '周二', '周三', '周四', '周五', '周六']" :key="idx">
           <div class="flex flex-col items-center gap-1 min-w-[3rem]">
-            <span :class="['text-xs font-medium', idx === 2 ? 'text-primary' : 'text-slate-500']">{{ day }}</span>
-            <button :class="[
+            <span :class="['text-xs font-medium', selectedDayIndex === idx ? 'text-primary' : 'text-slate-500']">{{ day }}</span>
+            <button @click="selectDay(idx)" :class="[
               'size-10 rounded-full text-sm font-bold flex items-center justify-center',
-              idx === 2 
+              selectedDayIndex === idx 
                 ? 'bg-primary text-white shadow-lg shadow-primary/30' 
                 : 'text-slate-700 hover:bg-slate-100'
             ]">

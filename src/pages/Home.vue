@@ -1,10 +1,22 @@
 <script setup lang="ts">
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
 
+// 卡路里数据
+const consumed = ref(530);
+const target = ref(2200);
+const remaining = computed(() => target.value - consumed.value);
+const consumedPercent = computed(() => Math.round((consumed.value / target.value) * 100));
+
 const navigateTo = (path: string) => {
   router.push(path);
+};
+
+const addWater = () => {
+  // 添加水分逻辑
+  console.log('Added water');
 };
 </script>
 
@@ -33,20 +45,20 @@ const navigateTo = (path: string) => {
           </svg>
           <div class="absolute flex flex-col items-center justify-center text-center inset-0 z-10">
             <span class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">剩余</span>
-            <h1 class="text-5xl font-extrabold text-slate-900 tracking-tight font-display">1,450</h1>
+            <h1 class="text-5xl font-extrabold text-slate-900 tracking-tight font-display">{{ remaining }}</h1>
             <p class="text-slate-500 text-xs font-medium mt-1">Kcal 预算</p>
           </div>
         </div>
         <div class="flex items-center justify-center gap-12 mt-[-10px] z-10">
           <div class="flex flex-col items-center">
             <div class="w-2 h-2 rounded-full bg-primary mb-2"></div>
-            <p class="text-xl font-bold text-slate-900 leading-none">530</p>
+            <p class="text-xl font-bold text-slate-900 leading-none">{{ consumed }}</p>
             <span class="text-xs font-medium text-slate-500 mt-1">已摄入</span>
           </div>
           <div class="w-px h-8 bg-slate-200"></div>
           <div class="flex flex-col items-center">
             <div class="w-2 h-2 rounded-full bg-slate-300 mb-2"></div>
-            <p class="text-xl font-bold text-slate-900 leading-none">2,200</p>
+            <p class="text-xl font-bold text-slate-900 leading-none">{{ target }}</p>
             <span class="text-xs font-medium text-slate-500 mt-1">目标</span>
           </div>
         </div>
@@ -84,7 +96,7 @@ const navigateTo = (path: string) => {
               <p class="text-2xl font-bold text-slate-900">4</p>
               <p class="text-xs text-slate-500">/ 8 杯</p>
             </div>
-            <button class="bg-white text-sky-500 rounded-full w-8 h-8 flex items-center justify-center shadow-sm hover:scale-110 transition-transform">
+            <button @click="addWater" class="bg-white text-sky-500 rounded-full w-8 h-8 flex items-center justify-center shadow-sm hover:scale-110 transition-transform">
               <span class="material-symbols-outlined text-lg font-bold">add</span>
             </button>
           </div>

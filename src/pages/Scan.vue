@@ -136,4 +136,9 @@ const navigateToResult = () => {
 .animate-slide-up {
   animation: slideUp 0.5s ease-out forwards;
 }
+
+/* Scan animation */
+:deep(.animate-\[scan_2s_linear_infinite\]) {
+  animation: scan 2s linear infinite;
+}
 </style>

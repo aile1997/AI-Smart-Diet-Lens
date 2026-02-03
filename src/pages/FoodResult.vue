@@ -1,9 +1,15 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const portion = ref(250);
+const basePortion = 250; // 基础分量
+const baseCalories = 450; // 基础卡路里
+
+// 计算营养数据比例
+const calorieRatio = computed(() => (portion.value / basePortion).toFixed(2));
+const calories = computed(() => Math.round(baseCalories * Number(calorieRatio.value)));
 
 const navigateBack = () => {
   router.go(-1);
@@ -50,7 +56,7 @@ const saveToDiary = () => {
         <div class="flex items-end justify-between mb-8">
           <div>
             <p class="text-sm font-medium text-slate-500 mb-1">总热量</p>
-            <h1 class="text-5xl font-extrabold text-slate-900 tracking-tight font-display">450 <span class="text-2xl font-semibold text-slate-400 ml-1">kcal</span></h1>
+            <h1 class="text-5xl font-extrabold text-slate-900 tracking-tight font-display">{{ calories }} <span class="text-2xl font-semibold text-slate-400 ml-1">kcal</span></h1>
           </div>
           <div class="text-right pb-1">
             <div class="flex items-center gap-1 justify-end text-primary font-bold">

@@ -13,7 +13,7 @@ const Wiki: React.FC = () => {
                <p className="text-xs font-bold text-primary tracking-widest uppercase">Smart-Diet Lens</p>
                <h1 className="text-2xl font-bold text-slate-900">AI 食材百科</h1>
             </div>
-            <div className="size-10 rounded-full bg-white border border-slate-200 flex items-center justify-center shadow-sm">
+            <div onClick={() => navigate('/profile')} className="size-10 rounded-full bg-white border border-slate-200 flex items-center justify-center shadow-sm cursor-pointer active:scale-95 transition-transform">
                <span className="material-symbols-outlined text-slate-600">person</span>
             </div>
          </div>
@@ -44,8 +44,8 @@ const Wiki: React.FC = () => {
                </div>
             </div>
             <div className="flex overflow-x-auto gap-4 pb-4 no-scrollbar snap-x">
-               {/* Card 1 */}
-               <div className="snap-center shrink-0 w-72 h-48 relative rounded-2xl overflow-hidden shadow-card group">
+               {/* Card 1 - Linked to Recipe */}
+               <div onClick={() => navigate('/recipe')} className="snap-center shrink-0 w-72 h-48 relative rounded-2xl overflow-hidden shadow-card group cursor-pointer">
                   <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDejXUH1BDXEER9F3FELKud7iUO2KZ17RgJNrY4lDkBhH6Tc-u3bNIYyRX91RiuaPOa4I7wLJvn6ZUSSmnhptpgGJWgUy1pMWSHcxRkbWu65p9oHvIJk_e7cqKWSNSDfevoIE_bSJifkE_AMUrRxghzYnjTlZv07HY2OSH-10MW9ENvQf0j3PD7NWS0Uv_gzq-Ieqr8QVH5oTOAe5OysgaFENlD31regyrBhJ67q22tef3bWB41TtKa_NW5dYKxf5jURrpnZrWZzf7E" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt="Avocado" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
                   <div className="absolute top-3 right-3 bg-white/90 backdrop-blur rounded-full px-2.5 py-1 flex items-center gap-1">
@@ -59,8 +59,8 @@ const Wiki: React.FC = () => {
                      </div>
                   </div>
                </div>
-               {/* Card 2 */}
-               <div className="snap-center shrink-0 w-72 h-48 relative rounded-2xl overflow-hidden shadow-card group">
+               {/* Card 2 - Linked to Recipe */}
+               <div onClick={() => navigate('/recipe')} className="snap-center shrink-0 w-72 h-48 relative rounded-2xl overflow-hidden shadow-card group cursor-pointer">
                   <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBtDm4ZjOk45gKnLqrSyl18-u_ix9MGrFYxCQiVwzgo2AUJMw6ss2Z52uY5fDyJa2xBipdL0gY1_AvQmYyBCK9fgHtWeviyM3CmmbXBlzxTKBWRWuuL8GrNTDKs2s78Oh0O_4DYsR8VjWWRLExZzmS-xUqQXVW5bubUsCVBZ5I6dkrWxgZfE2f9qsXKeIAxlMq4cb5sLmQ2hdTHSczrJJi-2uRgj_g79pA9yjqjVLN2owINHy5RLiLvGxolQEy56yEsvu9VtzrPdBg3" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt="Salmon" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
                   <div className="absolute top-3 right-3 bg-white/90 backdrop-blur rounded-full px-2.5 py-1 flex items-center gap-1">
@@ -92,7 +92,7 @@ const Wiki: React.FC = () => {
                  { name: '奇亚籽', sub: '超级食物', score: 96, tags: ['AI 小贴士'], desc: '需浸泡 10 分钟激活胶质。', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuC0yzc3cWm8uQmrgASYcHb5nHNijPeRaODHRVXS4wKNUHHr9eFkMZrYqp2B9fYm4PYYFnwjh1OtO7Tw6U2whTV2IYrSt-oiS9nQcyLA3KpRIdNiu_yF2acQXlxU2gbwahh9RNSdW2S2lXIXt6N83QW8xGolfbWg89-f5rBjITCYa7sAFYvH7Hxo53UUhhow0Lj0EzYHB2wSs7asscrnB8ZFYx98N89Pq4f4tVZ-huL6ex3tmk-M8sg4ufaS36D9dRaed72UHXwvQfMS' },
                  { name: '羽衣甘蓝', sub: '维生素K之王', score: 92, tags: ['高纤维', '排毒'], img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBXUV-xiVHMPWSTmkIKfwT35kSoWU1qwQN3MGj4P-FgTk5GK6IeoU9hBcoLs369Tn_98uBhs_AKkrjs6ZKdJ84Vk9Kt1CV3TffaD7Xr4nxQbURfmO546cPKE1kPEGIu-iMc03tzLbomopQ-nWLZMcobgVhYBGEpK26wC0Gezm2yc3fmVml8drTJnF8Ze-vId86BM605eq7cw4LOf41tOETtECswDlk679f54m6dlBE05IaUOtX6JvLzb7amsK2IlZ2tfUzah4WX2NfU' }
                ].map((item, i) => (
-                  <div key={i} className="bg-white rounded-2xl p-3 shadow-card border border-slate-100 group">
+                  <div key={i} onClick={() => navigate('/recipe')} className="bg-white rounded-2xl p-3 shadow-card border border-slate-100 group cursor-pointer active:scale-[0.98] transition-transform">
                      <div className="relative aspect-[4/3] mb-3 rounded-xl overflow-hidden bg-slate-100">
                         <img src={item.img} className="w-full h-full object-cover transition-transform group-hover:scale-105" alt={item.name} />
                         <div className="absolute bottom-2 right-2 size-8 bg-white/95 backdrop-blur rounded-full flex items-center justify-center font-bold text-[10px] shadow-sm">

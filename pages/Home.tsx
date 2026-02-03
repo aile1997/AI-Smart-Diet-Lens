@@ -123,11 +123,28 @@ const Home: React.FC = () => {
              <h2 className="text-lg font-bold text-slate-900">今日餐食</h2>
              <button className="text-primary text-sm font-bold hover:text-primary-dark" onClick={() => navigate('/diary')}>查看全部</button>
           </div>
-          <div className="w-full rounded-3xl bg-white border-2 border-dashed border-sage-200 p-8 flex flex-col items-center text-center">
+          
+          {/* Quick Access to Recipe */}
+          <div onClick={() => navigate('/recipe')} className="w-full rounded-3xl bg-white border border-sage-100 p-4 flex gap-4 items-center shadow-card active:scale-[0.98] transition-transform cursor-pointer">
+             <div className="w-20 h-20 bg-cover bg-center rounded-2xl" style={{backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuCjzSEoi6HdN7_oDhZ1YSC_cxw8HLvaz15PmOoZBhJsWUfsRtTFhRh0iWcGq1oJQXIxGnh7carV5qEUHOSau3MVSUpBLpVF--Fogwn__vECHTzsWfbZlYMQJIlKW7lgGNreZra2Ga9iwmn7Azn2t2Ecn9kcjULEF6NLAIeMe5RViTl-EbsQHB4hjYpTN6tY3Y6TLXHfKSit9IHrF3U0nPTpNsq1K2fYBboezJt3N7KntyVDDB64o-U2V05l46-OFzFTwW9dpUxYEQuq")'}}></div>
+             <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                   <span className="px-2 py-0.5 bg-orange-100 text-orange-600 rounded text-[10px] font-bold">推荐食谱</span>
+                   <span className="text-[10px] text-slate-400">450 kcal</span>
+                </div>
+                <h3 className="text-base font-bold text-slate-900 leading-tight mb-1">香煎三文鱼配芦笋</h3>
+                <p className="text-xs text-slate-500">15分钟快手菜 · 优质蛋白</p>
+             </div>
+             <div className="size-8 rounded-full bg-slate-100 flex items-center justify-center">
+                <span className="material-symbols-outlined text-slate-400">chevron_right</span>
+             </div>
+          </div>
+
+          <div className="w-full mt-4 rounded-3xl bg-white border-2 border-dashed border-sage-200 p-8 flex flex-col items-center text-center">
              <div className="w-20 h-20 bg-sage-50 rounded-full flex items-center justify-center mb-4 text-slate-300">
                <span className="material-symbols-outlined text-4xl">restaurant_menu</span>
              </div>
-             <h3 className="text-base font-bold text-slate-900 mb-1">您的餐盘是空的</h3>
+             <h3 className="text-base font-bold text-slate-900 mb-1">您的日记还没满</h3>
              <p className="text-sm text-slate-500 max-w-[200px] leading-relaxed mb-5">
                记录您的第一餐以解锁个性化建议。
              </p>

@@ -10,6 +10,7 @@ import ShoppingList from './pages/ShoppingList';
 import Profile from './pages/Profile';
 import Onboarding from './pages/Onboarding';
 import Achievements from './pages/Achievements';
+import RecipeDetail from './pages/RecipeDetail';
 
 // Bottom Navigation Component
 const BottomNav = () => {
@@ -25,7 +26,10 @@ const BottomNav = () => {
     { path: '/profile', icon: 'person', label: '我的' },
   ];
 
+  // Hide nav on specific pages
   if (['/', '/scan', '/result', '/onboarding'].includes(currentPath)) return null;
+  // Also hide on recipe detail to give full screen experience
+  if (currentPath.startsWith('/recipe')) return null;
 
   return (
     <>
@@ -77,6 +81,7 @@ const App: React.FC = () => {
           <Route path="/list" element={<ShoppingList />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/achievements" element={<Achievements />} />
+          <Route path="/recipe" element={<RecipeDetail />} />
         </Routes>
         <BottomNav />
       </div>

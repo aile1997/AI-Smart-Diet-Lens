@@ -216,8 +216,7 @@ AI-Smart-Diet-Lens/
 │   ├── skills/
 │   └── tickets/
 │
-└── .vscode/
-    └── zenspace.code-workspace       # VS Code 工作区
+└── diet-lens.code-workspace         # VS Code 工作区
 ```
 
 ---

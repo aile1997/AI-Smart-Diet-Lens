@@ -1,6 +1,6 @@
 # VS Code 工作区使用指南
 
-> **更新时间**: 2026-01-24
+> **更新时间**: 2026-02-05
 > **维护者**: Architect
 > **适用于**: 前后端开发者
 
@@ -8,7 +8,7 @@
 
 ## 📐 架构优化说明
 
-ZenSpace 采用 **Monorepo 架构**，前后端代码在同一个 Git 仓库中，但通过 **VS Code 工作区**实现清晰的逻辑分区。
+AI Smart Diet Lens 采用 **Monorepo 架构**，前后端代码在同一个 Git 仓库中，但通过 **VS Code 工作区**实现清晰的逻辑分区。
 
 ### 优化前 vs 优化后
 
@@ -30,16 +30,16 @@ ZenSpace 采用 **Monorepo 架构**，前后端代码在同一个 Git 仓库中�
 
 ```bash
 # 进入项目目录
-cd /path/to/zenspace
+cd /path/to/diet-lens
 
 # 使用工作区文件打开
-code zenspace.code-workspace
+code diet-lens.code-workspace
 ```
 
 **方法二：VS Code 内打开**
 
 ```
-File → Open Workspace from File... → 选择 zenspace.code-workspace
+File → Open Workspace from File... → 选择 diet-lens.code-workspace
 ```
 
 ### 2️⃣ 工作区布局
@@ -47,7 +47,7 @@ File → Open Workspace from File... → 选择 zenspace.code-workspace
 打开工作区后，你会看到 **5 个独立的文件夹**：
 
 ```
-📂 ZenSpace 工作区
+📂 AI Smart Diet Lens 工作区
   ├── 🎨 Frontend - Core (业务逻辑层)
   ├── 🎨 Frontend - UI (视图层)
   ├── ⚙️ Backend (后端服务)
@@ -207,40 +207,39 @@ git commit -m "feat(backend): 实现用户认证 API"
 
 | Scope | 说明 | 示例 |
 |:------|:-----|:-----|
-| `ui` | 前端 UI 层 | `feat(ui): 添加选座页面` |
-| `core` | 前端 Core 层 | `feat(core): 实现预约逻辑` |
-| `backend` | 后端服务 | `feat(backend): 添加座位 API` |
+| `ui` | 前端 UI 层 | `feat(ui): 添加食物识别页面` |
+| `core` | 前端 Core 层 | `feat(core): 实现营养计算逻辑` |
+| `backend` | 后端服务 | `feat(backend): 添加用户认证 API` |
 | `auth` | 认证模块（前后端通用） | `fix(auth): 修复 Token 刷新` |
-| `booking` | 预约模块 | `feat(booking): 添加签到功能` |
 | `infra` | 基础设施 | `chore(infra): 更新 CI 配置` |
 
 **示例提交**:
 
 ```bash
 # 前端 UI 改动
-git commit -m "feat(ui): 完成首页 UI 设计
+git commit -m "feat(ui): 完成首页仪表盘 UI
 
-- 添加 Glassmorphism 风格卡片
-- 实现区域卡片渐变背景
-- 添加拥挤度进度条
+- 添加热量环形图
+- 实现营养素进度条
+- 添加快捷操作入口
 
 Related to #4"
 
 # 前端逻辑改动
-git commit -m "feat(core): 实现预约创建逻辑
+git commit -m "feat(core): 实现 useNutrition 组合函数
 
-- 添加 createBooking 方法
-- 集成支付流程
+- 添加 BMR 计算
+- 添加每日营养汇总
 - 添加单元测试
 
 Related to #4"
 
 # 后端改动
-git commit -m "feat(backend): 实现预约管理 API
+git commit -m "feat(backend): 实现食物识别 API
 
-- POST /api/bookings - 创建预约
-- GET /api/bookings - 获取预约列表
-- PUT /api/bookings/:id/cancel - 取消预约
+- POST /api/food/recognize - AI 食物识别
+- GET /api/diary/summary - 每日饮食汇总
+- POST /api/diary - 添加日记条目
 
 Related to #2"
 ```
@@ -442,18 +441,18 @@ git commit ...
 创建共享类型包 `packages/types/`:
 
 ```
-zenspace/
+AI-Smart-Diet-Lens/
 ├── packages/
 │   └── types/              # 前后端共享类型
 │       ├── user.ts
-│       ├── booking.ts
-│       ├── seat.ts
-│       └── zone.ts
+│       ├── food.ts
+│       ├── diary.ts
+│       └── achievement.ts
 ├── frontend/
 │   └── packages/
-│       ├── core/           # 引用 @zenspace/types
+│       ├── core/           # 引用 @diet-lens/types
 │       └── ui/
-└── backend/                # 引用 @zenspace/types
+└── backend/                # 引用 @diet-lens/types
 ```
 
 **优势**:
@@ -490,7 +489,7 @@ zenspace/
 
 1. **使用工作区文件打开项目**
    ```bash
-   code zenspace.code-workspace
+   code diet-lens.code-workspace
    ```
 
 2. **前后端分开提交**
@@ -541,7 +540,7 @@ zenspace/
 
 ### Q2: 工作区文件可以放到 Git 吗？
 
-**A**: 可以！`zenspace.code-workspace` 已加入 Git，团队成员可以直接使用。
+**A**: 可以！`diet-lens.code-workspace` 已加入 Git，团队成员可以直接使用。
 
 ### Q3: 如何快速切换工作区根目录？
 

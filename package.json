@@ -1,23 +1,25 @@
 {
   "name": "ai-smart-diet-lens",
   "private": true,
-  "version": "0.0.0",
-  "type": "module",
+  "version": "0.1.0",
+  "description": "AI Smart Diet Lens - 智能营养追踪与膳食规划应用",
   "scripts": {
-    "dev": "vite",
-    "build": "vue-tsc --noEmit && vite build",
-    "preview": "vite preview"
+    "dev:frontend": "pnpm --filter @diet-lens/ui dev:h5",
+    "dev:backend": "pnpm --filter diet-lens-backend start:dev",
+    "dev:all": "concurrently \"pnpm dev:frontend\" \"pnpm dev:backend\"",
+    "test:core": "pnpm --filter @diet-lens/core test",
+    "test:backend": "pnpm --filter diet-lens-backend test",
+    "build:h5": "pnpm --filter @diet-lens/ui build:h5",
+    "build:mp-weixin": "pnpm --filter @diet-lens/ui build:mp-weixin",
+    "postinstall": "husky"
   },
-  "dependencies": {
-    "vue": "^3.4.0",
-    "vue-router": "^4.3.0"
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
   },
+  "packageManager": "pnpm@9.15.0",
   "devDependencies": {
-    "@types/node": "^22.14.0",
-    "@vitejs/plugin-vue": "^5.0.0",
-    "@vue/tsconfig": "^0.5.0",
-    "typescript": "~5.8.2",
-    "vite": "^6.2.0",
-    "vue-tsc": "^1.8.0"
+    "husky": "^9.0.0",
+    "concurrently": "^9.0.0"
   }
 }

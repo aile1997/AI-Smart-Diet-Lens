@@ -99,7 +99,7 @@ const navigateBack = () => {
 </script>
 
 <template>
-  <view class="flex flex-col h-full min-h-screen bg-gray-50 pb-24 max-w-md mx-auto w-full">
+  <view class="page-container pb-24">
     <!-- Header -->
     <view class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-gray-200">
       <view class="flex items-center justify-between p-4">

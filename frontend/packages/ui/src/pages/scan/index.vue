@@ -31,7 +31,7 @@ const navigateToResult = () => {
 </script>
 
 <template>
-  <view class="relative h-screen w-full bg-black overflow-hidden">
+  <view class="fixed inset-0 w-full bg-black overflow-hidden">
     <!-- Background Camera Feed (Simulated) -->
     <view class="absolute inset-0 z-0">
       <image

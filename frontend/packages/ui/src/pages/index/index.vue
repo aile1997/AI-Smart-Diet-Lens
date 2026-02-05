@@ -22,7 +22,7 @@ const addWater = () => {
 </script>
 
 <template>
-  <view class="flex flex-col h-full min-h-screen pb-24 overflow-y-auto max-w-md mx-auto w-full bg-gray-50">
+  <view class="page-container pb-24 overflow-y-auto">
     <!-- Header -->
     <view class="flex items-center justify-between px-6 pt-12 pb-4 bg-gray-50/90 sticky top-0 z-30 backdrop-blur-md">
       <view class="flex flex-col">

@@ -24,9 +24,9 @@ const saveToDiary = () => {
 </script>
 
 <template>
-  <view class="relative h-screen w-full flex flex-col bg-gray-50 max-w-md mx-auto">
+  <view class="page-container">
     <!-- Top Image Area -->
-    <view class="relative h-[40vh] w-full">
+    <view class="relative h-[40vh] w-full shrink-0">
       <view class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD4okC0hHdn3KHTuhDrx6xp8mDEkn5jbe7BZiwHFYNGahUNYOKaU-P-wp4QPUaoE_-BCukvONG3Sae8E0mfPO3Y_06RQNmL_7k9xY0yDEjb9STqrajykm7h_P-GJy90l1QKgmPIELcCu7QWIpKcVFjc2MXU46MW4pZAX078eN02KA6KUebKHDU54pfwir8U9sU5ic4ki7-QYykkUCwsS62DQoA5oakcMbvNAQx_f69msJTTsiOE_gZU36fX8O86ZT3UGhSn1MTjx7GG')">
         <view class="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60"></view>
       </view>
@@ -45,7 +45,7 @@ const saveToDiary = () => {
         <view class="flex items-center gap-2 mb-2">
           <text class="px-2 py-0.5 rounded text-[10px] font-bold bg-primary text-black uppercase tracking-wider">AI 置信度 98%</text>
         </view>
-        <text class="text-3xl font-bold text-white leading-tight drop-shadow-sm">香煎三文鱼<text>蔬菜沙拉碗</text>
+        <text class="text-3xl font-bold text-white leading-tight drop-shadow-sm">香煎三文鱼蔬菜沙拉碗</text>
       </view>
     </view>
 
@@ -59,7 +59,7 @@ const saveToDiary = () => {
         <view class="flex items-end justify-between mb-8">
           <view>
             <text class="text-sm font-medium text-gray-500 mb-1">总热量</text>
-            <text class="text-5xl font-extrabold text-gray-900 tracking-tight">{{ calories }} <text class="text-2xl font-semibold text-gray-400 ml-1">kcal</text>
+            <text class="text-5xl font-extrabold text-gray-900 tracking-tight">{{ calories }} <text class="text-2xl font-semibold text-gray-400 ml-1">kcal</text></text>
           </view>
           <view class="text-right pb-1">
             <view class="flex items-center gap-1 justify-end text-primary font-bold">

@@ -44,19 +44,19 @@ const isActive = (path: string) => {
 </script>
 
 <template>
-  <view class="bottom-nav-container">
+  <view>
     <!-- Floating Action Button -->
-    <view class="fixed bottom-[4.5rem] left-1/2 transform -translate-x-1/2 z-50">
+    <view class="fixed bottom-[4.5rem] left-1/2 transform -translate-x-1/2 z-50 max-w-md w-full pointer-events-none">
       <view
         @tap="navigateTo('/pages/scan/index')"
-        class="group flex items-center justify-center w-16 h-16 rounded-full bg-primary shadow-lg active:scale-95 transition-all"
+        class="pointer-events-auto mx-auto flex items-center justify-center w-16 h-16 rounded-full bg-primary shadow-lg active:scale-95 transition-all"
       >
         <text class="material-symbols-outlined text-gray-900 text-3xl">photo_camera</text>
       </view>
     </view>
 
     <!-- Navigation Bar -->
-    <view class="fixed bottom-0 left-0 right-0 h-20 bg-white/90 backdrop-blur-xl border-t border-gray-100 z-40 flex items-center justify-between px-2 pb-2">
+    <view class="fixed bottom-0 left-0 right-0 h-20 bg-white/90 backdrop-blur-xl border-t border-gray-100 z-40 flex items-center justify-between px-2 pb-2 max-w-md mx-auto">
       <template v-for="item in navItems" :key="item.path">
         <view v-if="item.isFab" class="flex-[0.8]"></view>
         <view v-else class="flex-1 flex justify-center">

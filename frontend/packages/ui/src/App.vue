@@ -16,19 +16,29 @@ onHide(() => {
 </script>
 
 <style>
+/* 引入 Material Symbols 字体 */
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+
 /* 全局样式 */
 page {
   background-color: #f8f8f8;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  max-width: 768px;
-  margin: 0 auto;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
-/* 页面容器最大宽度限制 */
-.page-wrapper {
+/* 统一布局容器，确保在 H5 和小程序端表现一致 */
+.page-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   max-width: 448px;
   margin: 0 auto;
   width: 100%;
+  min-height: 100vh;
+  position: relative;
+  background-color: #f8f8f8;
 }
 
 /* Material Symbols Outlined */

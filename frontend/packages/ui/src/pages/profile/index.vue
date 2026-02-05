@@ -16,7 +16,7 @@ const logout = () => {
 </script>
 
 <template>
-  <scroll-view scroll-y class="flex flex-col h-screen w-full bg-gray-50 pb-32 max-w-md mx-auto">
+  <view class="page-container pb-32 overflow-y-auto">
     <view class="sticky top-0 z-30 px-6 pt-14 pb-4 bg-white/95 backdrop-blur-md flex justify-between items-center transition-all duration-300 border-b border-transparent">
       <text class="text-[28px] font-extrabold text-gray-900 tracking-tight">个人中心</text>
       <view class="flex items-center gap-3">
@@ -177,7 +177,7 @@ const logout = () => {
         <text>退出登录</text>
       </view>
     </view>
-  </scroll-view>
+  </view>
 </template>
 
 <route lang="json">

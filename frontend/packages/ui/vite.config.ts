@@ -10,6 +10,7 @@ import UniPolyfill from 'vite-plugin-uni-polyfill'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  root: 'src',
   plugins: [
     // https://uni-helper.js.org/vite-plugin-uni-manifest
     UniHelperManifest(),

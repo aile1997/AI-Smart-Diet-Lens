@@ -5,10 +5,15 @@
 
 type _LocationUrl =
   "/pages/index/index" |
+  "/pages/achievements/index" |
   "/pages/diary/index" |
   "/pages/food-result/index" |
+  "/pages/onboarding/index" |
   "/pages/profile/index" |
+  "/pages/recipe-detail/index" |
   "/pages/scan/index" |
+  "/pages/shopping-list/index" |
+  "/pages/splash/index" |
   "/pages/wiki/index";
 
 interface NavigateToOptions {

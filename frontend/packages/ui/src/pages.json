@@ -11,7 +11,15 @@
       "path": "pages/index/index",
       "type": "home",
       "style": {
-        "navigationBarTitleText": "AI Smart Diet Lens"
+        "navigationBarTitleText": "AI Smart Diet Lens",
+        "navigationStyle": "default"
+      }
+    },
+    {
+      "path": "pages/achievements/index",
+      "type": "page",
+      "style": {
+        "navigationBarTitleText": "成就"
       }
     },
     {
@@ -29,6 +37,14 @@
       }
     },
     {
+      "path": "pages/onboarding/index",
+      "type": "page",
+      "style": {
+        "navigationBarTitleText": "欢迎",
+        "navigationStyle": "custom"
+      }
+    },
+    {
       "path": "pages/profile/index",
       "type": "page",
       "style": {
@@ -36,10 +52,35 @@
       }
     },
     {
+      "path": "pages/recipe-detail/index",
+      "type": "page",
+      "style": {
+        "navigationBarTitleText": "食谱详情",
+        "navigationStyle": "custom"
+      }
+    },
+    {
       "path": "pages/scan/index",
       "type": "page",
       "style": {
-        "navigationBarTitleText": "拍照识别"
+        "navigationBarTitleText": "拍照识别",
+        "navigationBarBackgroundColor": "#000000",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/shopping-list/index",
+      "type": "page",
+      "style": {
+        "navigationBarTitleText": "购物清单"
+      }
+    },
+    {
+      "path": "pages/splash/index",
+      "type": "page",
+      "style": {
+        "navigationBarTitleText": "",
+        "navigationStyle": "custom"
       }
     },
     {

@@ -30,7 +30,12 @@
       "Bash(npx prisma db seed:*)",
       "Bash(npx ts-node:*)",
       "Bash(npx prisma generate:*)",
-      "Bash(npm run start)"
+      "Bash(npm run start)",
+      "Bash(ls:*)",
+      "Bash(test:*)",
+      "Bash(sc query:*)",
+      "Bash(tasklist:*)",
+      "Bash(powershell \"Get-Process -Id 6588 | Select-Object Name, Path\")"
     ]
   }
 }

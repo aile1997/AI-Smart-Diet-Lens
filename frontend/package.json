@@ -1,0 +1,21 @@
+{
+  "name": "diet-lens-frontend",
+  "private": true,
+  "version": "0.1.0",
+  "description": "AI Smart Diet Lens - 前端 Monorepo",
+  "scripts": {
+    "dev:h5": "pnpm --filter @diet-lens/ui dev:h5",
+    "dev:mp-weixin": "pnpm --filter @diet-lens/ui dev:mp-weixin",
+    "build:h5": "pnpm --filter @diet-lens/ui build:h5",
+    "build:mp-weixin": "pnpm --filter @diet-lens/ui build:mp-weixin",
+    "test": "pnpm --filter @diet-lens/core test",
+    "test:watch": "pnpm --filter @diet-lens/core test:watch",
+    "type-check": "pnpm --filter @diet-lens/core type-check",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  }
+}

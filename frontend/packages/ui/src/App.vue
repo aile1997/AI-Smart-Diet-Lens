@@ -57,7 +57,16 @@ page {
 
 /* Font variation settings for filled icons */
 .font-variation-FILL-1 {
-  font-variation-settings: 'FILL' 1;
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 48;
+}
+
+/* 隐藏所有页面的默认滚动条 */
+::-webkit-scrollbar {
+  display: none;
+  width: 0 !important;
+  height: 0 !important;
+  -webkit-appearance: none;
+  background: transparent;
 }
 
 /* 自定义滚动条隐藏 */

@@ -99,9 +99,9 @@ const navigateBack = () => {
 </script>
 
 <template>
-  <view class="page-container pb-24">
+  <view class="page-container pb-24 overflow-y-auto no-scrollbar bg-gray-50">
     <!-- Header -->
-    <view class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-gray-200">
+    <view class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-gray-200 shrink-0">
       <view class="flex items-center justify-between p-4">
         <view @tap="navigateBack" class="w-10 h-10 flex items-center justify-center rounded-full active:bg-gray-200">
           <text class="material-symbols-outlined text-gray-900">arrow_back</text>
@@ -112,44 +112,46 @@ const navigateBack = () => {
         </view>
       </view>
       <!-- Week Strip -->
-      <scroll-view scroll-x class="flex justify-between px-4 pb-4 gap-2" show-scrollbar="false">
-        <view v-for="(day, idx) in ['周日', '周一', '周二', '周三', '周四', '周五', '周六']" :key="idx" class="flex flex-col items-center gap-1 min-w-[3rem]">
-          <text :class="['text-xs font-medium', selectedDayIndex === idx ? 'text-primary' : 'text-gray-500']">{{ day }}</text>
-          <view @tap="selectDay(idx)" :class="[
-            'w-10 h-10 rounded-full text-sm font-bold flex items-center justify-center',
-            selectedDayIndex === idx
-              ? 'bg-primary text-white shadow-lg shadow-primary/30'
-              : 'text-gray-700 active:bg-gray-100'
-          ]">
-            <text>{{ 22 + idx }}</text>
+      <scroll-view scroll-x class="w-full pb-4" :show-scrollbar="false">
+        <view class="flex px-4 gap-2">
+          <view v-for="(day, idx) in ['周日', '周一', '周二', '周三', '周四', '周五', '周六']" :key="idx" class="flex flex-col items-center gap-1 shrink-0">
+            <text :class="['text-[10px] font-medium', selectedDayIndex === idx ? 'text-primary' : 'text-gray-500']">{{ day }}</text>
+            <view @tap="selectDay(idx)" :class="[
+              'w-10 h-10 rounded-full text-sm font-bold flex items-center justify-center transition-all',
+              selectedDayIndex === idx
+                ? 'bg-primary text-white shadow-lg shadow-primary/30 scale-105'
+                : 'text-gray-700 active:bg-gray-100'
+            ]">
+              <text>{{ 22 + idx }}</text>
+            </view>
           </view>
         </view>
       </scroll-view>
     </view>
 
-    <scroll-view scroll-y class="px-4 pt-6 space-y-6 pb-24">
+    <view class="px-4 pt-6 space-y-8">
       <!-- Summary Card -->
       <view class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
         <view class="flex justify-between items-end mb-4">
           <view>
-            <text class="text-sm font-medium text-gray-500">今日摄入 (Intake)</text>
-            <view class="flex items-baseline gap-2">
-              <text class="text-3xl font-extrabold text-gray-900">1,850</text>
-              <text class="text-sm font-medium text-gray-400">/ 2,000 kcal</text>
+            <text class="text-xs font-medium text-gray-500 block mb-1">今日摄入 (Intake)</text>
+            <view class="flex items-baseline gap-1">
+              <text class="text-3xl font-extrabold text-gray-900 leading-none">1,850</text>
+              <text class="text-xs font-medium text-gray-400">/ 2,000 kcal</text>
             </view>
           </view>
           <view class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-            <text class="material-symbols-outlined">local_fire_department</text>
+            <text class="material-symbols-outlined text-2xl">local_fire_department</text>
           </view>
         </view>
         <!-- Bars -->
         <view class="grid grid-cols-3 gap-4">
           <view v-for="(m, i) in macros" :key="i" class="flex flex-col gap-1.5">
-            <view class="flex justify-between text-xs font-medium">
+            <view class="flex justify-between text-[10px] font-medium">
               <text class="text-gray-600">{{ m.label }}</text>
               <text class="text-gray-400">{{ m.val }}</text>
             </view>
-            <view class="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+            <view class="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
               <view :class="[m.color, 'h-full rounded-full']" :style="{ width: m.pct }"></view>
             </view>
           </view>
@@ -157,57 +159,62 @@ const navigateBack = () => {
       </view>
 
       <!-- Meals List -->
-      <view v-for="(meal, idx) in meals" :key="idx">
-        <text class="text-lg font-bold text-gray-900 pb-3 flex items-center gap-2">
-          <text :class="['w-2 h-2 rounded-full', meal.color]"></text> {{ meal.name }}
-          <text class="text-xs font-medium text-gray-400 ml-auto bg-gray-100 px-2 py-1 rounded-md">{{ meal.cal }} kcal</text>
-        </text>
-        <view class="flex flex-col gap-3">
-          <view v-for="(item, i) in meal.items" :key="i" class="flex items-start gap-4 p-3 bg-white rounded-xl shadow-sm border border-transparent active:border-gray-200">
-            <view class="w-20 h-20 rounded-lg overflow-hidden bg-gray-100 shrink-0">
-              <image :src="item.img" mode="aspectFill" class="w-full h-full" />
+      <view class="space-y-6">
+        <view v-for="(meal, idx) in meals" :key="idx" class="space-y-3">
+          <view class="flex items-center justify-between">
+            <view class="flex items-center gap-2">
+              <view :class="['w-2 h-2 rounded-full', meal.color]"></view>
+              <text class="text-base font-bold text-gray-900">{{ meal.name }}</text>
             </view>
-            <view class="flex-1 min-w-0 flex flex-col justify-center h-full">
-              <view class="flex justify-between items-start mb-1">
-                <text class="font-bold text-gray-900 truncate">{{ item.title }}</text>
-                <text class="font-bold text-sm text-gray-900">{{ item.c }}</text>
+            <text class="text-[10px] font-bold text-gray-400 bg-gray-100 px-2 py-1 rounded-md">{{ meal.cal }} kcal</text>
+          </view>
+          
+          <view class="flex flex-col gap-3">
+            <view v-for="(item, i) in meal.items" :key="i" class="flex items-center gap-4 p-3 bg-white rounded-xl shadow-sm border border-transparent active:border-gray-200 transition-all">
+              <view class="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 shrink-0">
+                <image :src="item.img" mode="aspectFill" class="w-full h-full" />
               </view>
-              <text class="text-sm text-gray-500">{{ item.desc }}</text>
+              <view class="flex-1 min-w-0">
+                <view class="flex justify-between items-start mb-0.5">
+                  <text class="font-bold text-gray-900 text-sm truncate">{{ item.title }}</text>
+                  <text class="font-bold text-sm text-gray-900 ml-2">{{ item.c }}</text>
+                </view>
+                <text class="text-xs text-gray-500 block truncate">{{ item.desc }}</text>
+              </view>
             </view>
           </view>
         </view>
       </view>
 
-      <view class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-50 to-white border border-blue-100 p-6 shadow-sm">
-        <view class="absolute -top-6 -right-6 text-blue-50">
-          <text class="material-symbols-outlined" style="font-size: 120px">auto_awesome</text>
+      <!-- AI Analysis Card -->
+      <view class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-50 to-white border border-blue-100 p-6 shadow-sm mb-8">
+        <view class="absolute -top-6 -right-6 text-blue-100/50">
+          <text class="material-symbols-outlined" style="font-size: 100px">auto_awesome</text>
         </view>
         <view class="relative z-10 flex flex-col gap-2">
-          <view class="flex items-center gap-2 text-primary font-bold text-sm uppercase tracking-wider">
+          <view class="flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-wider">
             <text class="material-symbols-outlined text-lg">smart_toy</text>
             <text>AI 智能分析</text>
           </view>
-          <text class="text-gray-600 text-sm leading-relaxed">
+          <text class="text-gray-600 text-xs leading-relaxed">
             您的蛋白质摄入非常理想，达到了目标的 110%。但晚餐后的脂肪摄入略高。建议明天早餐增加全麦面包来平衡碳水比例。
           </text>
-          <view class="text-sm font-bold text-primary flex items-center gap-1 mt-2">
+          <view class="text-xs font-bold text-primary flex items-center gap-1 mt-2 active:opacity-70">
             <text>查看详细报告</text>
-            <text class="material-symbols-outlined text-sm">arrow_forward</text>
+            <text class="material-symbols-outlined text-xs">arrow_forward</text>
           </view>
         </view>
       </view>
-    </scroll-view>
+    </view>
   </view>
 </template>
 
-<route lang="json">
-{
-  "style": {
-    "navigationBarTitleText": "饮食日记"
-  }
-}
-</route>
-
 <style scoped>
-/* Diary page specific styles */
+.no-scrollbar ::-webkit-scrollbar {
+  display: none;
+  width: 0 !important;
+  height: 0 !important;
+  -webkit-appearance: none;
+  background: transparent;
+}
 </style>

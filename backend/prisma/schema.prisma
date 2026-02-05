@@ -1,0 +1,117 @@
+// AI Smart Diet Lens - 数据库模型
+// 使用 Prisma ORM + PostgreSQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// 用户表
+model User {
+  id        String   @id @default(cuid())
+  phone     String   @unique
+  nickname  String?
+  avatar    String?
+  gender    String?
+  age       Int?
+  height    Float?   /// 身高 (cm)
+  weight    Float?   /// 体重 (kg)
+  goal      String?  /// 健身目标: lose_weight | maintain | gain_muscle
+  activityLevel String? /// 活动等级
+  dailyCalorieTarget Int? /// 每日目标热量
+
+  onboardingCompleted Boolean @default(false)
+
+  diaryEntries DiaryEntry[]
+  achievements UserAchievement[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+/// 食物库
+model Food {
+  id       String @id @default(cuid())
+  name     String
+  category String?
+
+  /// 每 100g 营养成分
+  calories Float
+  protein  Float
+  carbs    Float
+  fat      Float
+  fiber    Float?
+  sodium   Float?
+
+  imageUrl String?
+
+  diaryEntries DiaryEntry[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("foods")
+}
+
+/// 饮食日记条目
+model DiaryEntry {
+  id       String @id @default(cuid())
+  userId   String
+  foodId   String
+  mealType String /// breakfast | lunch | dinner | snack
+  portion  Float  /// 份量 (g)
+  date     String /// YYYY-MM-DD
+
+  /// 计算后的营养成分
+  calories Float
+  protein  Float
+  carbs    Float
+  fat      Float
+
+  note String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  food Food @relation(fields: [foodId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, date])
+  @@map("diary_entries")
+}
+
+/// 成就定义
+model Achievement {
+  id          String @id @default(cuid())
+  name        String
+  description String
+  category    String /// weight_loss | nutrition | ai_explorer | consistency
+  icon        String
+  target      Int    /// 目标值
+
+  userAchievements UserAchievement[]
+
+  @@map("achievements")
+}
+
+/// 用户成就 (多对多关联)
+model UserAchievement {
+  id            String @id @default(cuid())
+  userId        String
+  achievementId String
+  progress      Int    @default(0)
+  unlocked      Boolean @default(false)
+  unlockedAt    DateTime?
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement Achievement @relation(fields: [achievementId], references: [id])
+
+  @@unique([userId, achievementId])
+  @@map("user_achievements")
+}

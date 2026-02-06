@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Param, Query, UseGuards } from '@nestjs/common'
+import { Controller, Get, Post, Delete, Param, Query, UseGuards, Body } from '@nestjs/common'
 import { FavoritesService } from './favorites.service'
 import { CreateFavoriteDto } from './dto/favorite.dto'
 import { CurrentUser, UserPayload } from '../../common/decorators/current-user.decorator'

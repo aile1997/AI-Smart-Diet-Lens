@@ -8,7 +8,7 @@ export class CreatePostDto {
   @ApiProperty({ description: '帖子内容', example: '今天做了一道减脂餐，分享给大家！' })
   @IsString()
   @IsNotEmpty()
-  content: string
+  content!: string
 
   @ApiProperty({ description: '图片 URL 数组', required: false, example: ['https://example.com/image.jpg'] })
   @IsArray()
@@ -29,7 +29,7 @@ export class CreatePostDto {
 export class LikePostDto {
   @ApiProperty({ description: '是否点赞', example: true })
   @IsNotEmpty()
-  liked: boolean
+  liked!: boolean
 }
 
 /**
@@ -39,7 +39,7 @@ export class CreateCommentDto {
   @ApiProperty({ description: '评论内容', example: '看起来很棒，我也想试试！' })
   @IsString()
   @IsNotEmpty()
-  content: string
+  content!: string
 }
 
 /**
@@ -50,7 +50,7 @@ export class CreateReviewDto {
   @IsNumber()
   @Min(1)
   @Max(5)
-  rating: number
+  rating!: number
 
   @ApiProperty({ description: '评价内容', required: false, example: '非常棒的食谱！' })
   @IsString()

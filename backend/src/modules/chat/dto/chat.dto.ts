@@ -8,7 +8,7 @@ export class SendMessageDto {
   @ApiProperty({ description: '消息内容', example: '我想做一道减脂餐' })
   @IsString()
   @IsNotEmpty()
-  message: string
+  message!: string
 
   @ApiProperty({ description: '对话上下文', required: false, example: [{ role: 'user', content: '你好' }] })
   @IsArray()
@@ -21,7 +21,7 @@ export class SendMessageDto {
  */
 export class GenerateRecipeDto {
   @ApiProperty({ description: '饮食偏好', example: { calories: 500, mealType: 'lunch', preferences: ['低卡', '高蛋白'] } })
-  preferences: Record<string, unknown>
+  preferences!: Record<string, unknown>
 }
 
 /**
@@ -29,22 +29,22 @@ export class GenerateRecipeDto {
  */
 export class RecipeCardResponse {
   @ApiProperty({ description: '食谱名称' })
-  name: string
+  name!: string
 
   @ApiProperty({ description: '食谱图片' })
-  image: string
+  image!: string
 
   @ApiProperty({ description: '卡路里' })
-  calories: number
+  calories!: number
 
   @ApiProperty({ description: '烹饪时间' })
-  time: string
+  time!: string
 
   @ApiProperty({ description: '难度' })
-  difficulty: string
+  difficulty!: string
 
   @ApiProperty({ description: '描述' })
-  description: string
+  description!: string
 }
 
 /**
@@ -52,7 +52,7 @@ export class RecipeCardResponse {
  */
 export class ChatResponse {
   @ApiProperty({ description: 'AI 回复内容' })
-  reply: string
+  reply!: string
 
   @ApiProperty({ description: '推荐的食谱卡片', required: false, type: RecipeCardResponse })
   recipeCard?: RecipeCardResponse

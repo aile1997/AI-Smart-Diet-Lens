@@ -9,6 +9,10 @@ import { DiaryModule } from './modules/diary/diary.module'
 import { GamificationModule } from './modules/gamification/gamification.module'
 import { RecipeModule } from './modules/recipe/recipe.module'
 import { UploadModule } from './modules/upload/upload.module'
+import { ChatModule } from './modules/chat/chat.module'
+import { CommunityModule } from './modules/community/community.module'
+import { FavoritesModule } from './modules/favorites/favorites.module'
+import { NotificationsModule } from './modules/notifications/notifications.module'
 import { PrismaModule } from './common/prisma.module'
 
 @Module({
@@ -32,6 +36,10 @@ import { PrismaModule } from './common/prisma.module'
     GamificationModule,
     RecipeModule,
     UploadModule,
+    ChatModule,
+    CommunityModule,
+    FavoritesModule,
+    NotificationsModule,
   ],
 })
 export class AppModule {}

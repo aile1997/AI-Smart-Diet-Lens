@@ -8,12 +8,12 @@ export class CreateFavoriteDto {
   @ApiProperty({ description: '收藏项 ID', example: 'recipe_123' })
   @IsString()
   @IsNotEmpty()
-  itemId: string
+  itemId!: string
 
   @ApiProperty({ description: '类型', example: 'recipe', enum: ['recipe', 'food'] })
   @IsString()
   @IsIn(['recipe', 'food'])
-  type: 'recipe' | 'food'
+  type!: 'recipe' | 'food'
 }
 
 /**

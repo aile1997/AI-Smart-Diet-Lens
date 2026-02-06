@@ -95,6 +95,55 @@ curl -I -X OPTIONS http://localhost:3000/api/auth/send-code \
 
 ---
 
+### 6. Diary 模块所有权检查缺失 ✅ 已修复
+
+**日期**: 2026-02-06
+
+**严重程度**: 🔴 P0 - 严重安全漏洞
+
+**问题描述**:
+`PATCH /api/diary/entry/:id` 和 `DELETE /api/diary/entry/:id` 没有所有权检查，用户可以修改或删除其他用户的日记条目。
+
+**解决方案**:
+- Service 层添加 `userId` 参数
+- Controller 层传递 `@CurrentUser().sub`
+- 验证条目的 `userId` 是否与当前用户匹配
+
+---
+
+### 7. 重复的 JWT Guard 文件 ✅ 已修复
+
+**日期**: 2026-02-06
+
+**严重程度**: 🟢 P2 - 代码质量
+
+**问题描述**:
+存在两个功能相同的 JWT Guard 文件：
+- `jwt.guard.ts` - 正在使用
+- `jwt-auth.guard.ts` - 未使用
+
+**解决方案**:
+删除未使用的 `jwt-auth.guard.ts`，统一使用 `JwtGuard`。
+
+---
+
+### 8. 请求追踪缺失 ✅ 已修复
+
+**日期**: 2026-02-06
+
+**严重程度**: 🟢 P2 - 可观测性
+
+**问题描述**:
+没有请求 ID，难以在日志中追踪特定请求的完整生命周期。
+
+**解决方案**:
+- 新增 `RequestIdMiddleware` 中间件
+- 使用 `crypto.randomBytes()` 生成唯一 ID
+- 在响应头添加 `X-Request-ID`
+- 记录请求耗时（方法 + 路径 + 状态码 + 耗时）
+
+---
+
 ### 5. 开发模式验证码获取端点
 
 **端点**: `GET /api/auth/dev/code?email=xxx`

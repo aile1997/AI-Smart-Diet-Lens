@@ -1,6 +1,10 @@
-# AI Smart-Diet Lens API Architecture (Final v2.2 - UniApp Edition)
+# AI Smart-Diet Lens API Architecture (Final v3.0 - UniApp Edition)
 
-> **Version**: 2.2.0 (Production Ready) **Base URL**: `https://api.smart-diet-lens.com/v1` **Protocol**: HTTPS / JSON **Authentication**: `Authorization: Bearer <JWT_TOKEN>` **Client**: UniApp (iOS / Android)
+> **Version**: 3.0.0 (Production Ready)
+> **Base URL**: `https://api.smart-diet-lens.com/v1`
+> **Protocol**: HTTPS / JSON
+> **Authentication**: `Authorization: Bearer <JWT_TOKEN>`
+> **Client**: UniApp (iOS / Android)
 
 ---
 
@@ -9,7 +13,7 @@
 ### 1.1 客户端聚合 (Client-Side Aggregation) - _UniApp 专属_
 
 - **背景**: 后端无法直接访问 Apple HealthKit 或 Google Health Connect。
-- **机制**: UniApp 前端作为“搬运工”，调用原生插件读取本地健康数据（步数、体脂、静息能量），打包后通过 `POST /user/health-sync` 推送给后端。
+- **机制**: UniApp 前端作为"搬运工"，调用原生插件读取本地健康数据（步数、体脂、静息能量），打包后通过 `POST /user/health-sync` 推送给后端。
 - **真理源**: 后端基于推送的数据重新计算 TDEE（每日总消耗），并以此更新用户的热量预算。
 
 ### 1.2 多态 UI 驱动 (Polymorphic UI)
@@ -43,7 +47,7 @@ _App 冷启动时首个调用，用于版本控制和功能开关。_
     "feature_flags": {
       "enable_ar_scan": true,
       "enable_barcode_scanner": true,
-      "use_health_connect": true // Android端是否启用新API
+      "use_health_connect": true
     },
     "upload_config": { "provider": "S3", "bucket": "user-uploads-prod" }
   }
@@ -89,26 +93,23 @@ _多态接口：根据策略返回不同的 UI 渲染指令。_
 
   ```json
   {
-    "ui_strategy": "MUSCLE_GAIN", // 前端据此切换红色主题
+    "ui_strategy": "MUSCLE_GAIN",
     "date": "2026-02-24",
 
-    // 核心组件区 (Zone A)
     "hero_component": {
-      "type": "DUAL_BAR_CHART", // 指令：渲染双柱图
+      "type": "DUAL_BAR_CHART",
       "data": {
         "primary": { "label": "Protein", "current": 45, "target": 180, "unit": "g" },
         "secondary": { "label": "Calories", "current": 1200, "target": 2700, "unit": "kcal" }
       }
     },
 
-    // 小组件区 (Zone B)
     "widgets": {
       "steps": { "current": 5430, "target": 10000 },
       "water": { "current": 4, "target": 8 },
       "sleep": { "hours": 7.5, "quality": "GOOD" }
     },
 
-    // 智能弹窗 (Zone C) - 若非空则弹窗
     "smart_alert": {
       "type": "DIRTY_BULK_WARNING",
       "title": "体脂上升过快",
@@ -136,7 +137,7 @@ _多态接口：根据策略返回不同的 UI 渲染指令。_
   {
     "image_key": "temp/scan_01.jpg",
     "ar_context": {
-      "container": "BOWL_6INCH", // 关键：AR选定的容器
+      "container": "BOWL_6INCH",
       "distance_cm": 35
     }
   }
@@ -164,14 +165,14 @@ _多态接口：根据策略返回不同的 UI 渲染指令。_
     "items": [
       { "food_name": "煎三文鱼", "portion_g": 150, "calories": 310, "macros": {...} }
     ],
-    "image_key": "temp/scan_01.jpg" // 关联图片
+    "image_key": "temp/scan_01.jpg"
   }
   ```
 
 #### C.6 修正记录 (CRUD)
 
 - **PATCH** `/diary/entry/{id}`
-- **Request**: `{ "portion_g": 100 }` (修正分量)
+- **Request**: `{ "portion_g": 100 }`
 
 #### C.7 删除记录 (CRUD)
 
@@ -194,7 +195,7 @@ _前端调用原生插件读取数据后，调用此接口。_
 - **Request**:
   ```json
   {
-    "platform": "ios", // "ios" | "android"
+    "platform": "ios",
     "device_model": "iPhone 15 Pro",
     "metrics": [
       {
@@ -205,7 +206,7 @@ _前端调用原生插件读取数据后，调用此接口。_
       {
         "type": "BODY_FAT",
         "value": 18.5,
-        "source": "YOLANDA_SCALE" // 来源标识
+        "source": "YOLANDA_SCALE"
       }
     ]
   }
@@ -214,7 +215,7 @@ _前端调用原生插件读取数据后，调用此接口。_
   ```json
   {
     "status": "synced",
-    "tdee_updated": true, // 标记：若为true，前端需刷新首页获取新预算
+    "tdee_updated": true,
     "new_daily_budget": 2450
   }
   ```
@@ -228,7 +229,7 @@ _前端调用原生插件读取数据后，调用此接口。_
 #### D.3 更新身体指标 (手动)
 
 - **PATCH** `/user/profile/metrics`
-- **Request**: `{ "weight": 76.0 }` (无体脂秤用户的兜底入口)
+- **Request**: `{ "weight": 76.0 }`
 
 ---
 
@@ -267,32 +268,343 @@ _前端调用原生插件读取数据后，调用此接口。_
 
 ---
 
+### Module G: AI 营养师对话 (AI Chat) ⭐ NEW
+
+#### G.1 发送对话消息
+
+_通过对话获取个性化餐单建议，支持上下文记忆。_
+
+- **POST** `/ai/chat/message`
+- **Request**:
+  ```json
+  {
+    "message": "我想做一道减脂餐，需要高蛋白低热量",
+    "context": [
+      { "role": "user", "content": "我今天想吃减脂餐" },
+      { "role": "assistant", "content": "好的，我推荐鸡胸肉..." }
+    ]
+  }
+  ```
+- **Response**:
+  ```json
+  {
+    "reply": "根据您的减脂目标，我为您推荐这道低热量高蛋白的食谱...",
+    "recipe_card": {
+      "name": "香煎鸡胸肉配西兰花",
+      "image": "https://cdn.example.com/recipe/101.jpg",
+      "calories": 350,
+      "time": "25分钟",
+      "difficulty": "简单",
+      "description": "高蛋白低脂肪，适合减脂期食用。"
+    }
+  }
+  ```
+
+#### G.2 获取对话历史
+
+- **GET** `/ai/chat/history`
+- **Response**:
+  ```json
+  {
+    "messages": [
+      { "id": "m_1", "is_user": true, "content": "我想做减脂餐", "timestamp": "2026-02-06T10:00:00Z" },
+      { "id": "m_2", "is_user": false, "content": "好的，我推荐...", "timestamp": "2026-02-06T10:00:01Z" }
+    ]
+  }
+  ```
+
+#### G.3 清空对话历史
+
+- **DELETE** `/ai/chat/history`
+- **Response**: `{ "success": true }`
+
+---
+
+### Module H: 社区 (Community) ⭐ NEW
+
+#### H.1 获取帖子列表
+
+- **GET** `/community/posts`
+- **Query**: `page=1&limit=20&tag=减脂`
+- **Response**:
+  ```json
+  {
+    "posts": [
+      {
+        "id": "p_123",
+        "content": "今天做了一道减脂餐，分享给大家！",
+        "images": ["https://cdn.example.com/post/123.jpg"],
+        "tags": ["减脂", "健康饮食"],
+        "likes": 42,
+        "is_liked": true,
+        "created_at": "2026-02-06T10:00:00Z",
+        "user": {
+          "id": "u_456",
+          "nickname": "健身小王",
+          "avatar": "https://cdn.example.com/avatar/456.jpg"
+        }
+      }
+    ],
+    "total": 128,
+    "page": 1,
+    "limit": 20
+  }
+  ```
+
+#### H.2 发布帖子
+
+- **POST** `/community/posts`
+- **Request**:
+  ```json
+  {
+    "content": "今天做了一道减脂餐，分享给大家！",
+    "images": ["https://cdn.example.com/upload/xyz.jpg"],
+    "tags": ["减脂", "健康饮食"]
+  }
+  ```
+- **Response**: 返回创建的帖子对象。
+
+#### H.3 点赞/取消点赞
+
+- **POST** `/community/posts/{id}/like`
+- **Response**:
+  ```json
+  {
+    "liked": true,
+    "likes_count": 43
+  }
+  ```
+
+#### H.4 添加评论
+
+- **POST** `/community/posts/{id}/comments`
+- **Request**:
+  ```json
+  {
+    "content": "看起来很棒，我也想试试！"
+  }
+  ```
+- **Response**:
+  ```json
+  {
+    "id": "c_789",
+    "content": "看起来很棒，我也想试试！",
+    "created_at": "2026-02-06T11:00:00Z",
+    "user": {
+      "id": "u_789",
+      "nickname": "美食家",
+      "avatar": "https://cdn.example.com/avatar/789.jpg"
+    }
+  }
+  ```
+
+#### H.5 删除帖子
+
+- **DELETE** `/community/posts/{id}`
+- **Response**: `{ "success": true }`
+
+#### H.6 获取我的帖子
+
+- **GET** `/community/posts/my`
+- **Response**: 返回当前用户发布的帖子列表。
+
+---
+
+### Module I: 收藏 (Favorites) ⭐ NEW
+
+#### I.1 获取收藏列表
+
+- **GET** `/favorites/`
+- **Query**: `type=recipe`
+- **Response**:
+  ```json
+  {
+    "favorites": [
+      {
+        "id": "f_123",
+        "item_id": "recipe_101",
+        "type": "recipe",
+        "item": {
+          "name": "香煎鸡胸肉配西兰花",
+          "image": "https://cdn.example.com/recipe/101.jpg",
+          "calories": 350
+        },
+        "created_at": "2026-02-06T10:00:00Z"
+      }
+    ]
+  }
+  ```
+
+#### I.2 添加收藏
+
+- **POST** `/favorites/`
+- **Request**:
+  ```json
+  {
+    "item_id": "recipe_101",
+    "type": "recipe"
+  }
+  ```
+- **Response**: 返回创建的收藏对象。
+
+#### I.3 取消收藏
+
+- **DELETE** `/favorites/{id}`
+- **Response**: `{ "success": true }`
+
+#### I.4 检查是否已收藏
+
+- **GET** `/favorites/check/{item_id}`
+- **Query**: `type=recipe`
+- **Response**:
+  ```json
+  {
+    "is_favorited": true
+  }
+  ```
+
+---
+
+### Module J: 消息通知 (Notifications) ⭐ NEW
+
+#### J.1 获取消息列表
+
+- **GET** `/notifications/`
+- **Query**: `type=achievement`
+- **Response**:
+  ```json
+  {
+    "messages": [
+      {
+        "id": "n_123",
+        "type": "achievement",
+        "title": "🎉 成就解锁",
+        "content": "恭喜您解锁了「连续打卡 7 天」成就！",
+        "is_read": false,
+        "created_at": "2026-02-06T10:00:00Z"
+      },
+      {
+        "id": "n_124",
+        "type": "reminder",
+        "title": "📋 温馨提醒",
+        "content": "您今天还没有记录早餐哦！",
+        "is_read": true,
+        "created_at": "2026-02-06T08:00:00Z"
+      }
+    ]
+  }
+  ```
+
+**消息类型**:
+- `achievement`: 成就解锁通知
+- `reminder`: 提醒通知
+- `system`: 系统通知
+
+#### J.2 获取未读数量
+
+- **GET** `/notifications/unread-count`
+- **Response**:
+  ```json
+  {
+    "count": 5
+  }
+  ```
+
+#### J.3 标记消息已读
+
+- **PATCH** `/notifications/{id}/read`
+- **Response**: `{ "success": true }`
+
+#### J.4 全部标记已读
+
+- **PATCH** `/notifications/read-all`
+- **Response**: `{ "success": true }`
+
+#### J.5 删除消息
+
+- **DELETE** `/notifications/{id}`
+- **Response**: `{ "success": true }`
+
+---
+
 ## 3. 错误码字典 (Error Codes)
 
 | HTTP | Code                 | Description    | UI Action              |
 | :--- | :------------------- | :------------- | :--------------------- |
-| 400  | `INVALID_AR_CONTEXT` | AR 参数缺失    | 提示“请选择参照容器”   |
-| 404  | `FOOD_NOT_FOUND`     | AI/搜索无结果  | 引导“手动录入”         |
+| 400  | `INVALID_AR_CONTEXT` | AR 参数缺失    | 提示"请选择参照容器"   |
+| 400  | `INVALID_CONTENT`    | 内容为空或过长 | 提示"请输入内容"       |
+| 403  | `PERMISSION_DENIED`  | 无权操作       | 提示"无权操作此资源"   |
+| 404  | `FOOD_NOT_FOUND`     | AI/搜索无结果  | 引导"手动录入"         |
+| 404  | `POST_NOT_FOUND`     | 帖子不存在     | 提示"帖子已被删除"     |
 | 409  | `DIRTY_BULK_WARN`    | 增肌期体脂飙升 | 弹窗警告               |
-| 429  | `RATE_LIMIT_AI`      | 刷接口         | 提示“操作太快，请稍后” |
+| 409  | `ALREADY_FAVORITED`  | 已收藏         | 提示"已收藏过此内容"   |
+| 429  | `RATE_LIMIT_AI`      | 刷接口         | 提示"操作太快，请稍后" |
 | 500  | `INTERNAL_ERROR`     | 服务端异常     | 显示通用错误页         |
 
 ---
 
 ## 4. 数据库模型参考 (Schema)
 
-- **Users**: 基础信息、当前策略、连续打卡天数。
-- **Strategies**: 静态配置表，存储不同策略下的 TDEE 系数和 Macros 比例。
-- **DailyLogs**: 核心流水表，存储每餐数据、图片 URL、AR 上下文。
-- **HealthMetrics**: 存储从 UniApp 同步过来的原始健康数据（用于生成趋势图）。
-- **Recipes**: 食谱库，包含 Embeddings（向量数据）用于语义搜索。
+### 核心模型
+
+- **Users**: 基础信息、当前策略、连续打卡天数
+- **Strategies**: 静态配置表，存储不同策略下的 TDEE 系数和 Macros 比例
+- **DailyLogs**: 核心流水表，存储每餐数据、图片 URL、AR 上下文
+- **HealthMetrics**: 存储从 UniApp 同步过来的原始健康数据（用于生成趋势图）
+- **Recipes**: 食谱库，包含 Embeddings（向量数据）用于语义搜索
+
+### 新增模型 (v3.0)
+
+- **ChatMessages**: AI 对话消息历史
+  - `id`, `user_id`, `is_user`, `content`, `created_at`
+
+- **CommunityPosts**: 社区帖子
+  - `id`, `user_id`, `content`, `images[]`, `tags[]`, `likes`, `created_at`, `updated_at`
+
+- **Comments**: 帖子评论
+  - `id`, `post_id`, `user_id`, `content`, `created_at`
+
+- **Favorites**: 用户收藏
+  - `id`, `user_id`, `item_id`, `type`, `created_at`
+  - 唯一约束: `(user_id, item_id, type)`
+
+- **Messages**: 系统消息通知
+  - `id`, `user_id`, `type`, `title`, `content`, `is_read`, `created_at`
+  - 类型: `achievement`, `reminder`, `system`
 
 ---
 
 ## 5. UniApp 开发特别说明
 
-1.  **插件集成**:
-    - **iOS**: 请集成 `HealthKit` 相关原生插件，申请 `NSHealthShareUsageDescription` 权限。
-    - **Android**: 优先集成 `Health Connect`，兜底使用计步传感器 API。
-2.  **图片缓存**: 所有 API 返回的图片 URL 均已CDN化，请使用 UniApp 的 `<image>` 组件缓存机制，避免重复下载。
-3.  **离线处理**: 建议在本地 Storage 缓存 `/dashboard/summary` 的结果。无网络时优先展示缓存数据，并顶部提示“离线模式”。
+1. **插件集成**:
+   - **iOS**: 请集成 `HealthKit` 相关原生插件，申请 `NSHealthShareUsageDescription` 权限。
+   - **Android**: 优先集成 `Health Connect`，兜底使用计步传感器 API。
+
+2. **图片缓存**: 所有 API 返回的图片 URL 均已CDN化，请使用 UniApp 的 `<image>` 组件缓存机制，避免重复下载。
+
+3. **离线处理**: 建议在本地 Storage 缓存 `/dashboard/summary` 的结果。无网络时优先展示缓存数据，并顶部提示"离线模式"。
+
+4. **轮询建议**:
+   - 未读消息数量: 每 30 秒轮询一次
+   - 社区帖子列表: 下拉刷新 + 上拉加载更多
+
+---
+
+## 6. 前端集成文档
+
+详细的 TypeScript 接口定义和集成代码示例，请参考：
+- **[`.claude/memory/frontend-architecture.md`](../.claude/memory/frontend-architecture.md)**
+
+---
+
+## 7. Swagger 文档
+
+开发环境可访问实时 API 文档：
+- **URL**: `http://localhost:3000/api-docs`
+- 自动生成，包含所有接口的请求/响应示例
+
+---
+
+**文档版本**: 3.0.0
+**最后更新**: 2026-02-06
+**维护者**: Backend Team

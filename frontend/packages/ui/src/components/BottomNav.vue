@@ -16,9 +16,9 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { path: '/pages/index/index', icon: 'home', label: '首页' },
-  { path: '/pages/scan/index', icon: 'photo_camera', label: '拍照' },
   { path: '/pages/diary/index', icon: 'menu_book', label: '日记' },
-  { path: '/pages/wiki/index', icon: 'menu_book', label: '百科' },
+  { path: '/pages/scan/index', icon: 'photo_camera', label: '识别', isFab: true },
+  { path: '/pages/discover/index', icon: 'explore', label: '发现' },
   { path: '/pages/profile/index', icon: 'person', label: '我的' },
 ]
 

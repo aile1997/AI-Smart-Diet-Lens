@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { PrismaService } from '../../common/prisma.service'
 import { MailService } from '../mail/mail.service'
+import { ConfigService } from '@nestjs/config'
 
 /**
  * 验证码存储 (开发环境使用内存)
@@ -15,6 +16,7 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly mailService: MailService,
+    private readonly config: ConfigService,
   ) {}
 
   /**
@@ -30,6 +32,17 @@ export class AuthService {
 
     // 发送邮件
     await this.mailService.sendVerificationCode(email, code)
+  }
+
+  /**
+   * 开发模式：获取验证码（仅用于测试）
+   */
+  getDevVerificationCode(email: string): { code: string; expiresAt: number } | null {
+    const isDev = this.config.get<string>('NODE_ENV') !== 'production'
+    if (!isDev) {
+      return null
+    }
+    return verificationCodes.get(email) || null
   }
 
   /**

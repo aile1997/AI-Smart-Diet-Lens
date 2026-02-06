@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
+import { ThrottlerModule } from '@nestjs/throttler'
 import { SystemModule } from './modules/system/system.module'
 import { DashboardModule } from './modules/dashboard/dashboard.module'
 import { AuthModule } from './modules/auth/auth.module'
@@ -22,6 +23,25 @@ import { PrismaModule } from './common/prisma.module'
       isGlobal: true,
       envFilePath: '.env',
     }),
+
+    // 速率限制 (防止 API 滥用)
+    ThrottlerModule.forRoot([
+      {
+        name: 'short',
+        ttl: 60000, // 1 分钟
+        limit: 60, // 每分钟 60 次请求
+      },
+      {
+        name: 'medium',
+        ttl: 300000, // 5 分钟
+        limit: 200, // 每 5 分钟 200 次请求
+      },
+      {
+        name: 'long',
+        ttl: 3600000, // 1 小时
+        limit: 1000, // 每小时 1000 次请求
+      },
+    ]),
 
     // 数据库
     PrismaModule,

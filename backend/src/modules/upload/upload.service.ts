@@ -1,5 +1,6 @@
-import { Injectable, Logger } from '@nestjs/common'
+import { Injectable, Logger, BadRequestException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import { randomBytes } from 'crypto'
 import {
   S3Client,
   PutObjectCommand,
@@ -16,6 +17,24 @@ export interface PresignedUrlResponse {
   public_url: string      // 文件的公开访问 URL
   expires_at: number      // 过期时间戳
 }
+
+/**
+ * 允许的文件 MIME 类型
+ */
+const ALLOWED_CONTENT_TYPES = [
+  'image/jpeg',
+  'image/jpg',
+  'image/png',
+  'image/gif',
+  'image/webp',
+  'image/heic',
+  'image/heif',
+]
+
+/**
+ * 文件大小限制 (字节)
+ */
+const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 
 /**
  * S3 上传服务
@@ -38,25 +57,62 @@ export class UploadService {
   }
 
   /**
+   * 验证文件类型
+   */
+  private validateContentType(contentType: string): void {
+    if (!contentType) {
+      throw new BadRequestException('必须提供 Content-Type')
+    }
+
+    const normalizedType = contentType.toLowerCase().trim()
+    if (!ALLOWED_CONTENT_TYPES.includes(normalizedType)) {
+      throw new BadRequestException(
+        `不支持的文件类型: ${contentType}. 支持的类型: ${ALLOWED_CONTENT_TYPES.join(', ')}`,
+      )
+    }
+  }
+
+  /**
+   * 生成安全的文件名
+   */
+  private generateSecureFilename(originalExt: string): string {
+    const timestamp = Date.now()
+    // 使用 crypto.randomBytes 替代 Math.random()，更安全
+    const random = randomBytes(4).toString('hex')
+    return `${timestamp}_${random}.${originalExt}`
+  }
+
+  /**
    * 生成 S3 预签名上传 URL
    * @param filename 原始文件名
    * @param contentType 文件 MIME 类型
+   * @param fileSize 文件大小（字节）
    * @returns 预签名 URL 信息
    */
   async generatePresignedUrl(
     filename: string,
     contentType: string,
+    fileSize?: number,
   ): Promise<PresignedUrlResponse> {
-    // 生成唯一文件 key
-    const timestamp = Date.now()
-    const random = Math.random().toString(36).substring(2, 8)
-    const ext = filename.split('.').pop()
-    const fileKey = `uploads/${timestamp}_${random}.${ext}`
+    // 验证文件类型
+    this.validateContentType(contentType)
+
+    // 验证文件大小
+    if (fileSize !== undefined && fileSize > MAX_FILE_SIZE) {
+      throw new BadRequestException(
+        `文件大小超过限制: ${Math.floor(fileSize / 1024 / 1024)}MB (最大 ${MAX_FILE_SIZE / 1024 / 1024}MB)`,
+      )
+    }
+
+    // 生成安全的文件 key
+    const ext = filename.split('.').pop()?.toLowerCase() || 'jpg'
+    const fileKey = `uploads/${this.generateSecureFilename(ext)}`
 
     const command = new PutObjectCommand({
       Bucket: this.bucketName,
       Key: fileKey,
       ContentType: contentType,
+      ContentLength: fileSize,
       Metadata: {
         originalName: filename,
         uploadedAt: new Date().toISOString(),
@@ -70,7 +126,7 @@ export class UploadService {
 
     const publicUrl = `https://${this.bucketName}.s3.amazonaws.com/${fileKey}`
 
-    this.logger.log(`生成预签名 URL: ${fileKey}`)
+    this.logger.log(`生成预签名 URL: ${fileKey} (${contentType})`)
 
     return {
       upload_url: uploadUrl,

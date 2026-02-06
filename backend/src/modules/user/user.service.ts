@@ -190,7 +190,7 @@ export class UserService {
     }
   }
 
-  async findById(id: string) {
+  async findById(id: string, currentUserId?: string) {
     const user = await this.prisma.user.findUnique({
       where: { id },
     })
@@ -199,10 +199,20 @@ export class UserService {
       throw new NotFoundException('用户不存在')
     }
 
+    // 所有权检查：只允许查看自己的资料
+    if (currentUserId && id !== currentUserId) {
+      throw new NotFoundException('无权访问其他用户资料')
+    }
+
     return user
   }
 
-  async updateProfile(id: string, data: Record<string, unknown>) {
+  async updateProfile(id: string, data: Record<string, unknown>, currentUserId?: string) {
+    // 所有权检查：只允许修改自己的资料
+    if (currentUserId && id !== currentUserId) {
+      throw new NotFoundException('无权修改其他用户资料')
+    }
+
     return this.prisma.user.update({
       where: { id },
       data,

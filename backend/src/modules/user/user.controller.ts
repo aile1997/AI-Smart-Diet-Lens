@@ -30,20 +30,25 @@ export class UserController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: '获取用户资料', description: '根据用户 ID 查询用户基本信息' })
+  @UseGuards(JwtGuard)
+  @ApiOperation({ summary: '获取用户资料', description: '根据用户 ID 查询用户基本信息（仅限本人）' })
   @SwaggerApiResponse({ status: 200, description: '成功返回用户信息' })
-  async getProfile(@Param('id') id: string) {
-    return this.userService.findById(id)
+  async getProfile(@CurrentUser() user: UserPayload, @Param('id') id: string) {
+    // 只允许用户查看自己的资料
+    return this.userService.findById(id, user.sub)
   }
 
   @Put(':id/profile')
-  @ApiOperation({ summary: '更新用户资料', description: '更新用户基本信息' })
+  @UseGuards(JwtGuard)
+  @ApiOperation({ summary: '更新用户资料', description: '更新用户基本信息（仅限本人）' })
   @SwaggerApiResponse({ status: 200, description: '成功更新用户信息' })
   async updateProfile(
+    @CurrentUser() user: UserPayload,
     @Param('id') id: string,
     @Body() body: Record<string, unknown>,
   ) {
-    return this.userService.updateProfile(id, body)
+    // 只允许用户修改自己的资料
+    return this.userService.updateProfile(id, body, user.sub)
   }
 
   /**

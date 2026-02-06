@@ -5,6 +5,7 @@
  * 显示每日营养摄入记录和 AI 分析建议
  */
 import { ref } from 'vue'
+import BottomNav from '@/components/BottomNav.vue'
 
 const selectedDayIndex = ref(2)
 
@@ -96,6 +97,11 @@ const meals: MealSection[] = [
 const navigateBack = () => {
   uni.navigateBack()
 }
+
+// 跳转到数据分析页面
+const navigateToAnalysis = () => {
+  uni.navigateTo({ url: '/pages/analysis/index' })
+}
 </script>
 
 <template>
@@ -107,8 +113,8 @@ const navigateBack = () => {
           <text class="material-symbols-outlined text-gray-900">arrow_back</text>
         </view>
         <text class="text-lg font-bold text-gray-900">每日饮食日记</text>
-        <view class="w-10 h-10 flex items-center justify-center rounded-full active:bg-gray-200">
-          <text class="material-symbols-outlined text-gray-900">calendar_month</text>
+        <view @tap="navigateToAnalysis" class="w-10 h-10 flex items-center justify-center rounded-full active:bg-gray-200">
+          <text class="material-symbols-outlined text-[#34C759]">insights</text>
         </view>
       </view>
       <!-- Week Strip -->
@@ -199,7 +205,7 @@ const navigateBack = () => {
           <text class="text-gray-600 text-xs leading-relaxed">
             您的蛋白质摄入非常理想，达到了目标的 110%。但晚餐后的脂肪摄入略高。建议明天早餐增加全麦面包来平衡碳水比例。
           </text>
-          <view class="text-xs font-bold text-primary flex items-center gap-1 mt-2 active:opacity-70">
+          <view @tap="navigateToAnalysis" class="text-xs font-bold text-primary flex items-center gap-1 mt-2 active:opacity-70">
             <text>查看详细报告</text>
             <text class="material-symbols-outlined text-xs">arrow_forward</text>
           </view>

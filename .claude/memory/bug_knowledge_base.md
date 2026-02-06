@@ -1,212 +1,172 @@
-﻿# 错误知识库
-记录 GLM 犯过的错误，避免重蹈覆辙。
+# AI Smart Diet Lens - 问题知识库
+
+> 记录前后端联调中遇到的问题和解决方案
 
 ---
 
-## API 404 错误：/api/v1/zones 路由不匹配
+## 1. 后端服务热重载未生效 ✅ 已解决
 
-**日期**: 2026-01-26
+**日期**: 2026-02-06
 
-**错误现象**:
-```
-GET http://localhost:3000/api/v1/zones
-404 Not Found
-```
+**问题描述**:
+修改后端代码后，新的 API 端点未生效，需要手动重启服务。
 
-**问题分析**:
-
-1. **前端请求路径**: `/api/v1/zones`
-2. **后端配置**:
-   - 全局前缀: `api` (main.ts:8)
-   - Controller 前缀: `booking` (booking.controller.ts:24)
-   - 实际路由: `/api/booking/zones`
-
-3. **根因**: 后端全局前缀未配置版本号 `v1`
+**受影响的文件**:
+- `backend/src/common/global-exception.filter.ts` - 修复 HTTP 异常处理
+- `backend/src/modules/auth/auth.service.ts` - 添加 getDevVerificationCode() 方法
+- `backend/src/modules/auth/auth.controller.ts` - 添加 GET /api/auth/dev/code 端点
 
 **解决方案**:
+代码已经存在，服务重启后端点正常工作。
 
-修改 `backend/src/main.ts` 第 8 行：
-```typescript
-// 修改前
-app.setGlobalPrefix('api');
-
-// 修改后
-app.setGlobalPrefix('api/v1');
-```
-
-**修改后路由结构**:
-- 全局前缀: `/api/v1`
-- Controller 前缀: `/booking`
-- 最终路由: `/api/v1/booking/zones`
+**验证结果**:
+- ✅ GET /api/auth/dev/code 端点已生效
+- ✅ 验证码发送功能正常
+- ✅ 邮箱登录功能正常
+- ✅ JWT 认证正常工作
 
 ---
 
-## 前端 API 路径错误：缺少 Controller 前缀
+## 2. 前端 API 认证流程需要验证码
 
-**日期**: 2026-01-26
+**日期**: 2026-02-06
 
-**错误现象**:
-```
-GET http://localhost:3000/api/v1/zones
-404 Not Found
-```
+**问题描述**:
+邮箱验证码登录流程需要获取验证码，但验证码只在后端控制台输出。
 
-**问题分析**:
+**当前方案**:
+1. 调用 POST /api/auth/send-code 发送验证码
+2. 验证码会输出到后端控制台（开发模式）
+3. 调用 POST /api/auth/login/email 使用验证码登录
 
-1. **前端请求** (zone.ts:64): `http.get<ZonesResponse>('/zones')`
-2. **后端实际路由**: `/api/v1/booking/zones`
-3. **根因**: 前端请求路径缺少 `booking` Controller 前缀
+**已添加的辅助端点** (需要后端重启后生效):
+- GET /api/auth/dev/code?email=xxx - 获取指定邮箱的验证码（仅开发模式）
 
-**解决方案**:
+**测试步骤**:
+```bash
+# 1. 发送验证码
+curl -X POST http://localhost:3000/api/auth/send-code \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@example.com"}'
 
-修改 `frontend/packages/core/src/stores/zone.ts` 第 64 行：
-```typescript
-// 修改前
-const response = await http.get<ZonesResponse>('/zones');
+# 2. 获取验证码（开发模式）
+curl http://localhost:3000/api/auth/dev/code?email=test@example.com
 
-// 修改后
-const response = await http.get<ZonesResponse>('/booking/zones');
-```
-
-**最终路由**:
-- 前端请求: `/booking/zones`
-- 完整 URL: `/api/v1/booking/zones`
-
----
-
-## 批量修复：前端 API 路径缺少 Controller 前缀
-
-**日期**: 2026-01-26
-
-**问题范围**:
-
-多个前端 Store 和 Composable 的 API 请求缺少 Controller 前缀，导致 404 错误。
-
-**修复清单**:
-
-### 1. Zone Store (zone.ts)
-- `/zones` → `/booking/zones`
-
-### 2. Booking Store (booking.ts)
-- `/bookings` → `/booking/bookings` (POST - 创建预约)
-- `/bookings` → `/booking/bookings` (GET - 获取预约列表)
-- `/bookings/${id}` → `/booking/bookings/${id}` (DELETE - 取消预约)
-- `/bookings/${id}/check-in` → `/booking/bookings/${id}/check-in`
-- `/bookings/${id}/check-out` → `/booking/bookings/${id}/check-out`
-
-### 3. Auth Composable (useAuth.ts)
-- `/auth/sms-login` → `/auth/login` (后端只有 `/auth/login` 端点)
-
-### 4. User Store (user.ts)
-- 新增 `refreshToken` 状态管理
-- 登录时保存 `refreshToken`
-- 登出时清除 `refreshToken`
-- 恢复时加载 `refreshToken`
-
-**后端路由结构参考**:
-```
-/api/v1/
-├── auth/              (@Controller('auth'))
-│   ├── send-code
-│   ├── login
-│   ├── logout
-│   ├── refresh
-│   ├── profile
-│   └── update-profile
-└── booking/           (@Controller('booking'))
-    ├── zones
-    ├── zones/:zoneId/seats
-    └── bookings/
-        ├── (POST)
-        ├── my (GET)
-        └── :id (DELETE)
+# 3. 使用验证码登录
+curl -X POST http://localhost:3000/api/auth/login/email \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@example.com","code":"123456"}'
 ```
 
 ---
 
-## API 500 错误：未登录访问受保护接口
+## 3. 前后端 API 路由对照
 
-**日期**: 2026-01-27
+**日期**: 2026-02-06
 
-**错误现象**:
+### 后端路由结构
+
 ```
-500 Internal Server Error
-ERROR [ExceptionsHandler] Error: SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+/api
+├── system/
+│   └── bootstrap (GET) - 系统引导配置
+├── auth/
+│   ├── send-code (POST) - 发送邮箱验证码
+│   ├── login/email (POST) - 邮箱验证码登录
+│   ├── login/wechat (POST) - 微信授权登录
+│   └── dev/code (GET) - 获取验证码（开发模式）
+├── dashboard/
+│   └── summary (GET) - 仪表盘摘要 [需认证]
+├── user/
+│   ├── profile (GET) - 用户资料 [需认证]
+│   └── metrics (PATCH) - 更新健康指标 [需认证]
+├── food/
+│   └── search (GET) - 食物搜索
+├── diary/
+│   ├── (GET) - 获取日记列表 [需认证]
+│   ├── (POST) - 创建日记条目 [需认证]
+│   └── /:id (DELETE) - 删除条目 [需认证]
+├── recipes/
+│   └── recommend (GET) - 食谱推荐 [需认证]
+├── ai/
+│   └── recognize (POST) - AI 食物识别 [需认证]
+├── ai-chat/
+│   ├── (POST) - 发送消息 [需认证]
+│   ├── history (GET) - 对话历史 [需认证]
+│   └── clear (DELETE) - 清除历史 [需认证]
+├── community/
+│   ├── (GET) - 获取帖子列表
+│   ├── (POST) - 创建帖子 [需认证]
+│   └── /:id (DELETE) - 删除帖子 [需认证]
+├── favorites/
+│   └── (POST) - 添加收藏 [需认证]
+├── notifications/
+│   └── (GET) - 获取消息通知 [需认证]
+└── upload/
+    └── presigned (POST) - 获取 S3 预签名 URL [需认证]
 ```
 
-**问题分析**:
+### 前端服务实现状态
 
-1. 前端未登录时访问需要认证的接口
-2. 后端数据库连接问题（可能与环境变量加载有关）
-3. 缺少前端路由守卫和 API 错误处理
+| 服务 | 文件 | 状态 | 备注 |
+|:-----|:-----|:-----|:-----|
+| AuthService | `api/services/auth.service.ts` | ✅ | 使用 email 参数 |
+| ChatService | `api/services/chat.service.ts` | ✅ | - |
+| CommunityService | `api/services/community.service.ts` | ✅ | - |
+| DiaryService | `api/services/diary.service.ts` | ✅ | - |
+| FoodService | `api/services/food.service.ts` | ✅ | - |
+| FavoritesService | `api/services/favorites.service.ts` | ✅ | - |
+| NotificationsService | `api/services/notifications.service.ts` | ✅ | - |
+| RecipeService | `api/services/recipe.service.ts` | ✅ | - |
+| UploadService | `api/services/upload.service.ts` | ✅ | - |
+| UserService | `api/services/user.service.ts` | ✅ | - |
+| GamificationService | `api/services/gamification.service.ts` | ✅ | - |
 
-**解决方案**:
+---
 
-### 1. 创建路由守卫 ([useRouteGuard.ts](frontend/packages/core/src/composables/useRouteGuard.ts))
+## 4. API 响应格式
 
+**统一格式**:
 ```typescript
-// 公开路由白名单
-const PUBLIC_ROUTES = [
-  '/pages/index/index',      // 首页
-  '/pages/login/index',      // 登录页
-  '/pages/map/index',        // 空间热力图
-];
-
-// 保护路由（需要登录）
-const PROTECTED_ROUTES = [
-  '/pages/booking/index',
-  '/pages/seat/index',
-  '/pages/my-appointments/index',
-  '/pages/rewards/index',
-  '/pages/profile/index',
-  '/pages/stats/index',
-  '/pages/notifications/index',
-  '/pages/settings/index',
-  '/pages/achievements/index',
-];
-```
-
-使用 `uni.addInterceptor` 拦截所有页面跳转：
-- `navigateTo` - 普通跳转
-- `redirectTo` - 重定向
-- `switchTab` - 切换 Tab
-- `reLaunch` - 重启应用
-
-### 2. 增强 HTTP 适配器错误处理 ([adapters.ts](frontend/packages/ui/src/utils/adapters.ts))
-
-```typescript
-// 401 错误 - 清除登录信息并跳转登录页
-if (res.statusCode === 401) {
-  uni.removeStorageSync('token');
-  uni.removeStorageSync('refreshToken');
-  uni.removeStorageSync('user');
-  uni.reLaunch({ url: '/pages/login/index' });
-  reject(new Error('登录已过期，请重新登录'));
-}
-
-// 500 错误 - 友好提示
-if (res.statusCode === 500) {
-  console.error('[UniHttp] 服务器错误:', res.data);
-  reject(new Error('服务器错误，请稍后重试'));
+{
+  success: boolean,
+  data?: T,
+  message?: string,
+  error?: string,
+  timestamp?: number
 }
 ```
 
-### 3. App.vue 初始化 ([App.vue](frontend/packages/ui/src/App.vue))
-
-```typescript
-onLaunch(async () => {
-  // 1. 恢复用户登录状态
-  await userStore.restore();
-
-  // 2. 设置路由守卫
-  setupRouteGuard();
-});
+**错误响应示例**:
+```json
+{
+  "success": false,
+  "code": "UNAUTHORIZED",
+  "message": "未提供认证令牌",
+  "timestamp": 1770394472948
+}
 ```
-
-**效果**:
-- ✅ 未登录用户访问保护路由 → 自动跳转登录页
-- ✅ API 返回 401 → 自动清除登录状态并跳转登录页
-- ✅ API 返回 500 → 显示友好错误提示
 
 ---
 
+## 5. 问题解决状态
+
+### 5.1 后端服务重启 ✅ 已完成
+- [x] 后端服务已重启，新端点已生效
+- [x] 路由注册验证：/api/auth/dev/code 已映射
+
+### 5.2 认证流程测试 ✅ 已完成
+- [x] 测试发送验证码 - 正常
+- [x] 测试邮箱验证码登录 - 正常
+- [x] 测试获取用户资料 - 正常
+- [x] 测试仪表盘 API - 正常
+- [x] 401 错误响应格式 - 统一正确
+
+### 5.3 前端集成 (进行中)
+- [ ] 更新登录页面使用新的 authStore
+- [ ] 添加 401 错误处理和自动登出
+- [ ] 测试完整的登录流程
+
+---
+
+**最后更新**: 2026-02-06

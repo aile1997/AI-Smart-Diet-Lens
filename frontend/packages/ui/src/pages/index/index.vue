@@ -80,10 +80,17 @@ const logMeal = () => {
   uni.switchTab({ url: '/pages/scan/index' })
 }
 
-// 跳转到烹饪助手页面
+// 跳转到烹饪助手页面（直接生成）
 const goToCookingAssistant = () => {
   uni.navigateTo({
     url: '/pages/cooking-assistant/index'
+  })
+}
+
+// 跳转到 AI 聊天页面（对话定制）
+const goToAIChat = () => {
+  uni.navigateTo({
+    url: '/pages/ai-chat/index'
   })
 }
 </script>
@@ -214,13 +221,22 @@ const goToCookingAssistant = () => {
           </view>
           <text class="text-xl font-bold text-[#0e1a13] dark:text-white mb-2">AI 为你定制今日餐单</text>
           <text class="text-sm text-slate-500 dark:text-sage-400 mb-5 leading-relaxed">
-            根据您的代谢数据与健康目标，智能生成个性化营养食谱。
+            通过 AI 对话表达你的口味偏好，或直接为您智能匹配。
           </text>
-          <view
-            @tap="goToCookingAssistant"
-            class="w-full py-3 bg-primary text-white rounded-2xl font-bold text-sm shadow-glow active:scale-[0.98] transition-transform flex items-center justify-center"
-          >
-            <text>开始定制</text>
+          <view class="flex gap-3">
+            <view
+              @tap="goToCookingAssistant"
+              class="flex-1 py-3 bg-primary text-white rounded-2xl font-bold text-sm shadow-glow active:scale-95 transition-transform text-center"
+            >
+              <text>直接生成</text>
+            </view>
+            <view
+              @tap="goToAIChat"
+              class="flex-1 py-3 bg-transparent border border-primary text-primary rounded-2xl font-bold text-sm active:scale-95 transition-transform flex items-center justify-center gap-1.5 active:bg-primary/5"
+            >
+              <text class="material-symbols-outlined text-lg">chat_bubble</text>
+              <text>对话定制</text>
+            </view>
           </view>
         </view>
       </view>

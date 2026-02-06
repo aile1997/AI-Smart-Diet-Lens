@@ -1,9 +1,14 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
+import { SystemModule } from './modules/system/system.module'
+import { DashboardModule } from './modules/dashboard/dashboard.module'
 import { AuthModule } from './modules/auth/auth.module'
 import { UserModule } from './modules/user/user.module'
 import { FoodModule } from './modules/food/food.module'
 import { DiaryModule } from './modules/diary/diary.module'
+import { GamificationModule } from './modules/gamification/gamification.module'
+import { RecipeModule } from './modules/recipe/recipe.module'
+import { UploadModule } from './modules/upload/upload.module'
 import { PrismaModule } from './common/prisma.module'
 
 @Module({
@@ -18,10 +23,15 @@ import { PrismaModule } from './common/prisma.module'
     PrismaModule,
 
     // 功能模块
+    SystemModule,
+    DashboardModule,
     AuthModule,
     UserModule,
     FoodModule,
     DiaryModule,
+    GamificationModule,
+    RecipeModule,
+    UploadModule,
   ],
 })
 export class AppModule {}

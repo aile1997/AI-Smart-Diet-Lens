@@ -13,21 +13,37 @@ datasource db {
 /// 用户表
 model User {
   id        String   @id @default(cuid())
-  phone     String   @unique
+  email     String   @unique
   nickname  String?
   avatar    String?
+
+  // 微信授权相关
+  wechatOpenid   String?  @unique  /// 微信 OpenID
+  wechatUnionid  String?            /// 微信 Unionid (多应用共享)
+
+  // 邮箱验证相关
+  emailVerified  Boolean  @default(false)
+  verificationCode String? /// 验证码 (6位数字)
   gender    String?
   age       Int?
   height    Float?   /// 身高 (cm)
   weight    Float?   /// 体重 (kg)
+  bodyFat   Float?   /// 体脂率 (%)
   goal      String?  /// 健身目标: lose_weight | maintain | gain_muscle
-  activityLevel String? /// 活动等级
+  activityLevel Float? /// 活动等级系数
   dailyCalorieTarget Int? /// 每日目标热量
+  targetWeight Float? /// 目标体重
+
+  /// 宏量营养素目标 (g)
+  proteinTarget Float? /// 蛋白质目标
+  carbsTarget   Float? /// 碳水目标
+  fatTarget     Float? /// 脂肪目标
 
   onboardingCompleted Boolean @default(false)
 
   diaryEntries DiaryEntry[]
   achievements UserAchievement[]
+  healthMetrics HealthMetric[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -63,7 +79,7 @@ model Food {
 model DiaryEntry {
   id       String @id @default(cuid())
   userId   String
-  foodId   String
+  foodId   String? /// 可选：关联到食物库
   mealType String /// breakfast | lunch | dinner | snack
   portion  Float  /// 份量 (g)
   date     String /// YYYY-MM-DD
@@ -77,7 +93,7 @@ model DiaryEntry {
   note String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  food Food @relation(fields: [foodId], references: [id])
+  food Food? @relation(fields: [foodId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -114,4 +130,21 @@ model UserAchievement {
 
   @@unique([userId, achievementId])
   @@map("user_achievements")
+}
+
+/// 健康指标记录
+model HealthMetric {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String   /// STEPS | BODY_FAT | WEIGHT | SLEEP | ACTIVE_CALORIES
+  value     Float
+  recordedAt DateTime /// 记录时间
+  source    String?  /// 来源: YOLANDA_SCALE | APPLE_HEALTH | GOOGLE_FIT | MANUAL
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, type, recordedAt])
+  @@map("health_metrics")
 }

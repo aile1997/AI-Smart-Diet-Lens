@@ -7,6 +7,7 @@ import {
   Param,
   UseGuards,
 } from '@nestjs/common'
+import { Throttle } from '@nestjs/throttler'
 import { FoodService } from './food.service'
 import { AnalyzeFoodDto } from './dto/analyze.dto'
 import { SearchFoodDto } from './dto/search.dto'
@@ -51,6 +52,7 @@ export class FoodController {
    * 文本模糊搜索
    */
   @Get('search')
+  @Throttle({ short: { limit: 30, ttl: 60000 } })
   @ApiOperation({ summary: '搜索食物', description: '通过食物名称模糊搜索' })
   @ApiQuery({ name: 'q', required: true, description: '搜索关键词' })
   @ApiQuery({ name: 'page', required: false, description: '页码，默认 1' })
@@ -70,6 +72,7 @@ export class FoodController {
    * 条形码查询
    */
   @Get('barcode/:code')
+  @Throttle({ short: { limit: 30, ttl: 60000 } })
   @ApiOperation({ summary: '条形码查询', description: '通过 EAN 条形码查找食物' })
   @SwaggerApiResponse({ status: 200, description: '成功返回食物信息' })
   async findByBarcode(@Param('code') code: string) {

@@ -14,7 +14,7 @@ export class AuthController {
    * 发送邮箱验证码 (限流: 每 IP 每分钟 5 次)
    */
   @Post('send-code')
-  @Throttle({ name: 'short', limit: 5, ttl: 60000 })
+  @Throttle({ short: { limit: 5, ttl: 60000 } })
   @ApiOperation({ summary: '发送验证码', description: '向用户邮箱发送 6 位数字验证码' })
   @SwaggerApiResponse({ status: 200, description: '验证码已发送' })
   async sendCode(@Body() dto: SendCodeDto) {
@@ -27,7 +27,7 @@ export class AuthController {
    * 邮箱验证码登录 (限流: 每 IP 每分钟 10 次)
    */
   @Post('login/email')
-  @Throttle({ name: 'short', limit: 10, ttl: 60000 })
+  @Throttle({ short: { limit: 10, ttl: 60000 } })
   @ApiOperation({ summary: '邮箱登录', description: '使用邮箱和验证码登录' })
   @SwaggerApiResponse({ status: 200, description: '登录成功，返回 JWT Token' })
   async loginWithEmail(@Body() dto: EmailLoginDto) {
@@ -39,7 +39,7 @@ export class AuthController {
    * 微信授权登录
    */
   @Post('login/wechat')
-  @Throttle({ name: 'short', limit: 10, ttl: 60000 })
+  @Throttle({ short: { limit: 10, ttl: 60000 } })
   @ApiOperation({ summary: '微信登录', description: '使用微信授权码登录' })
   @SwaggerApiResponse({ status: 200, description: '登录成功，返回 JWT Token' })
   async loginWithWechat(@Body() dto: WechatLoginDto) {

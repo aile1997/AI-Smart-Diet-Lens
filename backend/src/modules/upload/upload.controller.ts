@@ -20,7 +20,7 @@ export class UploadController {
    * 获取 S3 预签名上传 URL
    */
   @Get('presigned')
-  @Throttle({ name: 'short', limit: 20, ttl: 60000 })
+  @Throttle({ short: { limit: 20, ttl: 60000 } })
   @ApiOperation({
     summary: '获取预签名 URL',
     description: '用于前端直接上传图片到 S3，获取预签名的 PUT URL'

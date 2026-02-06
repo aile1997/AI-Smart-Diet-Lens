@@ -268,6 +268,7 @@ const navigateBack = () => {
         </view>
       </view>
     </view>
+    <BottomNav />
   </view>
 </template>
 

@@ -309,6 +309,7 @@ const handleMenuClick = (item: any) => {
         </view>
       </view>
     </view>
+    <BottomNav />
   </view>
 </template>
 

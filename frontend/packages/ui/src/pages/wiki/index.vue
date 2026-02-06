@@ -204,6 +204,7 @@ const selectFilter = (filter: string) => {
         </view>
       </view>
     </view>
+    <BottomNav />
   </view>
 </template>
 

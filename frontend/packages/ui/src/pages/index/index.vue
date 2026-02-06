@@ -252,6 +252,7 @@ const goToCookingAssistant = () => {
         </view>
       </view>
     </view>
+    <BottomNav />
   </view>
 </template>
 

@@ -119,7 +119,7 @@ const goToAIChat = () => {
             <circle class="text-primary progress-ring-circle" cx="128" cy="128" fill="transparent" r="110" stroke="currentColor" stroke-dasharray="691" stroke-dashoffset="200" stroke-linecap="round" stroke-width="18"></circle>
           </svg>
           <view class="absolute flex flex-col items-center justify-center text-center inset-0 z-10">
-            <text class="text-slate-400 dark:text-sage-300 text-sm font-semibold mb-1">剩余</text>
+            <text class="text-slate-400 dark:text-sage-300 text-sm font-semibold uppercase tracking-widest mb-1">剩余可摄入</text>
             <text class="text-5xl font-extrabold text-[#0e1a13] dark:text-white tracking-tight">{{ remaining.toLocaleString() }}</text>
             <text class="text-slate-500 dark:text-sage-300 text-sm font-medium mt-1">千卡预算</text>
           </view>
@@ -189,7 +189,7 @@ const goToAIChat = () => {
             <text class="text-2xl font-bold text-[#0e1a13] dark:text-white">7<text class="text-base font-medium text-slate-500 dark:text-sage-400">小时</text> 20<text class="text-base font-medium text-slate-500 dark:text-sage-400">分</text></text>
             <text class="text-xs text-indigo-500 dark:text-indigo-400 font-medium mt-1 flex items-center gap-1">
               <text class="material-symbols-outlined text-[10px]">trending_up</text>
-              <text>恢复良好</text>
+              <text>睡眠质量佳</text>
             </text>
           </view>
         </view>
@@ -257,9 +257,9 @@ const goToAIChat = () => {
               <text class="material-symbols-outlined text-4xl">restaurant_menu</text>
             </view>
           </view>
-          <text class="text-base font-bold text-[#0e1a13] dark:text-white mb-1">餐盘是空的</text>
+          <text class="text-base font-bold text-[#0e1a13] dark:text-white mb-1">您的餐盘是空的</text>
           <text class="text-sm text-slate-500 dark:text-sage-400 max-w-[200px] leading-relaxed">
-            记录第一餐解锁个性化洞察
+            记录您的第一顿餐食，解锁个性化分析建议。
           </text>
           <view @tap="logMeal" class="mt-5 px-5 py-2.5 rounded-full bg-sage-100 dark:bg-sage-800 text-slate-700 dark:text-sage-200 text-sm font-bold hover:bg-sage-200 dark:hover:bg-sage-700 transition-colors inline-flex items-center gap-2">
             <text class="material-symbols-outlined text-lg">add</text>

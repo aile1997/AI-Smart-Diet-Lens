@@ -12,6 +12,7 @@ interface ChatMessage {
   isUser: boolean
   content: string
   timestamp: string
+  richContent?: string  // 富文本内容（带 HTML 标签）
   recipeCard?: {
     name: string
     image: string
@@ -40,6 +41,7 @@ const messages = ref<ChatMessage[]>([
     id: '3',
     isUser: false,
     content: '没问题，为您推荐一道非常适合的低卡高蛋白食谱。',
+    richContent: '没问题，为您推荐一道非常适合的<span style="color: #34C759; font-weight: bold;">低卡高蛋白</span>食谱。',
     timestamp: '',
     recipeCard: {
       name: '清炒蒜香西兰花鸡胸',
@@ -165,7 +167,8 @@ const viewRecipe = () => {
                   : 'bg-white text-slate-700 rounded-tl-sm border border-slate-100/50'
               ]"
             >
-              <text class="text-[15px] leading-relaxed">{{ msg.content }}</text>
+              <rich-text v-if="msg.richContent" :nodes="msg.richContent" class="text-[15px] leading-relaxed"></rich-text>
+              <text v-else class="text-[15px] leading-relaxed">{{ msg.content }}</text>
             </view>
 
             <!-- Recipe Card (if exists) -->

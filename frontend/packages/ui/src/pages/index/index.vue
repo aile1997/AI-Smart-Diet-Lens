@@ -290,4 +290,12 @@ const goToAIChat = () => {
 .font-variation-FILL-1 {
   font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
+
+.shadow-glow {
+  box-shadow: 0 0 25px -5px rgba(52, 199, 89, 0.4);
+}
+
+.shadow-card {
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03);
+}
 </style>

@@ -55,10 +55,36 @@ async function bootstrap() {
   app.useGlobalFilters(new GlobalExceptionFilter())
 
   // CORS 配置
+  // 开发环境允许多个前端端口，生产环境应配置具体域名
+  const allowedOrigins = process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(',')
+    : [
+        'http://localhost:5173', // Vite 默认端口
+        'http://localhost:3001', // 备用前端端口
+        'http://127.0.0.1:5173',
+        'http://127.0.0.1:3001',
+      ]
+
   app.enableCors({
-    origin: process.env.CORS_ORIGIN ?? '*',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    origin: (origin, callback) => {
+      // 允许没有 origin 的请求（如移动应用、Postman）
+      if (!origin) return callback(null, true)
+
+      // 开发环境允许所有 localhost
+      if (allowedOrigins.includes('*') || origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1')) {
+        return callback(null, true)
+      }
+
+      // 检查是否在允许列表中
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true)
+      } else {
+        callback(new Error(`CORS: 来源 ${origin} 不被允许`))
+      }
+    },
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
+    allowedHeaders: 'Content-Type,Authorization',
   })
 
   // 全局前缀

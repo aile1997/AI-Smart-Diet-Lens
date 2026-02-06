@@ -1,11 +1,14 @@
 <script setup lang="ts">
 /**
  * 底部导航栏组件
- * 
+ *
  * 统一应用底部导航，解决原生 TabBar 图标加载问题
- * 采用 Material Symbols 设计风格，与 food-detail 页面保持一致
+ * 采用 Material Symbols 设计风格
+ *
+ * 顺序必须与 pages.json 中的 tabBar.list 保持一致
  */
 import { computed } from 'vue'
+import { PRIMARY } from '@/constants/theme'
 
 interface NavItem {
   path: string
@@ -16,9 +19,9 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { path: '/pages/index/index', icon: 'home', label: '首页' },
+  { path: '/pages/scan/index', icon: 'photo_camera', label: '拍照' },
   { path: '/pages/diary/index', icon: 'menu_book', label: '日记' },
-  { path: '/pages/scan/index', icon: 'photo_camera', label: '识别', isFab: true },
-  { path: '/pages/wiki/index', icon: 'bar_chart', label: '百科' },
+  { path: '/pages/wiki/index', icon: 'menu_book', label: '百科' },
   { path: '/pages/profile/index', icon: 'person', label: '我的' },
 ]
 
@@ -69,7 +72,10 @@ const isActive = (path: string) => {
       >
         <!-- FAB 中心按钮 -->
         <template v-if="item.isFab">
-          <view class="w-14 h-14 rounded-full bg-[#38e07b] text-white shadow-lg shadow-[#38e07b]/40 flex items-center justify-center -mt-10 active:scale-95 transition-all border-4 border-white">
+          <view
+            class="w-14 h-14 rounded-full flex items-center justify-center -mt-10 active:scale-95 transition-all border-4 border-white"
+            :style="{ backgroundColor: PRIMARY, color: 'white', boxShadow: `0 10px 40px -10px ${PRIMARY}66` }"
+          >
             <text class="material-symbols-outlined text-[28px]">{{ item.icon }}</text>
           </view>
           <text class="text-[10px] font-medium text-gray-400 mt-1 block">{{ item.label }}</text>
@@ -79,13 +85,14 @@ const isActive = (path: string) => {
         <template v-else>
           <text
             class="material-symbols-outlined text-[26px]"
-            :class="isActive(item.path) ? 'text-[#38e07b] fill-current' : 'text-gray-400'"
+            :class="isActive(item.path) ? 'fill-current' : 'text-gray-400'"
+            :style="{ color: isActive(item.path) ? PRIMARY : '' }"
           >
             {{ item.icon }}
           </text>
           <text
             class="text-[10px] font-medium"
-            :class="isActive(item.path) ? 'text-[#38e07b]' : 'text-gray-400'"
+            :style="{ color: isActive(item.path) ? PRIMARY : '' }"
           >
             {{ item.label }}
           </text>

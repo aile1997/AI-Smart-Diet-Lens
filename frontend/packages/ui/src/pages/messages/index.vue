@@ -5,14 +5,11 @@
  * 显示系统通知、点赞收藏、互动评论、私信等
  */
 import { ref } from 'vue'
+import PageHeader from '@/components/PageHeader.vue'
 import BottomNav from '@/components/BottomNav.vue'
+import { BG_PAGE, SUCCESS } from '@/constants/theme'
 
 const searchQuery = ref('')
-
-// 返回
-const navigateBack = () => {
-  uni.navigateBack()
-}
 
 // 全部已读
 const markAllRead = () => {
@@ -102,19 +99,13 @@ const handleMessageClick = (item: typeof recentMessages.value[0]) => {
 </script>
 
 <template>
-  <view class="relative w-full min-h-screen bg-[#F5F7F8]">
+  <view class="relative w-full min-h-screen" :style="{ backgroundColor: BG_PAGE }">
     <!-- Header -->
-    <view class="sticky top-0 z-30 px-4 pt-14 pb-4 bg-[#F5F7F8]/90 backdrop-blur-md flex items-center justify-between">
-      <view @tap="navigateBack" class="w-10 h-10 -ml-2 rounded-full flex items-center justify-center text-slate-800 active:bg-black/5 active:bg-black/10 transition-colors">
-        <text class="material-symbols-outlined text-[22px]">arrow_back_ios_new</text>
-      </view>
-      <text class="text-[17px] font-bold text-slate-900 tracking-tight absolute left-1/2 -translate-x-1/2">消息中心</text>
-      <view class="w-10 h-10 flex items-center justify-center">
-        <view @tap="markAllRead" class="text-slate-900">
-          <text class="material-symbols-outlined text-[24px]">mark_chat_read</text>
-        </view>
-      </view>
-    </view>
+    <PageHeader
+      title="消息中心"
+      :right-icon="'mark_chat_read'"
+      @right-click="markAllRead"
+    />
 
     <!-- Search -->
     <view class="px-5 mb-6 mt-2">
@@ -124,7 +115,7 @@ const handleMessageClick = (item: typeof recentMessages.value[0]) => {
         </view>
         <input
           v-model="searchQuery"
-          class="block w-full pl-10 pr-3 py-2.5 border-none rounded-xl bg-white shadow-sm text-sm placeholder-gray-400 focus:ring-2 focus:ring-[#769f96]/50 transition-shadow"
+          class="block w-full pl-10 pr-3 py-2.5 border-none rounded-xl bg-white shadow-sm text-sm placeholder-gray-400 focus:ring-2 focus:ring-green-400/50 transition-shadow"
           placeholder="搜索通知..."
           type="text"
         />
@@ -149,7 +140,7 @@ const handleMessageClick = (item: typeof recentMessages.value[0]) => {
             ]">
               <text class="material-symbols-outlined filled text-[24px]">{{ item.icon }}</text>
             </view>
-            <view v-if="item.unread" class="absolute top-0 right-0 w-3 h-3 bg-[#34C759] rounded-full border-2 border-white shadow-sm"></view>
+            <view v-if="item.unread" class="absolute top-0 right-0 w-3 h-3 rounded-full border-2 border-white shadow-sm" :style="{ backgroundColor: SUCCESS }"></view>
           </view>
           <view class="flex-1 min-w-0">
             <view class="flex justify-between items-center mb-1">
@@ -177,13 +168,13 @@ const handleMessageClick = (item: typeof recentMessages.value[0]) => {
           <view class="relative mr-4 shrink-0">
             <view :class="[
               'w-12 h-12 rounded-full flex items-center justify-center overflow-hidden border border-gray-100',
-              item.color === 'sage' ? 'bg-[#e3ebe5] text-[#5a847b]' : '',
+              item.color === 'sage' ? 'bg-primary-light text-primary' : '',
               item.color === 'gray' ? 'bg-gray-100 text-gray-500' : '',
               item.color === 'indigo' ? 'bg-indigo-50 text-indigo-400' : ''
             ]">
               <text class="material-symbols-outlined filled text-[28px]">{{ item.icon }}</text>
             </view>
-            <view v-if="item.unread" class="absolute top-0 right-0 w-3 h-3 bg-[#34C759] rounded-full border-2 border-white shadow-sm"></view>
+            <view v-if="item.unread" class="absolute top-0 right-0 w-3 h-3 rounded-full border-2 border-white shadow-sm" :style="{ backgroundColor: SUCCESS }"></view>
           </view>
           <view class="flex-1 min-w-0">
             <view class="flex justify-between items-center mb-1">

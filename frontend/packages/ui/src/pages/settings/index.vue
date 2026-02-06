@@ -5,12 +5,9 @@
  * 个人信息、同步设置、通知权限、缓存管理
  */
 import { ref } from 'vue'
+import PageHeader from '@/components/PageHeader.vue'
 import BottomNav from '@/components/BottomNav.vue'
-
-// 返回
-const navigateBack = () => {
-  uni.navigateBack()
-}
+import { BG_PAGE, SUCCESS, PRIMARY } from '@/constants/theme'
 
 // Apple Health 同步开关
 const syncAppleHealth = ref(true)
@@ -55,29 +52,28 @@ const appVersion = ref('v1.0.4')
 </script>
 
 <template>
-  <view class="page-container pb-24 overflow-y-auto no-scrollbar bg-[#F5F7F8]">
+  <view class="page-container pb-24 overflow-y-auto no-scrollbar" :style="{ backgroundColor: BG_PAGE }">
     <!-- Header -->
-    <view class="sticky top-0 z-30 bg-[#F5F7F8]/90 backdrop-blur-md border-b border-transparent">
-      <view class="flex flex-col gap-2 px-4 pb-2 pt-2">
-        <view @tap="navigateBack" class="flex items-center h-10 justify-between">
-          <view class="flex items-center gap-1 text-[#34C759]">
-            <text class="material-symbols-outlined -ml-2">arrow_back_ios_new</text>
-            <text class="text-base font-medium">设置</text>
-          </view>
-        </view>
-        <text class="text-slate-900 tracking-tight text-[32px] font-bold leading-tight">系统设置</text>
-      </view>
+    <PageHeader
+      title="系统设置"
+      :show-back="true"
+      back-text="设置"
+    />
+
+    <!-- 大标题 -->
+    <view class="px-4 mt-2 mb-6">
+      <text class="text-slate-900 tracking-tight text-[32px] font-bold leading-tight">系统设置</text>
     </view>
 
-    <view class="flex flex-col gap-6 mt-4">
+    <view class="flex flex-col gap-6">
       <!-- 个人信息 -->
       <view class="mx-4 overflow-hidden rounded-xl bg-white shadow-card">
         <view
-          @tap="handleMenuClick('profile')"
+          @tap="() => handleMenuClick('profile')"
           class="flex items-center justify-between p-4 active:bg-slate-50 transition-colors"
         >
           <view class="flex items-center gap-4 overflow-hidden">
-            <view class="flex items-center justify-center rounded-lg bg-[#34C759]/10 w-8 h-8 text-[#34C759]">
+            <view class="flex items-center justify-center rounded-lg w-8 h-8" :style="{ backgroundColor: `${PRIMARY}15`, color: PRIMARY }">
               <text class="material-symbols-outlined filled text-[20px]">person</text>
             </view>
             <text class="text-slate-900 text-base font-medium truncate">个人信息修改</text>
@@ -93,23 +89,28 @@ const appVersion = ref('v1.0.4')
         <!-- Apple Health 同步 -->
         <view class="flex items-center justify-between p-4 border-b border-slate-100">
           <view class="flex items-center gap-4 overflow-hidden">
-            <view class="flex items-center justify-center rounded-lg bg-[#34C759]/10 w-8 h-8 text-[#34C759]">
+            <view class="flex items-center justify-center rounded-lg w-8 h-8" :style="{ backgroundColor: `${PRIMARY}15`, color: PRIMARY }">
               <text class="material-symbols-outlined filled text-[20px]">favorite</text>
             </view>
             <text class="text-slate-900 text-base font-medium truncate">同步 Apple Health</text>
           </view>
-          <view @tap="toggleSync" class="relative flex h-[31px] w-[51px] items-center rounded-full p-0.5 transition-colors duration-300" :class="syncAppleHealth ? 'bg-[#34C759] justify-end' : 'bg-slate-200 justify-start'">
-            <view class="h-full w-[27px] rounded-full bg-white shadow-sm"></view>
+          <view
+            @tap="toggleSync"
+            class="relative flex h-[31px] w-[51px] items-center rounded-full p-0.5 transition-colors duration-300"
+            :class="syncAppleHealth ? '' : 'bg-slate-200 justify-start'"
+            :style="syncAppleHealth ? { backgroundColor: PRIMARY } : {}"
+          >
+            <view class="h-full w-[27px] rounded-full bg-white shadow-sm" :class="syncAppleHealth ? 'ml-auto' : ''"></view>
           </view>
         </view>
 
         <!-- 通知权限 -->
         <view
-          @tap="handleMenuClick('notifications')"
+          @tap="() => handleMenuClick('notifications')"
           class="flex items-center justify-between p-4 active:bg-slate-50 transition-colors"
         >
           <view class="flex items-center gap-4 overflow-hidden">
-            <view class="flex items-center justify-center rounded-lg bg-[#34C759]/10 w-8 h-8 text-[#34C759]">
+            <view class="flex items-center justify-center rounded-lg w-8 h-8" :style="{ backgroundColor: `${PRIMARY}15`, color: PRIMARY }">
               <text class="material-symbols-outlined filled text-[20px]">notifications</text>
             </view>
             <text class="text-slate-900 text-base font-medium truncate">通知权限</text>
@@ -124,11 +125,11 @@ const appVersion = ref('v1.0.4')
       <!-- 清除缓存 -->
       <view class="mx-4 overflow-hidden rounded-xl bg-white shadow-card">
         <view
-          @tap="handleMenuClick('cache')"
+          @tap="() => handleMenuClick('cache')"
           class="flex items-center justify-between p-4 active:bg-slate-50 transition-colors"
         >
           <view class="flex items-center gap-4 overflow-hidden">
-            <view class="flex items-center justify-center rounded-lg bg-[#34C759]/10 w-8 h-8 text-[#34C759]">
+            <view class="flex items-center justify-center rounded-lg w-8 h-8" :style="{ backgroundColor: `${PRIMARY}15`, color: PRIMARY }">
               <text class="material-symbols-outlined text-[20px]">cleaning_services</text>
             </view>
             <text class="text-slate-900 text-base font-medium truncate">清除缓存</text>
@@ -143,7 +144,7 @@ const appVersion = ref('v1.0.4')
       <!-- Footer -->
       <view class="mt-6 flex flex-col items-center justify-center gap-2 px-4 pb-8">
         <view class="h-16 w-16 rounded-[14px] bg-white shadow-sm flex items-center justify-center mb-2 overflow-hidden border border-slate-100">
-          <view class="h-full w-full bg-gradient-to-br from-blue-400 to-[#34C759] flex items-center justify-center">
+          <view class="h-full w-full flex items-center justify-center" :style="{ background: `linear-gradient(135deg, #60A5FA 0%, ${SUCCESS} 100%)` }">
             <text class="material-symbols-outlined text-white text-[32px]">local_dining</text>
           </view>
         </view>

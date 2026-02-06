@@ -8,6 +8,8 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     BottomNav: typeof import('./components/BottomNav.vue')['default']
-    PageWrapper: typeof import('./components/PageWrapper.vue')['default']
+    EmptyState: typeof import('./components/EmptyState.vue')['default']
+    Loading: typeof import('./components/Loading.vue')['default']
+    Skeleton: typeof import('./components/Skeleton.vue')['default']
   }
 }

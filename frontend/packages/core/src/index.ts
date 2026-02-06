@@ -17,7 +17,10 @@ export * from './composables'
 // 状态管理
 export * from './stores'
 
-// API 服务
+// API 层（新）
+export * from './api'
+
+// 旧版服务（待迁移）
 export * from './services'
 
 // 工具函数

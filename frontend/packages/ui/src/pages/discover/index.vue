@@ -4,8 +4,20 @@
  *
  * 只有两个主标签：百科 和 社区
  */
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useAuthStore, useCommunity } from '@diet-lens/core'
 import BottomNav from '@/components/BottomNav.vue'
+
+const authStore = useAuthStore()
+const isLoggedIn = computed(() => authStore.isLoggedIn)
+
+const {
+  loading: communityLoading,
+  posts: communityPosts,
+  isEmpty: communityEmpty,
+  toggleLike: togglePostLike,
+  fetchPosts,
+} = useCommunity()
 
 // 当前标签：百科 or 社区
 const activeTab = ref<'wiki' | 'community'>('wiki')
@@ -75,82 +87,16 @@ const selectWikiFilter = (filter: string) => {
   wikiFilter.value = filter
 }
 
-// ========== 社区数据 ==========
-const posts = ref([
-  {
-    id: 1,
-    author: {
-      name: 'Alice Chen',
-      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100',
-      location: 'Shanghai',
-      time: '2h ago'
-    },
-    image: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=600',
-    title: 'Avocado Toast',
-    content: 'Sunday brunch done right! Keeping it low carb today. The poached egg was perfect. 🥑🥚',
-    calories: 320,
-    nutritionScore: 9.5,
-    tags: ['Keto', 'HealthyLiving', 'Brunch'],
-    likes: 1200,
-    comments: 45,
-    isLiked: true,
-    isSaved: false
-  },
-  {
-    id: 2,
-    author: {
-      name: 'David Li',
-      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100',
-      location: 'Beijing',
-      time: '5h ago'
-    },
-    image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600',
-    title: 'Salmon Poke Bowl',
-    content: 'Fresh catch for lunch. The protein hit I needed after the gym. Absolutely delicious! 🐟🥢',
-    calories: 510,
-    nutritionScore: 9.8,
-    tags: ['HighProtein', 'PokeBowl'],
-    likes: 892,
-    comments: 24,
-    isLiked: false,
-    isSaved: false
-  },
-  {
-    id: 3,
-    author: {
-      name: 'Sarah Wang',
-      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100',
-      location: 'Chengdu',
-      time: '8h ago'
-    },
-    image: 'https://images.unsplash.com/photo-1511690656952-34342bb5c489?w=600',
-    title: 'Green Energy',
-    content: 'Starting the day with vitamins. 🥝 #MorningRoutine',
-    calories: 180,
-    nutritionScore: 8.9,
-    tags: ['MorningRoutine'],
-    likes: 420,
-    comments: 12,
-    isLiked: false,
-    isSaved: false
-  }
-])
+// ========== 社区功能 ==========
+// 格式化时间
+const formatTime = (dateStr: string) => {
+  const date = new Date(dateStr)
+  const now = new Date()
+  const diff = Math.floor((now.getTime() - date.getTime()) / 1000 / 60) // 分钟
 
-// 点赞
-const toggleLike = (postId: number) => {
-  const post = posts.value.find(p => p.id === postId)
-  if (post) {
-    post.isLiked = !post.isLiked
-    post.likes += post.isLiked ? 1 : -1
-  }
-}
-
-// 收藏
-const toggleSave = (postId: number) => {
-  const post = posts.value.find(p => p.id === postId)
-  if (post) {
-    post.isSaved = !post.isSaved
-  }
+  if (diff < 60) return `${diff}分钟前`
+  if (diff < 1440) return `${Math.floor(diff / 60)}小时前`
+  return `${Math.floor(diff / 1440)}天前`
 }
 
 // 格式化数字
@@ -160,6 +106,39 @@ const formatNumber = (num: number) => {
   }
   return num.toString()
 }
+
+// 点赞
+const handleToggleLike = async (postId: string) => {
+  if (!isLoggedIn.value) {
+    uni.showToast({ title: '请先登录', icon: 'none' })
+    return
+  }
+  try {
+    await togglePostLike(postId)
+  } catch (err) {
+    uni.showToast({ title: '操作失败', icon: 'none' })
+  }
+}
+
+// 跳转到登录页
+const goToLogin = () => {
+  uni.navigateTo({ url: '/pages/onboarding/login' })
+}
+
+// 切换到社区标签时加载数据
+const switchTab = async (tab: 'wiki' | 'community') => {
+  activeTab.value = tab
+  if (tab === 'community' && isLoggedIn.value && communityPosts.value.length === 0) {
+    await fetchPosts()
+  }
+}
+
+// 页面加载时如果默认是社区标签，则加载数据
+onMounted(async () => {
+  if (activeTab.value === 'community' && isLoggedIn.value) {
+    await fetchPosts()
+  }
+})
 </script>
 
 <template>
@@ -176,7 +155,7 @@ const formatNumber = (num: number) => {
       <!-- Tabs: 百科 / 社区 -->
       <view class="flex px-6 justify-between gap-8">
         <view
-          @tap="activeTab = 'wiki'"
+          @tap="switchTab('wiki')"
           class="flex-1 flex flex-col items-center justify-center pb-3 pt-1 relative"
         >
           <text class="text-base font-bold" :class="activeTab === 'wiki' ? 'text-[#38e07b]' : 'text-slate-400'">🔍 百科</text>
@@ -186,7 +165,7 @@ const formatNumber = (num: number) => {
           ></view>
         </view>
         <view
-          @tap="activeTab = 'community'"
+          @tap="switchTab('community')"
           class="flex-1 flex flex-col items-center justify-center pb-3 pt-1 relative"
         >
           <text class="text-base font-bold" :class="activeTab === 'community' ? 'text-[#38e07b]' : 'text-slate-400'">👥 社区</text>
@@ -300,88 +279,111 @@ const formatNumber = (num: number) => {
 
     <!-- ========== 社区内容 ========== -->
     <view v-if="activeTab === 'community'" class="pt-4">
-      <!-- Posts -->
-      <view class="space-y-4">
-        <view
-          v-for="post in posts"
-          :key="post.id"
-          class="bg-white mx-2 shadow-sm rounded-2xl overflow-hidden"
-        >
-          <!-- Author Info -->
-          <view class="flex items-center justify-between px-4 py-3">
-            <view class="flex items-center gap-3">
-              <view
-                class="h-9 w-9 rounded-full bg-gray-200"
-                :style="`background-image: url('${post.author.avatar}'); background-size: cover;`"
-              ></view>
-              <view class="flex flex-col">
-                <text class="text-sm font-bold text-slate-900">{{ post.author.name }}</text>
-                <text class="text-[11px] font-medium text-slate-400">{{ post.author.time }} • {{ post.author.location }}</text>
+      <!-- 未登录提示 -->
+      <view v-if="!isLoggedIn" class="flex flex-col items-center justify-center px-10 py-16">
+        <text class="material-symbols-outlined text-slate-300 text-6xl mb-4">lock</text>
+        <text class="text-base font-medium text-slate-600 mb-2">需要登录</text>
+        <text class="text-sm text-slate-400 text-center mb-6">请先登录以查看社区动态</text>
+        <view class="bg-[#34C759] text-white py-3 px-8 rounded-full font-medium" @tap="goToLogin">
+          去登录
+        </view>
+      </view>
+
+      <template v-else>
+        <!-- Loading State -->
+        <view v-if="communityLoading" class="flex flex-col items-center justify-center py-16">
+          <view class="w-12 h-12 rounded-full border-4 border-slate-200 border-t-[#34C759] animate-spin"></view>
+          <text class="text-sm text-slate-400 mt-4">加载中...</text>
+        </view>
+
+        <!-- Empty State -->
+        <view v-else-if="communityEmpty" class="flex flex-col items-center justify-center py-16">
+          <view class="w-20 h-20 rounded-full bg-slate-100 flex items-center justify-center mb-4">
+            <text class="material-symbols-outlined text-slate-300 text-4xl">forum</text>
+          </view>
+          <text class="text-slate-600 text-base font-medium mb-2">暂无动态</text>
+          <text class="text-slate-400 text-sm">快来发布第一条动态吧</text>
+        </view>
+
+        <!-- Posts -->
+        <view v-else class="space-y-4">
+          <view
+            v-for="post in communityPosts"
+            :key="post.id"
+            class="bg-white mx-2 shadow-sm rounded-2xl overflow-hidden"
+          >
+            <!-- Author Info -->
+            <view class="flex items-center justify-between px-4 py-3">
+              <view class="flex items-center gap-3">
+                <view
+                  v-if="post.user.avatar"
+                  class="h-9 w-9 rounded-full bg-gray-200"
+                  :style="`background-image: url('${post.user.avatar}'); background-size: cover;`"
+                ></view>
+                <view v-else class="h-9 w-9 rounded-full bg-slate-200 flex items-center justify-center">
+                  <text class="material-symbols-outlined text-slate-400">person</text>
+                </view>
+                <view class="flex flex-col">
+                  <text class="text-sm font-bold text-slate-900">{{ post.user.nickname }}</text>
+                  <text class="text-[11px] font-medium text-slate-400">{{ formatTime(post.createdAt) }}</text>
+                </view>
+              </view>
+              <text class="material-symbols-outlined text-[20px] text-slate-400">more_horiz</text>
+            </view>
+
+            <!-- Post Images -->
+            <view v-if="post.images.length > 0" class="relative w-full aspect-square bg-gray-100 overflow-hidden">
+              <image
+                class="w-full h-full"
+                :src="post.images[0]"
+                mode="aspectFill"
+              ></image>
+              <!-- Tags Overlay -->
+              <view v-if="post.tags.length > 0" class="absolute bottom-4 left-4 right-4 flex flex-wrap gap-2">
+                <view
+                  v-for="tag in post.tags.slice(0, 2)"
+                  :key="tag"
+                  class="rounded-full bg-white/95 px-3 py-1.5 shadow-sm"
+                >
+                  <text class="text-xs font-bold text-[#84a98c]">#{{ tag }}</text>
+                </view>
               </view>
             </view>
-            <text class="material-symbols-outlined text-[20px] text-slate-400">more_horiz</text>
-          </view>
 
-          <!-- Post Image -->
-          <view class="relative w-full aspect-square bg-gray-100 overflow-hidden">
-            <image
-              class="w-full h-full"
-              :src="post.image"
-              mode="aspectFill"
-            ></image>
-            <!-- Tags Overlay -->
-            <view class="absolute bottom-4 left-4 right-4 flex flex-wrap gap-2">
-              <view class="flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 shadow-sm">
-                <text class="text-xs">⚡️</text>
-                <text class="text-xs font-bold text-[#84a98c]">{{ post.calories }} 卡路里</text>
+            <!-- Actions -->
+            <view class="flex items-center justify-between px-4 py-3">
+              <view class="flex gap-5">
+                <view @tap="handleToggleLike(post.id)" class="flex items-center gap-1.5">
+                  <text class="material-symbols-outlined text-[26px]" :class="post.isLiked ? 'text-red-500 filled' : 'text-slate-900'">
+                    {{ post.isLiked ? 'favorite' : 'favorite_border' }}
+                  </text>
+                  <text class="text-sm font-semibold text-slate-900">{{ formatNumber(post.likes) }}</text>
+                </view>
+                <view class="flex items-center gap-1.5">
+                  <text class="material-symbols-outlined text-[26px] text-slate-900">chat_bubble</text>
+                </view>
               </view>
-              <view class="flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 shadow-sm">
-                <text class="text-xs">🥗</text>
-                <text class="text-xs font-bold text-[#84a98c]">{{ post.nutritionScore }} 营养评分</text>
-              </view>
+              <text class="material-symbols-outlined text-[26px] text-slate-900">share</text>
             </view>
-          </view>
 
-          <!-- Actions -->
-          <view class="flex items-center justify-between px-4 py-3">
-            <view class="flex gap-5">
-              <view @tap="toggleLike(post.id)" class="flex items-center gap-1.5">
-                <text class="material-symbols-outlined text-[26px]" :class="post.isLiked ? 'text-red-500 filled' : 'text-slate-900'">
-                  {{ post.isLiked ? 'favorite' : 'favorite_border' }}
+            <!-- Content -->
+            <view class="px-4 pb-4">
+              <text class="text-sm text-slate-900 leading-relaxed">
+                {{ post.content }}
+              </text>
+              <view v-if="post.tags.length > 0" class="mt-2 flex gap-2 flex-wrap">
+                <text
+                  v-for="tag in post.tags"
+                  :key="tag"
+                  class="text-xs font-medium text-[#84a98c]"
+                >
+                  #{{ tag }}
                 </text>
-                <text class="text-sm font-semibold text-slate-900">{{ formatNumber(post.likes) }}</text>
               </view>
-              <view class="flex items-center gap-1.5">
-                <text class="material-symbols-outlined text-[26px] text-slate-900">chat_bubble</text>
-                <text class="text-sm font-semibold text-slate-900">{{ post.comments }}</text>
-              </view>
-              <text class="material-symbols-outlined text-[26px] text-slate-900">send</text>
-            </view>
-            <view @tap="toggleSave(post.id)">
-              <text class="material-symbols-outlined text-[26px]" :class="post.isSaved ? 'text-[#84a98c] filled' : 'text-slate-900'">
-                {{ post.isSaved ? 'bookmark' : 'bookmark_border' }}
-              </text>
-            </view>
-          </view>
-
-          <!-- Content -->
-          <view class="px-4 pb-4">
-            <text class="text-sm text-slate-900 leading-relaxed">
-              <text class="font-bold">{{ post.title }}</text>
-              {{ post.content }}
-            </text>
-            <view class="mt-2 flex gap-2">
-              <text
-                v-for="tag in post.tags"
-                :key="tag"
-                class="text-xs font-medium text-[#84a98c]"
-              >
-                #{{ tag }}
-              </text>
             </view>
           </view>
         </view>
-      </view>
+      </template>
     </view>
 
     <BottomNav />

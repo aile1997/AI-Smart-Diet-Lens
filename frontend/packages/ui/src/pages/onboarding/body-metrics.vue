@@ -5,6 +5,7 @@
  * 用于录入身高、体重、年龄等信息，计算基础代谢率 (BMR)
  */
 import { ref, computed } from 'vue'
+import { logger } from '@diet-lens/core'
 
 const height = ref<number>(175)
 const weight = ref<number>(70)
@@ -24,12 +25,7 @@ const navigateBack = () => {
 
 const handleContinue = () => {
   // TODO: 保存身体指标数据到后端
-  console.log('Body metrics:', {
-    height: height.value,
-    weight: weight.value,
-    age: age.value,
-    bmr: bmr.value
-  })
+  logger.debug('保存身体指标', { height: height.value, weight: weight.value, age: age.value, bmr: bmr.value })
   // 跳转到首页或目标设置页面
   uni.switchTab({ url: '/pages/index/index' })
 }

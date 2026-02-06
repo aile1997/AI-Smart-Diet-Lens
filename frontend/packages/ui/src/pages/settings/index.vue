@@ -4,8 +4,14 @@
  *
  * 个人信息、同步设置、通知权限、缓存管理
  */
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import BottomNav from '@/components/BottomNav.vue'
+import { useUserStore } from '@diet-lens/core'
+
+const userStore = useUserStore()
+
+// 用户显示名称
+const userName = computed(() => userStore.displayName)
 
 // 返回
 const navigateBack = () => {
@@ -15,9 +21,18 @@ const navigateBack = () => {
 // Apple Health 同步开关
 const syncAppleHealth = ref(true)
 
+// 从本地存储读取同步设置
+onMounted(() => {
+  const savedSync = uni.getStorageSync('syncAppleHealth')
+  if (savedSync !== '') {
+    syncAppleHealth.value = savedSync
+  }
+})
+
 // 切换开关
 const toggleSync = () => {
   syncAppleHealth.value = !syncAppleHealth.value
+  uni.setStorageSync('syncAppleHealth', syncAppleHealth.value)
   uni.showToast({
     title: syncAppleHealth.value ? '已开启同步' : '已关闭同步',
     icon: 'none'
@@ -28,10 +43,15 @@ const toggleSync = () => {
 const handleMenuClick = (type: string) => {
   switch (type) {
     case 'profile':
-      uni.showToast({ title: '个人信息修改', icon: 'none' })
+      // 跳转到个人资料编辑页
+      uni.navigateTo({ url: '/pages/profile/edit' })
       break
     case 'notifications':
-      uni.showToast({ title: '通知权限已开启', icon: 'none' })
+      uni.openSetting({
+        success: (res) => {
+          console.log('通知设置结果', res)
+        }
+      })
       break
     case 'cache':
       uni.showModal({
@@ -39,7 +59,7 @@ const handleMenuClick = (type: string) => {
         content: '确定要清除缓存吗？',
         success: (res) => {
           if (res.confirm) {
-            uni.showToast({ title: '缓存已清除', icon: 'success' })
+            clearCache()
           }
         }
       })
@@ -47,11 +67,70 @@ const handleMenuClick = (type: string) => {
   }
 }
 
+// 清除缓存
+const clearCache = () => {
+  try {
+    // 获取存储信息
+    const storageInfo = uni.getStorageInfoSync()
+    const cacheSize = storageInfo.currentSize || 0
+
+    // 清除除 token 外的缓存
+    const token = uni.getStorageSync('token')
+    uni.clearStorageSync()
+
+    // 恢复 token
+    if (token) {
+      uni.setStorageSync('token', token)
+    }
+
+    uni.showToast({
+      title: `已清除 ${cacheSize}KB 缓存`,
+      icon: 'success'
+    })
+
+    // 重新计算缓存大小
+    calculateCacheSize()
+  } catch (error) {
+    console.error('清除缓存失败:', error)
+    uni.showToast({
+      title: '清除失败',
+      icon: 'error'
+    })
+  }
+}
+
+// 计算缓存大小
+const calculateCacheSize = () => {
+  try {
+    const storageInfo = uni.getStorageInfoSync()
+    const sizeKB = storageInfo.currentSize || 0
+    const sizeMB = (sizeKB / 1024).toFixed(1)
+    cacheSize.value = `${sizeMB} MB`
+  } catch (error) {
+    cacheSize.value = '0 MB'
+  }
+}
+
 // 缓存大小
-const cacheSize = ref('24.5 MB')
+const cacheSize = ref('0 MB')
 
 // App 版本
 const appVersion = ref('v1.0.4')
+
+// 获取应用版本信息
+onMounted(() => {
+  calculateCacheSize()
+
+  // 尝试从 manifest.json 获取版本
+  // #ifdef APP-PLUS
+  const appid = plus?.runtime?.appid
+  if (appid) {
+    plus.runtime.getProperty(appid, (wgtInfo) => {
+      appVersion.value = `v${wgtInfo.version}`
+    })
+  }
+  // #endif
+})
 </script>
 
 <template>
@@ -70,21 +149,17 @@ const appVersion = ref('v1.0.4')
     </view>
 
     <view class="flex flex-col gap-6 mt-4">
-      <!-- 个人信息 -->
+      <!-- 用户信息卡片 -->
       <view class="mx-4 overflow-hidden rounded-xl bg-white shadow-card">
-        <view
-          @tap="handleMenuClick('profile')"
-          class="flex items-center justify-between p-4 active:bg-slate-50 transition-colors"
-        >
-          <view class="flex items-center gap-4 overflow-hidden">
-            <view class="flex items-center justify-center rounded-lg bg-[#34C759]/10 w-8 h-8 text-[#34C759]">
-              <text class="material-symbols-outlined filled text-[20px]">person</text>
-            </view>
-            <text class="text-slate-900 text-base font-medium truncate">个人信息修改</text>
+        <view class="flex items-center gap-4 p-4">
+          <view class="w-14 h-14 rounded-full bg-[#34C759]/10 flex items-center justify-center text-[#34C759]">
+            <text class="material-symbols-outlined filled text-[28px]">person</text>
           </view>
-          <view class="flex items-center">
-            <text class="material-symbols-outlined text-slate-400 text-[20px]">chevron_right</text>
+          <view class="flex-1">
+            <text class="text-slate-900 text-lg font-medium block">{{ userName }}</text>
+            <text class="text-slate-500 text-sm">查看和编辑个人资料</text>
           </view>
+          <text class="material-symbols-outlined text-slate-400 text-[20px]">chevron_right</text>
         </view>
       </view>
 
@@ -96,7 +171,10 @@ const appVersion = ref('v1.0.4')
             <view class="flex items-center justify-center rounded-lg bg-[#34C759]/10 w-8 h-8 text-[#34C759]">
               <text class="material-symbols-outlined filled text-[20px]">favorite</text>
             </view>
-            <text class="text-slate-900 text-base font-medium truncate">同步 Apple Health</text>
+            <view>
+              <text class="text-slate-900 text-base font-medium block">同步 Apple Health</text>
+              <text class="text-slate-500 text-xs">自动同步健康数据</text>
+            </view>
           </view>
           <view @tap="toggleSync" class="relative flex h-[31px] w-[51px] items-center rounded-full p-0.5 transition-colors duration-300" :class="syncAppleHealth ? 'bg-[#34C759] justify-end' : 'bg-slate-200 justify-start'">
             <view class="h-full w-[27px] rounded-full bg-white shadow-sm"></view>
@@ -112,10 +190,13 @@ const appVersion = ref('v1.0.4')
             <view class="flex items-center justify-center rounded-lg bg-[#34C759]/10 w-8 h-8 text-[#34C759]">
               <text class="material-symbols-outlined filled text-[20px]">notifications</text>
             </view>
-            <text class="text-slate-900 text-base font-medium truncate">通知权限</text>
+            <view>
+              <text class="text-slate-900 text-base font-medium block">通知权限</text>
+              <text class="text-slate-500 text-xs">接收消息和提醒</text>
+            </view>
           </view>
           <view class="flex items-center gap-2">
-            <text class="text-slate-500 text-sm font-medium">已开启</text>
+            <text class="text-slate-500 text-sm font-medium">去设置</text>
             <text class="material-symbols-outlined text-slate-400 text-[20px]">chevron_right</text>
           </view>
         </view>
@@ -131,7 +212,10 @@ const appVersion = ref('v1.0.4')
             <view class="flex items-center justify-center rounded-lg bg-[#34C759]/10 w-8 h-8 text-[#34C759]">
               <text class="material-symbols-outlined text-[20px]">cleaning_services</text>
             </view>
-            <text class="text-slate-900 text-base font-medium truncate">清除缓存</text>
+            <view>
+              <text class="text-slate-900 text-base font-medium block">清除缓存</text>
+              <text class="text-slate-500 text-xs">释放本地存储空间</text>
+            </view>
           </view>
           <view class="flex items-center gap-2">
             <text class="text-slate-500 text-sm font-medium">{{ cacheSize }}</text>

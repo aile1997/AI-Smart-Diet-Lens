@@ -9,6 +9,12 @@
     "usingComponents": true,
     "nvueStyleCompiler": "uni-app",
     "compilerVersion": 3,
+    "splashscreen": {
+      "alwaysShowBeforeRender": true,
+      "waiting": true,
+      "autoclose": true,
+      "delay": 0
+    },
     "modules": {},
     "distribute": {
       "android": {
@@ -18,6 +24,13 @@
       "sdkConfigs": {}
     }
   },
+  "app-harmony": {
+    "distribute": {}
+  },
+  "mp-harmony": {
+    "distribute": {}
+  },
+  "quickapp": {},
   "mp-weixin": {
     "appid": "",
     "setting": {
@@ -28,5 +41,25 @@
     },
     "usingComponents": true
   },
-  "vueVersion": "3"
+  "mp-alipay": {
+    "usingComponents": true
+  },
+  "mp-baidu": {
+    "usingComponents": true
+  },
+  "mp-toutiao": {
+    "usingComponents": true
+  },
+  "uniStatistics": {
+    "enable": false
+  },
+  "vueVersion": "3",
+  "h5": {
+    "router": {
+      "mode": "hash"
+    },
+    "devServer": {
+      "port": 5173
+    }
+  }
 }

@@ -5,6 +5,7 @@
  * 用户注册界面，包含手机号验证码注册流程
  */
 import { ref } from 'vue'
+import { logger } from '@diet-lens/core'
 
 const phone = ref<string>('')
 const code = ref<string>('')
@@ -25,7 +26,7 @@ const navigateToBodyMetrics = () => {
 
 const handleGetCode = () => {
   // TODO: 实现获取验证码逻辑
-  console.log('Get code for:', phone.value)
+  logger.debug('请求发送验证码')
 }
 
 const handleRegister = () => {
@@ -34,7 +35,7 @@ const handleRegister = () => {
     return
   }
   // TODO: 实现注册逻辑
-  console.log('Register', { phone: phone.value, code: code.value, password: password.value })
+  logger.debug('用户注册请求')
   navigateToBodyMetrics()
 }
 </script>

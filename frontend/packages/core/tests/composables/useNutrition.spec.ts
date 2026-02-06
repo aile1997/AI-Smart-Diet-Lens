@@ -8,15 +8,15 @@ import { ActivityLevel, GoalType } from '../../src/types/user'
 
 describe('calculateBMR', () => {
   it('应正确计算男性 BMR', () => {
-    // Mifflin-St Jeor: 10 * 75 + 6.25 * 175 - 5 * 30 + 5 = 1694
+    // Mifflin-St Jeor: 10 * 75 + 6.25 * 175 - 5 * 30 + 5 = 1698.75 ≈ 1699
     const result = calculateBMR(75, 175, 30, 'male')
-    expect(result).toBe(1694)
+    expect(result).toBe(1699)
   })
 
   it('应正确计算女性 BMR', () => {
-    // Mifflin-St Jeor: 10 * 60 + 6.25 * 165 - 5 * 25 - 161 = 1370
+    // Mifflin-St Jeor: 10 * 60 + 6.25 * 165 - 5 * 25 - 161 = 1345.25 ≈ 1345
     const result = calculateBMR(60, 165, 25, 'female')
-    expect(result).toBe(1370)
+    expect(result).toBe(1345)
   })
 })
 

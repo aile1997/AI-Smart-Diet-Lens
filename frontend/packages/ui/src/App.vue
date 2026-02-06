@@ -1,8 +1,15 @@
 <script setup lang="ts">
 import { onLaunch, onShow, onHide } from '@dcloudio/uni-app'
+import { useAuthStore, setupRouteGuard } from '@diet-lens/core'
 
-onLaunch(() => {
+const authStore = useAuthStore()
+
+onLaunch(async () => {
   console.log('App Launch')
+  // 初始化认证状态（从 Storage 恢复 token）
+  await authStore.initAuth()
+  // 设置路由守卫
+  setupRouteGuard()
 })
 
 onShow(() => {

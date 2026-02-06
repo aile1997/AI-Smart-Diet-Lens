@@ -1,11 +1,11 @@
 <script setup lang="ts">
 /**
  * 底部导航栏组件
- *
- * 仅在非 TabBar 页面显示（如 food-detail、messages 等二级页面）
- * 主 TabBar 页面使用 pages.json 中的原生 tabBar
+ * 
+ * 统一应用底部导航，解决原生 TabBar 图标加载问题
+ * 采用 Material Symbols 设计风格，与 food-detail 页面保持一致
  */
-import { ref, computed, onMounted, watch } from 'vue'
+import { computed } from 'vue'
 
 interface NavItem {
   path: string
@@ -17,49 +17,10 @@ interface NavItem {
 const navItems: NavItem[] = [
   { path: '/pages/index/index', icon: 'home', label: '首页' },
   { path: '/pages/diary/index', icon: 'menu_book', label: '日记' },
-  { path: '/pages/scan/index', icon: 'qr_code_scanner', label: '识别', isFab: true },
+  { path: '/pages/scan/index', icon: 'photo_camera', label: '识别', isFab: true },
   { path: '/pages/wiki/index', icon: 'bar_chart', label: '百科' },
   { path: '/pages/profile/index', icon: 'person', label: '我的' },
 ]
-
-// 主 TabBar 页面列表（使用原生 tabBar，不需要自定义 BottomNav）
-const mainTabBarPages = [
-  '/pages/index/index',
-  '/pages/scan/index',
-  '/pages/diary/index',
-  '/pages/wiki/index',
-  '/pages/profile/index'
-]
-
-const visible = ref(false)
-
-const checkVisibility = () => {
-  const pages = getCurrentPages()
-  if (pages.length === 0) {
-    visible.value = false
-    return
-  }
-
-  const currentPage = pages[pages.length - 1]
-  const route = currentPage.route || ''
-  const fullPath = route.startsWith('/') ? route : '/' + route
-
-  // 如果当前页面是主 TabBar 页面，不显示自定义 BottomNav
-  const isMainTabPage = mainTabBarPages.some(page => fullPath === page || fullPath.startsWith(page.replace('/index', '') + '/'))
-  visible.value = !isMainTabPage
-}
-
-onMounted(() => {
-  checkVisibility()
-})
-
-// 监听页面栈变化
-watch(
-  () => getCurrentPages().length,
-  () => {
-    checkVisibility()
-  }
-)
 
 const getCurrentPagePath = () => {
   const pages = getCurrentPages()
@@ -73,16 +34,20 @@ const getCurrentPagePath = () => {
 const currentPath = computed(() => getCurrentPagePath())
 
 const navigateToTab = (path: string) => {
-  uni.switchTab({ url: path })
+  // 由于移除了原生 tabBar，这里使用 reLaunch 或 redirectTo 来模拟切换
+  // 如果是主页面，建议使用 reLaunch 保持状态干净
+  uni.reLaunch({ url: path })
 }
 
 const isActive = (path: string) => {
-  return currentPath.value === path
+  const current = currentPath.value
+  // 兼容带 /index 和不带 /index 的路径
+  return current === path || current === path.replace('/index', '')
 }
 </script>
 
 <template>
-  <view v-if="visible" class="fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-xl border-t border-gray-200 pb-8 pt-3 px-6 z-50">
+  <view class="fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-xl border-t border-gray-200 pb-8 pt-3 px-6 z-50">
     <view class="flex justify-between items-center max-w-sm mx-auto">
       <view
         v-for="item in navItems"
@@ -93,8 +58,8 @@ const isActive = (path: string) => {
       >
         <!-- FAB 中心按钮 -->
         <template v-if="item.isFab">
-          <view class="w-14 h-14 rounded-full bg-[#34C759] text-white shadow-lg shadow-[#34C759]/40 flex items-center justify-center -mt-10 active:scale-95 transition-all border-4 border-white">
-            <text class="material-symbols-outlined text-[28px]">photo_camera</text>
+          <view class="w-14 h-14 rounded-full bg-[#38e07b] text-white shadow-lg shadow-[#38e07b]/40 flex items-center justify-center -mt-10 active:scale-95 transition-all border-4 border-white">
+            <text class="material-symbols-outlined text-[28px]">{{ item.icon }}</text>
           </view>
           <text class="text-[10px] font-medium text-gray-400 mt-1 block">{{ item.label }}</text>
         </template>
@@ -103,13 +68,13 @@ const isActive = (path: string) => {
         <template v-else>
           <text
             class="material-symbols-outlined text-[26px]"
-            :class="isActive(item.path) ? 'text-[#34C759] fill-current' : 'text-gray-400'"
+            :class="isActive(item.path) ? 'text-[#38e07b] fill-current' : 'text-gray-400'"
           >
             {{ item.icon }}
           </text>
           <text
             class="text-[10px] font-medium"
-            :class="isActive(item.path) ? 'text-[#34C759]' : 'text-gray-400'"
+            :class="isActive(item.path) ? 'text-[#38e07b]' : 'text-gray-400'"
           >
             {{ item.label }}
           </text>
@@ -120,5 +85,20 @@ const isActive = (path: string) => {
 </template>
 
 <style scoped>
-/* 底部导航栏样式 */
+.fill-current {
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 48;
+}
+
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+}
 </style>

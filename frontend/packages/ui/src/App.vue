@@ -86,4 +86,17 @@ image {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+/* 彻底隐藏 Uniapp 原生 TabBar 元素 */
+uni-tabbar,
+.uni-tabbar,
+.uni-tabbar-bottom,
+.uni-app--showtabbar uni-page-wrapper::after {
+  display: none !important;
+}
+
+/* 移除原生 TabBar 占位高度 */
+.uni-app--showtabbar uni-page-wrapper {
+  height: 100% !important;
+  padding-bottom: 0 !important;
+}
 </style>

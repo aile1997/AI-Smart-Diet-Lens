@@ -80,8 +80,12 @@ export class DiaryController {
   @Patch('entry/:id')
   @ApiOperation({ summary: '更新饮食记录', description: '修改已有的饮食日记条目' })
   @SwaggerApiResponse({ status: 200, description: '成功更新日记条目' })
-  async updateEntry(@Param('id') id: string, @Body() dto: UpdateDiaryEntryDto) {
-    const entry = await this.diaryService.update(id, dto)
+  async updateEntry(
+    @CurrentUser() user: UserPayload,
+    @Param('id') id: string,
+    @Body() dto: UpdateDiaryEntryDto,
+  ) {
+    const entry = await this.diaryService.update(id, dto, user.sub)
     return ApiResponse.ok(entry)
   }
 
@@ -92,8 +96,11 @@ export class DiaryController {
   @Delete('entry/:id')
   @ApiOperation({ summary: '删除饮食记录', description: '删除指定的饮食日记条目' })
   @SwaggerApiResponse({ status: 200, description: '成功删除日记条目' })
-  async removeEntry(@Param('id') id: string) {
-    const result = await this.diaryService.remove(id)
+  async removeEntry(
+    @CurrentUser() user: UserPayload,
+    @Param('id') id: string,
+  ) {
+    const result = await this.diaryService.remove(id, user.sub)
     return ApiResponse.ok(result)
   }
 }

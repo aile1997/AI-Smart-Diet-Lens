@@ -125,13 +125,18 @@ export class DiaryService {
    * PATCH /api/diary/entry/:id
    * 更新日记条目
    */
-  async update(id: string, dto: UpdateDiaryEntryDto) {
+  async update(id: string, dto: UpdateDiaryEntryDto, userId?: string) {
     const entry = await this.prisma.diaryEntry.findUnique({
       where: { id },
     })
 
     if (!entry) {
       throw new NotFoundException('日记条目不存在')
+    }
+
+    // 所有权检查：只能修改自己的日记
+    if (userId && entry.userId !== userId) {
+      throw new NotFoundException('无权修改其他用户的日记条目')
     }
 
     // 如果更新了份量，需要重新计算营养
@@ -158,13 +163,18 @@ export class DiaryService {
    * DELETE /api/diary/entry/:id
    * 删除日记条目
    */
-  async remove(id: string) {
+  async remove(id: string, userId?: string) {
     const entry = await this.prisma.diaryEntry.findUnique({
       where: { id },
     })
 
     if (!entry) {
       throw new NotFoundException('日记条目不存在')
+    }
+
+    // 所有权检查：只能删除自己的日记
+    if (userId && entry.userId !== userId) {
+      throw new NotFoundException('无权删除其他用户的日记条目')
     }
 
     await this.prisma.diaryEntry.delete({

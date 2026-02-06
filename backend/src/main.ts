@@ -3,9 +3,13 @@ import { ValidationPipe } from '@nestjs/common'
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
 import { AppModule } from './app.module'
 import { GlobalExceptionFilter } from './common/global-exception.filter'
+import { RequestIdMiddleware } from './common/middleware/request-id.middleware'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
+
+  // 请求 ID 中间件 (必须在其他中间件之前)
+  app.use(RequestIdMiddleware)
 
   // Swagger API 文档配置
   const config = new DocumentBuilder()

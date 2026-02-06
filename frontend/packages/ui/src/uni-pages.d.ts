@@ -6,12 +6,19 @@
 type _LocationUrl =
   "/pages/index/index" |
   "/pages/achievements/index" |
+  "/pages/ai-chat/index" |
+  "/pages/analysis/index" |
   "/pages/cooking-assistant/index" |
   "/pages/diary/index" |
+  "/pages/discover/index" |
+  "/pages/favorites/index" |
   "/pages/food-detail/index" |
   "/pages/food-result/index" |
   "/pages/messages/index" |
+  "/pages/my-posts/index" |
+  "/pages/my-reviews/index" |
   "/pages/onboarding/body-metrics" |
+  "/pages/onboarding/goals" |
   "/pages/onboarding/index" |
   "/pages/onboarding/login" |
   "/pages/onboarding/register" |
@@ -19,6 +26,7 @@ type _LocationUrl =
   "/pages/recipe-detail/index" |
   "/pages/scan/index" |
   "/pages/scan-fail/index" |
+  "/pages/settings/index" |
   "/pages/shopping-list/index" |
   "/pages/splash/index" |
   "/pages/wiki/index";

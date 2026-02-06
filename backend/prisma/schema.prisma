@@ -16,6 +16,7 @@ model User {
   email     String   @unique
   nickname  String?
   avatar    String?
+  bio       String?  /// 个人简介
 
   // 微信授权相关
   wechatOpenid   String?  @unique  /// 微信 OpenID
@@ -44,6 +45,11 @@ model User {
   diaryEntries DiaryEntry[]
   achievements UserAchievement[]
   healthMetrics HealthMetric[]
+  chatMessages ChatMessage[]
+  communityPosts CommunityPost[]
+  comments Comment[]
+  favorites Favorite[]
+  messages Message[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -147,4 +153,77 @@ model HealthMetric {
 
   @@index([userId, type, recordedAt])
   @@map("health_metrics")
+}
+
+/// AI 对话消息
+model ChatMessage {
+  id        String   @id @default(cuid())
+  userId    String
+  isUser    Boolean /// true: 用户消息, false: AI 回复
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("chat_messages")
+}
+
+/// 社区帖子
+model CommunityPost {
+  id        String   @id @default(cuid())
+  userId    String
+  content   String   @db.Text
+  images    String[]
+  tags      String[]
+  likes     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comments Comment[]
+
+  @@map("community_posts")
+}
+
+/// 帖子评论
+model Comment {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+
+  post CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("comments")
+}
+
+/// 收藏
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  itemId    String
+  type      String   /// recipe | food
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, itemId, type])
+  @@map("favorites")
+}
+
+/// 系统消息通知
+model Message {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String   /// achievement | reminder | system
+  title     String
+  content   String   @db.Text
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("messages")
 }

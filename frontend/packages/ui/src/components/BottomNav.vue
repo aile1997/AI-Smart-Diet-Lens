@@ -34,15 +34,26 @@ const getCurrentPagePath = () => {
 const currentPath = computed(() => getCurrentPagePath())
 
 const navigateToTab = (path: string) => {
-  // 由于移除了原生 tabBar，这里使用 reLaunch 或 redirectTo 来模拟切换
-  // 如果是主页面，建议使用 reLaunch 保持状态干净
-  uni.reLaunch({ url: path })
+  // 恢复使用 switchTab，这是 Tab 页面切换的标准方式
+  uni.switchTab({ 
+    url: path,
+    fail: (err) => {
+      console.error('Navigation failed:', err)
+      // 如果 switchTab 失败（可能不是 Tab 页面），尝试 navigateTo
+      uni.navigateTo({ url: path })
+    }
+  })
 }
 
 const isActive = (path: string) => {
   const current = currentPath.value
-  // 兼容带 /index 和不带 /index 的路径
-  return current === path || current === path.replace('/index', '')
+  // 移除开头的斜杠进行比较，确保匹配稳定性
+  const normalizedCurrent = current.startsWith('/') ? current.substring(1) : current
+  const normalizedPath = path.startsWith('/') ? path.substring(1) : path
+  
+  return normalizedCurrent === normalizedPath || 
+         normalizedCurrent === normalizedPath.replace('/index', '') ||
+         normalizedCurrent.replace('/index', '') === normalizedPath
 }
 </script>
 

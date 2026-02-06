@@ -4,26 +4,80 @@
  *
  * 首次使用时的引导页面
  */
-const navigateToHome = () => {
-  uni.switchTab({ url: '/pages/index/index' })
-}
+const navigateToLogin = () => {
+  uni.navigateTo({ url: "/pages/onboarding/login" });
+};
+
+const navigateToRegister = () => {
+  uni.navigateTo({ url: "/pages/onboarding/register" });
+};
 </script>
 
 <template>
-  <view class="w-full h-screen flex flex-col items-center justify-center bg-gray-50 p-6 max-w-md mx-auto">
-    <view class="text-center space-y-8">
-      <view>
-        <text class="material-symbols-outlined text-8xl text-primary">auto_awesome</text>
+  <view class="w-full h-screen flex flex-col relative overflow-hidden max-w-md mx-auto">
+    <!-- Full Screen Background Image -->
+    <view class="fixed inset-0 z-0">
+      <!-- Initial slight dim -->
+      <view class="absolute inset-0 bg-black/20 z-10"></view>
+      <!-- Background Image -->
+      <image
+        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCKpU8-BmuUcwnIowcHLeddG0QjxzcRqAUC3sJZg_5r00tXCYQtQCo5ihFBetiL6I8g_FQaSftFCFomjXxPemPbJTmU_jqpNaY3Yf6z2MhUSY1PBqhMyrIvXJc8KBQP_HQTvmhggTs0L_RM75hmHJ775Dw89LgjWwW4yn1AGTQ9J6OjASbbqVeyG6cMvppqKwU1VD2jriqkdnXIaEnmDvE9srD6_pXfqHSwm1Shb1PHut6BllPBBQCatWzlYIyF-GBvV651dwo4hwk2"
+        class="w-full h-full bg-cover bg-center"
+        mode="aspectFill"
+      ></image>
+      <!-- Bottom Gradient Overlay -->
+      <view class="absolute inset-x-0 bottom-0 h-3/4 scrim-gradient z-20 pointer-events-none"></view>
+    </view>
+
+    <!-- Header / Status Bar Area -->
+    <view class="relative z-30 w-full pt-14 px-6 flex justify-center">
+      <!-- Glassmorphism Pill Badge -->
+      <view class="flex items-center gap-2.5 bg-white/10 backdrop-blur-xl border border-white/20 px-5 py-2.5 rounded-full shadow-lg">
+        <view class="bg-primary rounded-full p-1 flex items-center justify-center">
+          <text class="material-symbols-outlined text-gray-900 text-base">qr_code_scanner</text>
+        </view>
+        <text class="text-white text-xs font-bold tracking-widest uppercase opacity-90">AI Smart-Diet Lens</text>
       </view>
-      <view>
-        <text class="text-3xl font-bold text-gray-900 mb-4">欢迎来到 AI Smart Diet</text>
-        <text class="text-gray-500 text-lg mb-6">开始您的健康饮食之旅</text>
+    </view>
+
+    <!-- Main Content Area -->
+    <view class="relative z-30 flex-1 flex flex-col justify-end px-6 pb-12 w-full">
+      <!-- Headlines -->
+      <view class="flex flex-col items-start mb-10">
+        <text class="text-white text-[42px] font-extrabold leading-[1.05] tracking-tight mb-4"> Eat Smarter, </text>
+        <text class="text-[42px] font-extrabold leading-[1.05] tracking-tight mb-4 text-transparent bg-clip-text bg-gradient-to-r from-primary to-green-200">
+          Not Less
+        </text>
+        <text class="text-gray-200 text-lg font-medium leading-relaxed max-w-[90%]">
+          Unlock your metabolic potential with AI-powered nutrition tracking for a better you.
+        </text>
       </view>
-      <view
-        @tap="navigateToHome"
-        class="px-8 py-4 bg-primary text-gray-900 font-bold text-lg rounded-2xl shadow-lg active:opacity-80"
-      >
-        <text>开始使用</text>
+
+      <!-- Action Buttons -->
+      <view class="flex flex-col gap-4 w-full">
+        <!-- Primary Action Button -->
+        <view
+          @tap="navigateToRegister"
+          class="relative w-full h-14 overflow-hidden rounded-2xl p-[1px] shadow-[0_0_40px_-10px_rgba(56,224,123,0.6)] active:scale-[0.98] transition-transform duration-200"
+        >
+          <!-- Button Border Gradient -->
+          <view class="absolute inset-0 bg-gradient-to-r from-primary/80 to-primary/40 rounded-2xl opacity-100"></view>
+          <!-- Button Inner Background -->
+          <view class="relative h-full w-full bg-primary/90 backdrop-blur-md rounded-[14px] flex items-center justify-center gap-2">
+            <text class="text-gray-900 text-base font-bold tracking-wide">Get Started</text>
+            <text class="material-symbols-outlined text-gray-900 text-xl">arrow_forward</text>
+          </view>
+        </view>
+
+        <!-- Secondary Action: Login -->
+        <view @tap="navigateToLogin" class="w-full py-3 flex items-center justify-center rounded-xl active:scale-[0.98] transition-transform">
+          <text class="text-white/90 text-sm font-semibold tracking-wide">Log In</text>
+        </view>
+      </view>
+
+      <!-- Footer -->
+      <view class="mt-8 flex justify-center">
+        <text class="text-white/40 text-[11px] font-medium tracking-wider uppercase text-center"> Powered by Smart-Diet AI Engine </text>
       </view>
     </view>
   </view>
@@ -32,12 +86,52 @@ const navigateToHome = () => {
 <route lang="json">
 {
   "style": {
-    "navigationBarTitleText": "欢迎",
+    "navigationBarTitleText": "",
     "navigationStyle": "custom"
   }
 }
 </route>
 
 <style scoped>
-/* Onboarding page specific styles */
+/* Scrim gradient for bottom fade */
+.scrim-gradient {
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.6) 30%, rgba(0, 0, 0, 0.2) 60%, rgba(0, 0, 0, 0) 100%);
+}
+
+.bg-gradient-to-r {
+  background: linear-gradient(to right, var(--tw-gradient-stops));
+}
+
+.from-primary\/80 {
+  --tw-gradient-from: rgba(56, 224, 123, 0.8);
+  --tw-gradient-to: rgba(56, 224, 123, 0.8);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+
+.to-primary\/40 {
+  --tw-gradient-to: rgba(56, 224, 123, 0.4);
+}
+
+.from-primary {
+  --tw-gradient-from: #38e07b;
+  --tw-gradient-to: #38e07b;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+
+.to-green-200 {
+  --tw-gradient-to: #bcefd6;
+}
+
+.bg-clip-text {
+  background-clip: text;
+  -webkit-background-clip: text;
+}
+
+.text-transparent {
+  color: transparent;
+}
+
+.bg-primary\/90 {
+  background-color: rgba(56, 224, 123, 0.9);
+}
 </style>

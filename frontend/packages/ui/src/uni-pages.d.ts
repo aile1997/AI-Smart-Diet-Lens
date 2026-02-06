@@ -6,12 +6,19 @@
 type _LocationUrl =
   "/pages/index/index" |
   "/pages/achievements/index" |
+  "/pages/cooking-assistant/index" |
   "/pages/diary/index" |
+  "/pages/food-detail/index" |
   "/pages/food-result/index" |
+  "/pages/messages/index" |
+  "/pages/onboarding/body-metrics" |
   "/pages/onboarding/index" |
+  "/pages/onboarding/login" |
+  "/pages/onboarding/register" |
   "/pages/profile/index" |
   "/pages/recipe-detail/index" |
   "/pages/scan/index" |
+  "/pages/scan-fail/index" |
   "/pages/shopping-list/index" |
   "/pages/splash/index" |
   "/pages/wiki/index";

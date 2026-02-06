@@ -68,8 +68,11 @@ const foodItems: FoodItem[] = [
   }
 ]
 
-const navigateToRecipe = () => {
-  uni.navigateTo({ url: '/pages/recipe-detail/index' })
+const navigateToFoodDetail = (foodName?: string) => {
+  const name = foodName || '土鸡蛋'
+  uni.navigateTo({
+    url: `/pages/food-detail/index?name=${encodeURIComponent(name)}`
+  })
 }
 
 const navigateToProfile = () => {
@@ -142,7 +145,7 @@ const selectFilter = (filter: string) => {
             <view
               v-for="(item, idx) in seasonalItems"
               :key="idx"
-              @tap="navigateToRecipe"
+              @tap="navigateToFoodDetail(item.name)"
               class="shrink-0 w-[280px] h-48 relative rounded-2xl overflow-hidden shadow-sm"
             >
               <image :src="item.img" class="absolute inset-0 w-full h-full" mode="aspectFill" />
@@ -175,7 +178,7 @@ const selectFilter = (filter: string) => {
           <view
             v-for="(item, idx) in foodItems"
             :key="idx"
-            @tap="navigateToRecipe"
+            @tap="navigateToFoodDetail(item.name)"
             class="bg-white rounded-2xl p-3 shadow-sm border border-gray-100 active:scale-[0.98] transition-transform flex flex-col"
           >
             <view class="relative aspect-[4/3] mb-3 rounded-xl overflow-hidden bg-gray-100 shrink-0">

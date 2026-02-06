@@ -8,7 +8,8 @@
 export interface HttpConfig {
   url: string
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
-  data?: Record<string, unknown>
+  /** 请求数据，支持任意对象类型 */
+  data?: unknown
   headers?: Record<string, string>
   /** 超时时间 (ms) */
   timeout?: number

@@ -2,7 +2,6 @@
 import { onLaunch, onShow, onHide } from '@dcloudio/uni-app'
 
 onLaunch(() => {
-  // 应用初始化
   console.log('App Launch')
 })
 
@@ -15,11 +14,18 @@ onHide(() => {
 })
 </script>
 
+<template>
+</template>
+
 <style>
-/* 引入 Material Symbols 字体 */
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
 
-/* 全局样式 */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 page {
   background-color: #f8f8f8;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -28,7 +34,13 @@ page {
   flex-direction: column;
 }
 
-/* 统一布局容器，确保在 H5 和小程序端表现一致 */
+page,
+view,
+text,
+image {
+  box-sizing: border-box;
+}
+
 .page-container {
   flex: 1;
   display: flex;
@@ -41,7 +53,6 @@ page {
   background-color: #f8f8f8;
 }
 
-/* Material Symbols Outlined */
 .material-symbols-outlined {
   font-family: 'Material Symbols Outlined';
   font-weight: normal;
@@ -55,12 +66,10 @@ page {
   word-wrap: normal;
 }
 
-/* Font variation settings for filled icons */
 .font-variation-FILL-1 {
   font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 48;
 }
 
-/* 隐藏所有页面的默认滚动条 */
 ::-webkit-scrollbar {
   display: none;
   width: 0 !important;
@@ -69,7 +78,6 @@ page {
   background: transparent;
 }
 
-/* 自定义滚动条隐藏 */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }

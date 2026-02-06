@@ -8,5 +8,6 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     BottomNav: typeof import('./components/BottomNav.vue')['default']
+    PageWrapper: typeof import('./components/PageWrapper.vue')['default']
   }
 }

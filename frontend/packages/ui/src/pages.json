@@ -2,9 +2,27 @@
   "pages": [
     {
       "path": "pages/index/index",
-      "style": {
-        "navigationBarTitleText": "AI Smart Diet Lens"
-      }
+      "style": { "navigationBarTitleText": "智能健康仪表盘" }
+    },
+    {
+      "path": "pages/diary/index",
+      "style": { "navigationBarTitleText": "饮食日记" }
+    },
+    {
+      "path": "pages/scan/index",
+      "style": { "navigationBarTitleText": "拍照识别", "navigationStyle": "custom" }
+    },
+    {
+      "path": "pages/wiki/index",
+      "style": { "navigationBarTitleText": "食材百科" }
+    },
+    {
+      "path": "pages/profile/index",
+      "style": { "navigationBarTitleText": "个人中心", "navigationStyle": "custom" }
+    },
+    {
+      "path": "pages/food-detail/index",
+      "style": { "navigationStyle": "custom" }
     }
   ],
   "globalStyle": {
@@ -12,5 +30,18 @@
     "navigationBarTitleText": "AI Smart Diet Lens",
     "navigationBarBackgroundColor": "#ffffff",
     "backgroundColor": "#f8f8f8"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#38e07b",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
+    "list": [
+      { "pagePath": "pages/index/index", "text": "首页" },
+      { "pagePath": "pages/scan/index", "text": "拍照" },
+      { "pagePath": "pages/diary/index", "text": "日记" },
+      { "pagePath": "pages/wiki/index", "text": "百科" },
+      { "pagePath": "pages/profile/index", "text": "我的" }
+    ]
   }
 }

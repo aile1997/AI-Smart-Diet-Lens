@@ -1,5 +1,5 @@
 import { Catch, ArgumentsHost, ExceptionFilter, HttpStatus, Logger, HttpException } from '@nestjs/common'
-import { Response } from 'express'
+import { Request, Response } from 'express'
 import { BusinessException } from './exceptions'
 import { ApiResponse } from './api-response'
 

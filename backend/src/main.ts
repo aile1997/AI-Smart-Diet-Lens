@@ -4,12 +4,14 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
 import { AppModule } from './app.module'
 import { GlobalExceptionFilter } from './common/global-exception.filter'
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware'
+import { Request, Response, NextFunction } from 'express'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
 
   // 请求 ID 中间件 (必须在其他中间件之前)
-  app.use(RequestIdMiddleware)
+  const requestIdMiddleware = new RequestIdMiddleware()
+  app.use((req: Request, res: Response, next: NextFunction) => requestIdMiddleware.use(req, res, next))
 
   // Swagger API 文档配置
   const config = new DocumentBuilder()
@@ -70,7 +72,7 @@ async function bootstrap() {
       ]
 
   app.enableCors({
-    origin: (origin, callback) => {
+    origin: (origin: string | undefined, callback: (err: Error | null, allow: boolean) => void) => {
       // 允许没有 origin 的请求（如移动应用、Postman）
       if (!origin) return callback(null, true)
 
@@ -83,7 +85,7 @@ async function bootstrap() {
       if (allowedOrigins.includes(origin)) {
         callback(null, true)
       } else {
-        callback(new Error(`CORS: 来源 ${origin} 不被允许`))
+        callback(new Error(`CORS: 来源 ${origin} 不被允许`), false)
       }
     },
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',

@@ -57,6 +57,15 @@ export class ChatService {
   }
 
   /**
+   * 清空对话历史
+   */
+  async clearChatHistory(userId: string): Promise<void> {
+    await this.prisma.chatMessage.deleteMany({
+      where: { userId },
+    })
+  }
+
+  /**
    * 处理用户消息，返回 AI 回复
    * 注意：这是一个模拟实现，生产环境应接入真实的 AI 服务 (如 Gemini API)
    */

@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards } from '@nestjs/common'
+import { Controller, Post, Get, Delete, Body, Query, UseGuards } from '@nestjs/common'
 import { ChatService } from './chat.service'
 import { SendMessageDto, GenerateRecipeDto, ChatResponse } from './dto/chat.dto'
 import { CurrentUser, UserPayload } from '../../common/decorators/current-user.decorator'
@@ -56,7 +56,7 @@ export class ChatController {
    * GET /api/ai/chat/history
    * 获取对话历史
    */
-  @Post('history')
+  @Get('history')
   @ApiOperation({
     summary: '获取对话历史',
     description: '获取最近的对话记录'
@@ -64,9 +64,24 @@ export class ChatController {
   @SwaggerApiResponse({ status: 200, description: '成功返回对话历史' })
   async getHistory(
     @CurrentUser() user: UserPayload,
-    @Body() body: { limit?: number },
+    @Query('limit') limit?: number,
   ) {
-    const history = await this.chatService.getChatHistory(user.sub, body.limit || 10)
+    const history = await this.chatService.getChatHistory(user.sub, limit || 10)
     return ApiResponse.ok(history)
+  }
+
+  /**
+   * DELETE /api/ai/chat/history
+   * 清空对话历史
+   */
+  @Delete('history')
+  @ApiOperation({
+    summary: '清空对话历史',
+    description: '清空当前用户的所有对话记录'
+  })
+  @SwaggerApiResponse({ status: 200, description: '成功清空对话历史' })
+  async clearHistory(@CurrentUser() user: UserPayload) {
+    await this.chatService.clearChatHistory(user.sub)
+    return ApiResponse.ok({ success: true })
   }
 }

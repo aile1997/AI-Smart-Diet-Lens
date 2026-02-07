@@ -523,4 +523,103 @@ import { Request, Response } from 'express'
 
 ---
 
-**最后更新**: 2026-02-06 (前端企业级优化完成 - 10项修复)
+## 后端问题 (2026-02-07)
+
+### 21. API 响应格式不统一 ✅ 已修复
+
+**日期**: 2026-02-07
+
+**严重程度**: 🔴 P0 - 前后端联调失败
+
+**问题描述**:
+部分 API 接口返回的数据格式与前端期望不符，缺少 `ApiResponse.ok()` 包装。
+
+**影响范围**:
+- `user.controller.ts`: 3 个接口 (onboarding, getProfile, updateProfile)
+- `upload.controller.ts`: 1 个接口 (getPresignedUrl)
+
+**解决方案**:
+所有接口统一使用 `ApiResponse.ok(result)` 包装返回值。
+
+**修复提交**:
+- `3c5928a` fix(backend): 修复 API 响应格式不一致问题
+
+**验证**:
+```bash
+# 所有接口现在都返回正确格式
+$ curl -X POST http://localhost:3000/api/auth/send-code \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@example.com"}'
+{"success":true,"message":"验证码已发送"}
+```
+
+---
+
+## 根因分析：为什么后端会犯这种低级错误？
+
+### 错误类型：不一致的响应格式
+
+**问题本质**：同一个项目内，响应格式不统一
+
+**影响范围**：
+- ✅ `dashboard.controller.ts` → `ApiResponse.ok(summary)`
+- ✅ `user.controller.ts` → `ApiResponse.ok(result)`
+- ✅ `food.controller.ts` → `ApiResponse.ok(result)`
+- ❌ `auth.controller.ts` → 直接返回 `service.loginWithEmail()`
+
+### 根本原因分析
+
+#### 1. 代码复用模式不同
+- **大多数 Controller**: 新功能开发时参考了现有代码（dashboard/user），正确使用了 `ApiResponse.ok()`
+- **部分早期接口**: 没有遵循统一模式
+
+#### 2. 缺少 Code Review
+- 这种不一致的问题应该在 PR Review 时被识别
+- 缺少自动化检查或 Lint 规则来强制统一响应格式
+
+#### 3. 缺少统一的类型约束
+- `ApiResponse.ok()` 提供了类型安全的包装
+- 直接返回 Service 结果绕过了这个保护层
+
+#### 4. 开发速度 vs 质量
+- 为了快速实现功能，可能跳过了标准的响应包装
+- 缺少统一的架构规范文档
+
+### 修复后状态 (2026-02-07)
+
+✅ **所有 Controller 已统一使用 ApiResponse.ok()**
+- `auth.controller.ts` ✅
+- `dashboard.controller.ts` ✅
+- `user.controller.ts` ✅
+- `upload.controller.ts` ✅
+- `food.controller.ts` ✅
+- `diary.controller.ts` ✅
+- 其他所有 Controller ✅
+
+✅ **Swagger DTO 注解已完善**
+- 所有 DTO 添加了 `@ApiProperty()` 装饰器
+- 所有 POST 方法添加了 `@ApiBody()` 装饰器
+
+### 预防措施
+
+1. **建立响应格式规范**
+   - 所有 Controller 方法必须使用 `ApiResponse.ok(result)` 包装
+   - Service 返回原始数据，Controller 负责包装
+
+2. **ESLint 规则**
+   - 禁止直接返回 Service 结果
+   - 要求使用 `ApiResponse.ok()` 或 `ApiResponse.error()`
+
+3. **单元测试覆盖**
+   - 测试响应格式必须包含 `success: true`
+   - 测试前端能正确解析响应
+
+4. **Code Review Checklist**
+   - [ ] 响应是否使用了 `ApiResponse.ok()` 包装
+   - [ ] 错误是否使用了 `ApiResponse.error()` 包装
+
+**教训**: 基础架构的一致性比个别功能的快速实现更重要。一次"偷懒"会导致前后端联调失败，浪费更多时间。
+
+---
+
+**最后更新**: 2026-02-07

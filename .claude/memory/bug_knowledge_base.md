@@ -622,4 +622,124 @@ $ curl -X POST http://localhost:3000/api/auth/send-code \
 
 ---
 
+## 后端问题 (2026-02-07 续)
+
+### 22. GET /api/user/profile 接口不存在 ✅ 已修复
+
+**日期**: 2026-02-07
+
+**严重程度**: 🔴 P0 - 前后端接口不匹配
+
+**问题描述**:
+前端调用 `GET /api/user/profile` 获取当前登录用户的资料，但后端只有 `GET /api/user/:id` 路由。
+
+**解决方案**:
+在后端 `user.controller.ts` 添加新的路由 `GET /api/user/profile`，从 token 获取当前用户 ID。
+
+**修复提交**:
+- `bf452de` fix(backend): 添加 GET /api/user/profile 路由
+
+**验证**:
+```bash
+# 路由已正确注册（无 token 返回 401 而不是 404）
+$ curl http://localhost:3000/api/user/profile
+{"success":false,"code":"UNAUTHORIZED","message":"未提供认证令牌"}
+```
+
+**相关文件**:
+- `backend/src/modules/user/user.controller.ts` (需要添加新路由)
+- `frontend/packages/core/src/api/services/user.service.ts` (无需修改)
+
+**注意**: 保留原有的 `GET /api/user/:id` 路由以支持管理员查看其他用户资料的需求。
+
+---
+
+### 23. 注册/登录逻辑混乱 ❌ 待修复
+
+**日期**: 2026-02-07
+
+**严重程度**: 🟡 P1 - 业务逻辑问题
+
+**问题描述**:
+当前 `loginWithEmail` 接口在用户不存在时自动创建账号（"登录即注册"），没有明确的注册流程。
+
+**当前代码**:
+```typescript
+// auth.service.ts 第 70-89 行
+if (!user) {
+  // 自动注册 - 问题在这里！
+  user = await this.prisma.user.create({
+    data: { email, emailVerified: true },
+  })
+}
+```
+
+**问题**:
+- 新用户直接"登录"就创建账号，概念混淆
+- 无法区分"注册"和"登录"两个独立动作
+- 用户体验不佳（不知道自己是注册还是登录）
+
+**正确的流程应该是**:
+
+```
+注册流程：
+1. 用户输入邮箱 → 点击"注册"
+2. 发送验证码
+3. 验证通过 → 创建用户（只有 email，onboardingCompleted=false）
+4. 跳转到入职引导完善信息
+5. onboarding 完成，设置 onboardingCompleted=true
+
+登录流程：
+1. 用户输入邮箱 → 点击"登录"
+2. 发送验证码
+3. 验证通过 → 检查用户状态
+4. 用户不存在 → 提示"账号不存在，请先注册"
+5. 用户存在但未完成 onboarding → 跳转到入职引导
+6. 用户存在且已完成 → 返回 token，登录成功
+```
+
+**建议方案（方案 A）**:
+
+1. **新增注册接口** `POST /api/auth/register/email`:
+   ```typescript
+   async registerWithEmail(email: string, code: string) {
+     // 验证验证码
+     // 检查邮箱是否已注册
+     const existing = await this.prisma.user.findUnique({ where: { email } })
+     if (existing) {
+       throw new ConflictException('该邮箱已注册')
+     }
+     // 创建用户
+     const user = await this.prisma.user.create({
+       data: { email, emailVerified: true, onboardingCompleted: false },
+     })
+     // 返回 token
+     return { token, user }
+   }
+   ```
+
+2. **修改登录接口** `POST /api/auth/login/email`:
+   ```typescript
+   async loginWithEmail(email: string, code: string) {
+     // 验证验证码
+     // 检查用户是否存在
+     const user = await this.prisma.user.findUnique({ where: { email } })
+     if (!user) {
+       throw new UnauthorizedException('账号不存在，请先注册')
+     }
+     // 返回 token 和状态
+     return {
+       token,
+       user,
+       needOnboarding: !user.onboardingCompleted,
+     }
+   }
+   ```
+
+**相关文件**:
+- `backend/src/modules/auth/auth.service.ts`
+- `backend/src/modules/auth/auth.controller.ts`
+
+---
+
 **最后更新**: 2026-02-07

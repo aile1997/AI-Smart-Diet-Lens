@@ -27,14 +27,29 @@ export class AuthController {
   /**
    * POST /api/auth/login/email
    * 邮箱验证码登录 (限流: 每 IP 每分钟 10 次)
+   * 注意：仅限已注册用户，新用户请先注册
    */
   @Post('login/email')
   @Throttle({ short: { limit: 10, ttl: 60000 } })
-  @ApiOperation({ summary: '邮箱登录', description: '使用邮箱和验证码登录' })
+  @ApiOperation({ summary: '邮箱登录', description: '使用邮箱和验证码登录（仅限已注册用户）' })
   @ApiBody({ type: EmailLoginDto })
-  @SwaggerApiResponse({ status: 200, description: '登录成功，返回 JWT Token' })
+  @SwaggerApiResponse({ status: 200, description: '登录成功，返回 JWT Token 和用户信息' })
   async loginWithEmail(@Body() dto: EmailLoginDto) {
     const result = await this.authService.loginWithEmail(dto.email, dto.code)
+    return ApiResponse.ok(result)
+  }
+
+  /**
+   * POST /api/auth/register/email
+   * 邮箱验证码注册 (限流: 每 IP 每分钟 3 次)
+   */
+  @Post('register/email')
+  @Throttle({ short: { limit: 3, ttl: 60000 } })
+  @ApiOperation({ summary: '邮箱注册', description: '使用邮箱和验证码注册新账号' })
+  @ApiBody({ type: EmailLoginDto })
+  @SwaggerApiResponse({ status: 201, description: '注册成功，返回 JWT Token 和用户信息' })
+  async registerWithEmail(@Body() dto: EmailLoginDto) {
+    const result = await this.authService.registerWithEmail(dto.email, dto.code)
     return ApiResponse.ok(result)
   }
 

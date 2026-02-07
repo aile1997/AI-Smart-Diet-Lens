@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common'
+import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { PrismaService } from '../../common/prisma.service'
 import { MailService } from '../mail/mail.service'
@@ -46,7 +46,68 @@ export class AuthService {
   }
 
   /**
+   * 邮箱验证码注册
+   * 创建新账号，需要后续完成 onboarding
+   */
+  async registerWithEmail(email: string, code: string): Promise<{ token: string; user: any }> {
+    // 验证验证码
+    const stored = verificationCodes.get(email)
+    if (!stored) {
+      throw new UnauthorizedException('验证码不存在或已过期')
+    }
+
+    if (stored.code !== code) {
+      throw new UnauthorizedException('验证码错误')
+    }
+
+    if (Date.now() > stored.expiresAt) {
+      verificationCodes.delete(email)
+      throw new UnauthorizedException('验证码已过期')
+    }
+
+    // 检查邮箱是否已注册
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email },
+    })
+
+    if (existingUser) {
+      throw new ConflictException('该邮箱已注册，请直接登录')
+    }
+
+    // 清除已使用的验证码
+    verificationCodes.delete(email)
+
+    // 创建新用户（未完成 onboarding）
+    const user = await this.prisma.user.create({
+      data: {
+        email,
+        emailVerified: true,
+        onboardingCompleted: false,
+      },
+    })
+
+    // 生成 JWT
+    const token = this.jwtService.sign({
+      sub: user.id,
+      email: user.email,
+    })
+
+    return {
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        nickname: user.nickname,
+        avatar: user.avatar,
+        emailVerified: user.emailVerified,
+        needOnboarding: true,
+      },
+    }
+  }
+
+  /**
    * 邮箱 + 验证码登录
+   * 仅限已注册用户
    */
   async loginWithEmail(email: string, code: string): Promise<{ token: string; user: any }> {
     // 验证验证码
@@ -67,25 +128,13 @@ export class AuthService {
     // 清除已使用的验证码
     verificationCodes.delete(email)
 
-    // 查找或创建用户
-    let user = await this.prisma.user.findUnique({
+    // 查找用户（不再自动创建）
+    const user = await this.prisma.user.findUnique({
       where: { email },
     })
 
     if (!user) {
-      // 自动注册
-      user = await this.prisma.user.create({
-        data: {
-          email,
-          emailVerified: true,
-        },
-      })
-    } else {
-      // 更新验证状态
-      user = await this.prisma.user.update({
-        where: { id: user.id },
-        data: { emailVerified: true },
-      })
+      throw new UnauthorizedException('账号不存在，请先注册')
     }
 
     // 生成 JWT
@@ -102,6 +151,7 @@ export class AuthService {
         nickname: user.nickname,
         avatar: user.avatar,
         emailVerified: user.emailVerified,
+        needOnboarding: !user.onboardingCompleted,
       },
     }
   }

@@ -694,4 +694,24 @@ $ curl http://localhost:3000/api/user/profile
 
 ---
 
+### 24. AI Chat 路由方法错误 ✅ 已修复
+
+**日期**: 2026-02-07
+
+**严重程度**: 🔴 P0 - 前后端接口不匹配
+
+**问题描述**:
+AI Chat 对话历史接口方法错误，前端使用 GET 但后端是 POST。
+
+**修复内容**:
+1. `GET /api/ai/chat/history` - 从 `@Post` 改为 `@Get`
+2. 参数从 `@Body()` 改为 `@Query('limit')`
+3. 新增 `DELETE /api/ai/chat/history` 路由
+4. ChatService 添加 `clearChatHistory` 方法
+
+**修复提交**:
+- `7e69fa0` fix(backend): 修复 AI Chat 路由方法和参数错误
+
+---
+
 **最后更新**: 2026-02-07

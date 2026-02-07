@@ -3,6 +3,7 @@ import { Throttle } from '@nestjs/throttler'
 import { UploadService } from './upload.service'
 import { CurrentUser, UserPayload } from '../../common/decorators/current-user.decorator'
 import { JwtGuard } from '../../common/guards/jwt.guard'
+import { ApiResponse } from '../../common/api-response'
 import { ApiTags, ApiOperation, ApiResponse as SwaggerApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger'
 
 /**
@@ -37,6 +38,6 @@ export class UploadController {
   ) {
     const size = fileSize ? parseInt(fileSize, 10) : undefined
     const result = await this.uploadService.generatePresignedUrl(filename, contentType, size)
-    return result
+    return ApiResponse.ok(result)
   }
 }

@@ -26,7 +26,8 @@ export class UserController {
   @ApiOperation({ summary: '用户入职引导', description: '首次登录时提交用户基本信息、目标和健康数据' })
   @SwaggerApiResponse({ status: 201, description: '成功完成入职引导，返回营养目标' })
   async onboarding(@CurrentUser() user: UserPayload, @Body() dto: OnboardingDto) {
-    return this.userService.onboarding(user.sub, dto)
+    const result = await this.userService.onboarding(user.sub, dto)
+    return ApiResponse.ok(result)
   }
 
   @Get(':id')
@@ -35,7 +36,8 @@ export class UserController {
   @SwaggerApiResponse({ status: 200, description: '成功返回用户信息' })
   async getProfile(@CurrentUser() user: UserPayload, @Param('id') id: string) {
     // 只允许用户查看自己的资料
-    return this.userService.findById(id, user.sub)
+    const result = await this.userService.findById(id, user.sub)
+    return ApiResponse.ok(result)
   }
 
   @Put(':id/profile')
@@ -48,7 +50,8 @@ export class UserController {
     @Body() body: Record<string, unknown>,
   ) {
     // 只允许用户修改自己的资料
-    return this.userService.updateProfile(id, body, user.sub)
+    const result = await this.userService.updateProfile(id, body, user.sub)
+    return ApiResponse.ok(result)
   }
 
   /**

@@ -1,12 +1,21 @@
 import { IsString, IsOptional, IsNumber } from 'class-validator'
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 
 /**
  * AI 分析请求 DTO
  */
 export class AnalyzeFoodDto {
+  @ApiProperty({ example: 'food_photo.jpg', description: 'S3 图片 key' })
   @IsString()
   image_key!: string
 
+  @ApiPropertyOptional({
+    description: 'AR 上下文信息',
+    example: {
+      container: 'bowl',
+      distance_cm: 30
+    }
+  })
   @IsOptional()
   ar_context?: {
     container: string

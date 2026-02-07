@@ -2,7 +2,8 @@ import { Controller, Post, Body, Get, Query } from '@nestjs/common'
 import { Throttle } from '@nestjs/throttler'
 import { AuthService } from './auth.service'
 import { SendCodeDto, EmailLoginDto, WechatLoginDto } from './dto/login.dto'
-import { ApiTags, ApiOperation, ApiResponse as SwaggerApiResponse } from '@nestjs/swagger'
+import { ApiResponse } from '../../common/api-response'
+import { ApiTags, ApiOperation, ApiResponse as SwaggerApiResponse, ApiBody } from '@nestjs/swagger'
 
 @ApiTags('auth')
 @Controller('auth')
@@ -16,6 +17,7 @@ export class AuthController {
   @Post('send-code')
   @Throttle({ short: { limit: 5, ttl: 60000 } })
   @ApiOperation({ summary: '发送验证码', description: '向用户邮箱发送 6 位数字验证码' })
+  @ApiBody({ type: SendCodeDto })
   @SwaggerApiResponse({ status: 200, description: '验证码已发送' })
   async sendCode(@Body() dto: SendCodeDto) {
     await this.authService.sendVerificationCode(dto.email)
@@ -29,9 +31,11 @@ export class AuthController {
   @Post('login/email')
   @Throttle({ short: { limit: 10, ttl: 60000 } })
   @ApiOperation({ summary: '邮箱登录', description: '使用邮箱和验证码登录' })
+  @ApiBody({ type: EmailLoginDto })
   @SwaggerApiResponse({ status: 200, description: '登录成功，返回 JWT Token' })
   async loginWithEmail(@Body() dto: EmailLoginDto) {
-    return this.authService.loginWithEmail(dto.email, dto.code)
+    const result = await this.authService.loginWithEmail(dto.email, dto.code)
+    return ApiResponse.ok(result)
   }
 
   /**
@@ -41,9 +45,11 @@ export class AuthController {
   @Post('login/wechat')
   @Throttle({ short: { limit: 10, ttl: 60000 } })
   @ApiOperation({ summary: '微信登录', description: '使用微信授权码登录' })
+  @ApiBody({ type: WechatLoginDto })
   @SwaggerApiResponse({ status: 200, description: '登录成功，返回 JWT Token' })
   async loginWithWechat(@Body() dto: WechatLoginDto) {
-    return this.authService.loginWithWechat(dto.code, dto.openid)
+    const result = await this.authService.loginWithWechat(dto.code, dto.openid)
+    return ApiResponse.ok(result)
   }
 
   /**

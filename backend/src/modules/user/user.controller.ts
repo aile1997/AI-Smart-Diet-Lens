@@ -30,6 +30,20 @@ export class UserController {
     return ApiResponse.ok(result)
   }
 
+  /**
+   * GET /api/user/profile
+   * 获取当前登录用户的资料
+   * 注意：必须在 @Get(':id') 之前定义，否则 'profile' 会被当作 :id 参数
+   */
+  @Get('profile')
+  @UseGuards(JwtGuard)
+  @ApiOperation({ summary: '获取当前用户资料', description: '获取当前登录用户的资料信息' })
+  @SwaggerApiResponse({ status: 200, description: '成功返回用户信息' })
+  async getCurrentProfile(@CurrentUser() user: UserPayload) {
+    const result = await this.userService.findById(user.sub)
+    return ApiResponse.ok(result)
+  }
+
   @Get(':id')
   @UseGuards(JwtGuard)
   @ApiOperation({ summary: '获取用户资料', description: '根据用户 ID 查询用户基本信息（仅限本人）' })

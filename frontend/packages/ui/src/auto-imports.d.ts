@@ -221,7 +221,7 @@ declare global {
   const useGeolocation: typeof import('@vueuse/core')['useGeolocation']
   const useId: typeof import('vue')['useId']
   const useIdle: typeof import('@vueuse/core')['useIdle']
-  const useImage: typeof import('@vueuse/core')['useImage']
+  const useImage: typeof import('./composables/useCosImage')['useImage']
   const useInfiniteScroll: typeof import('@vueuse/core')['useInfiniteScroll']
   const useIntersectionObserver: typeof import('@vueuse/core')['useIntersectionObserver']
   const useInterval: typeof import('@vueuse/core')['useInterval']
@@ -435,6 +435,7 @@ declare module 'vue' {
     readonly useCssModule: UnwrapRef<typeof import('vue')['useCssModule']>
     readonly useCssVars: UnwrapRef<typeof import('vue')['useCssVars']>
     readonly useId: UnwrapRef<typeof import('vue')['useId']>
+    readonly useImage: UnwrapRef<typeof import('./composables/useCosImage')['useImage']>
     readonly useModel: UnwrapRef<typeof import('vue')['useModel']>
     readonly useSlots: UnwrapRef<typeof import('vue')['useSlots']>
     readonly useTemplateRef: UnwrapRef<typeof import('vue')['useTemplateRef']>

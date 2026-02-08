@@ -230,11 +230,11 @@ onMounted(async () => {
               :cursor-spacing="10"
             />
             <view class="input-mic">
-              <text class="icon-mic">🎤</text>
+              <text class="material-symbols-outlined">mic</text>
             </view>
           </view>
           <view @tap="sendMessage" :class="['send-btn', isTyping ? 'send-btn-disabled' : 'send-btn-active']">
-            <text class="icon-send">↑</text>
+            <text class="material-symbols-outlined filled">send</text>
           </view>
         </view>
       </view>
@@ -687,6 +687,7 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   height: 44px;
+  width: 55px;
   transition: background 0.2s;
 }
 
@@ -705,6 +706,7 @@ onMounted(async () => {
   line-height: 22px;
   height: 22px;
   max-height: 22px;
+  margin-left: 12px;
 }
 
 .input-textarea::placeholder {
@@ -722,8 +724,8 @@ onMounted(async () => {
   margin-left: 4px;
 }
 
-.input-mic .icon-mic {
-  font-size: 18px;
+.input-mic .material-symbols-outlined {
+  font-size: 22px;
 }
 
 .send-btn {
@@ -751,13 +753,9 @@ onMounted(async () => {
   background: #cbd5e1;
 }
 
-.send-btn .icon-send {
+.send-btn .material-symbols-outlined {
   color: white;
   font-size: 20px;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .filled {

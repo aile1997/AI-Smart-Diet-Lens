@@ -113,9 +113,10 @@ describe('useAnalysis', () => {
     it('应正确格式化日期标签', async () => {
       const analysis = useAnalysis()
 
-      const today = new Date().toISOString().split('T')[0]
+      // 使用固定的测试日期（周一）来避免时区问题
+      const testDate = '2024-01-15' // 2024年1月15日是周一
       mockGetSummary.mockResolvedValue({
-        date: today,
+        date: testDate,
         totalCalories: 1800,
         targetCalories: 2000,
         totalProtein: 100,
@@ -125,8 +126,9 @@ describe('useAnalysis', () => {
 
       await analysis.fetchTrends('week')
 
-      const todayEntry = analysis.calorieTrend.value.find(d => d.date === today)
-      expect(todayEntry?.dayLabel).toBe('今天')
+      const testEntry = analysis.calorieTrend.value.find(d => d.date === testDate)
+      // 2024-01-15 是周一
+      expect(testEntry?.dayLabel).toBe('周一')
     })
 
     it('应处理获取失败（使用默认值）', async () => {

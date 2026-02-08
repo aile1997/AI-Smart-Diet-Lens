@@ -31,10 +31,23 @@ export const useAuthStore = defineStore('auth', () => {
   // 方法
   /**
    * 初始化认证状态（从 Storage 恢复）
+   *
+   * 每次调用时都会重新检查 storage 中的 token，确保与 storage 同步
+   * 如果 storage 中的 token 被清除（如 401 回调），也会清除 store 状态
    */
   async function initAuth() {
     try {
       const savedToken = tokenStorage.getToken()
+
+      // 检查 token 是否还存在（可能被 401 回调清除了）
+      if (!savedToken && token.value) {
+        // storage 中的 token 被清除了，也要清除 store 状态
+        logger.warn('Storage 中的 token 已被清除，同步清除 store 状态')
+        token.value = null
+        errorCode.value = null
+        return
+      }
+
       if (savedToken) {
         token.value = savedToken
         // 重新初始化 API 客户端（带 token）
@@ -285,6 +298,40 @@ export const useAuthStore = defineStore('auth', () => {
     tokenStorage.removeToken()
   }
 
+  /**
+   * 处理 401 未授权错误（Token 过期或无效）
+   *
+   * 当 API 返回 401 时，需要清除登录状态并跳转到登录页
+   * 此方法可被 ApiClient 的 onUnauthorized 回调调用
+   */
+  function handleUnauthorized() {
+    logger.warn('Token 已过期或无效，清除登录状态')
+    token.value = null
+    errorCode.value = 'TOKEN_EXPIRED'
+    tokenStorage.removeToken()
+
+    // 跳转到登录页（使用 reLaunch 清空页面栈）
+    try {
+      uni.reLaunch({
+        url: '/pages/onboarding/login',
+        success: () => {
+          logger.debug('已跳转到登录页')
+          // 提示用户
+          uni.showToast({
+            title: '登录已过期，请重新登录',
+            icon: 'none',
+            duration: 2000,
+          })
+        },
+        fail: (err) => {
+          logger.error('跳转到登录页失败:', err)
+        }
+      })
+    } catch (error) {
+      logger.error('跳转到登录页异常:', error)
+    }
+  }
+
   return {
     // 状态
     token,
@@ -304,5 +351,6 @@ export const useAuthStore = defineStore('auth', () => {
     loginWithPassword,
     loginWithWechat,
     logout,
+    handleUnauthorized,
   }
 })

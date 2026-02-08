@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onLaunch, onShow, onHide } from "@dcloudio/uni-app";
-import { useAuthStore, setupRouteGuard } from "@diet-lens/core";
+import { useAuthStore, setupRouteGuard, setOnUnauthorizedCallback } from "@diet-lens/core";
 
 const authStore = useAuthStore();
 
@@ -8,12 +8,18 @@ onLaunch(async () => {
   console.log("App Launch");
   // 初始化认证状态（从 Storage 恢复 token）
   await authStore.initAuth();
+  // 设置 401 错误回调（使用 auth store 的 handleUnauthorized 方法）
+  // 这样可以确保 store 状态与 storage 保持同步
+  setOnUnauthorizedCallback(authStore.handleUnauthorized);
   // 设置路由守卫
   setupRouteGuard();
 });
 
 onShow(() => {
   console.log("App Show");
+  // 每次 App 显示时，重新检查认证状态
+  // 这可以捕获到 token 被清除的情况（如 401 回调清除后）
+  authStore.initAuth();
 });
 
 onHide(() => {

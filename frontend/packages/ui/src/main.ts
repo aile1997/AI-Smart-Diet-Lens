@@ -10,7 +10,7 @@ import App from './App.vue'
 import 'uno.css'
 
 // 导入 API 初始化函数
-import { initApi, setOnUnauthorizedCallback, uniRequestAsFetch } from '@diet-lens/core'
+import { initApi, uniRequestAsFetch } from '@diet-lens/core'
 
 export function createApp() {
   const app = createSSRApp(App)
@@ -41,6 +41,7 @@ export function createApp() {
   console.log('[API Init] isH5:', isH5)
   console.log('[API Init] using fetchProvider:', isH5 ? 'window.fetch (arrow fn)' : 'uni.request')
 
+  // 初始化 API（401 回调稍后在 App.vue 中设置）
   initApi(
     () => {
       try {
@@ -52,27 +53,8 @@ export function createApp() {
     {
       baseURL,
       fetchProvider: safeFetch,
-      // 401 错误回调：清除登录状态并跳转登录页
-      onUnauthorized: () => {
-        try {
-          // 清除 token
-          uni.removeStorageSync('token')
-          // 清除用户信息
-          uni.removeStorageSync('user')
-          // 跳转登录页
-          uni.reLaunch({
-            url: '/pages/onboarding/login'
-          })
-          // 提示用户
-          uni.showToast({
-            title: '登录已过期，请重新登录',
-            icon: 'none',
-            duration: 2000,
-          })
-        } catch (error) {
-          console.error('401 处理失败:', error)
-        }
-      }
+      // 注意：onUnauthorized 回调在 App.vue 的 onLaunch 中通过 setOnUnauthorizedCallback 设置
+      // 这样可以在 pinia 初始化后使用 auth store 的 handleUnauthorized 方法
     }
   )
 

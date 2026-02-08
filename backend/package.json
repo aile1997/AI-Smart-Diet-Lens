@@ -18,7 +18,11 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
-    "prisma:seed": "ts-node prisma/seed.ts"
+    "prisma:seed": "ts-node prisma/seed.ts",
+    "food:transform": "ts-node prisma/scripts/transform-usda.ts",
+    "food:translate": "ts-node prisma/scripts/translate-foods.ts",
+    "food:images": "ts-node prisma/scripts/download-images.ts",
+    "food:seed": "ts-node prisma/scripts/seed-foods.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.983.0",
@@ -42,6 +46,7 @@
     "rxjs": "^7.8.0"
   },
   "devDependencies": {
+    "@google/generative-ai": "^0.21.0",
     "@nestjs/cli": "^11.0.0",
     "@nestjs/schematics": "^11.0.0",
     "@nestjs/testing": "^11.0.0",

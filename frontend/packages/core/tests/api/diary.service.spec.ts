@@ -30,7 +30,36 @@ describe('DiaryService', () => {
 
   describe('getList', () => {
     it('应成功获取日记列表', async () => {
-      const mockEntries = [
+      // 模拟后端返回的数据格式（BackendDiaryEntry）
+      const mockBackendEntries = [
+        {
+          id: 'entry-1',
+          userId: 'user-1',
+          foodId: 'food-1',
+          mealType: 'breakfast',  // 后端使用小写
+          portion: 50,
+          date: '2024-01-15',
+          calories: 180,
+          protein: 6,
+          carbs: 30,
+          fat: 3,
+          note: null,
+          food: {
+            id: 'food-1',
+            name: '燕麦',
+            category: 'GRAINS',
+            calories: 360,
+            protein: 12,
+            carbs: 60,
+            fat: 6,
+          },
+          createdAt: '2024-01-15T08:00:00Z',
+          updatedAt: '2024-01-15T08:00:00Z',
+        }
+      ]
+
+      // 期望的前端格式
+      const expectedEntries = [
         {
           id: 'entry-1',
           date: '2024-01-15',
@@ -42,11 +71,11 @@ describe('DiaryService', () => {
         }
       ]
 
-      mockClient.get.mockResolvedValue(mockEntries)
+      mockClient.get.mockResolvedValue(mockBackendEntries)
 
       const result = await diaryService.getList('2024-01-15')
 
-      expect(result).toEqual(mockEntries)
+      expect(result).toEqual(expectedEntries)
       expect(mockClient.get).toHaveBeenCalledWith('/diary', { params: { date: '2024-01-15' } })
     })
 
@@ -110,21 +139,64 @@ describe('DiaryService', () => {
         imageKey: 'diary-123.jpg'
       }
 
-      const mockEntry = {
+      // 模拟后端返回的数据
+      const mockBackendEntry = {
+        id: 'entry-2',
+        userId: 'user-1',
+        foodId: 'food-2',
+        mealType: 'lunch',  // 后端使用小写
+        portion: 150,
+        date: '2024-01-15',
+        calories: 248,
+        protein: 46,
+        carbs: 0,
+        fat: 5,
+        note: null,
+        food: {
+          id: 'food-2',
+          name: '鸡胸肉',
+          category: 'PROTEIN',
+          calories: 165,
+          protein: 31,
+          carbs: 0,
+          fat: 3,
+          imageUrl: 'diary-123.jpg',  // 图片 URL
+        },
+        createdAt: '2024-01-15T12:00:00Z',
+        updatedAt: '2024-01-15T12:00:00Z',
+      }
+
+      // 期望的前端格式
+      const expectedEntry = {
         id: 'entry-2',
         date: '2024-01-15',
         mealType: 'LUNCH',
-        items: createData.items,
+        items: [
+          { name: '鸡胸肉', portion: 150, calories: 248, protein: 46, carbs: 0, fat: 5 }
+        ],
         imageKey: 'diary-123.jpg',
         totalCalories: 248
       }
 
-      mockClient.post.mockResolvedValue(mockEntry)
+      mockClient.post.mockResolvedValue(mockBackendEntry)
 
       const result = await diaryService.createEntry(createData)
 
-      expect(result).toEqual(mockEntry)
-      expect(mockClient.post).toHaveBeenCalledWith('/diary/entry', createData)
+      expect(result).toEqual(expectedEntry)
+      // 验证发送给后端的数据格式（snake_case）
+      expect(mockClient.post).toHaveBeenCalledWith('/diary/entry', {
+        date: expect.any(String),
+        meal_type: 'LUNCH',
+        items: [
+          {
+            food_name: '鸡胸肉',
+            portion_g: 150,
+            calories: 248,
+            macros: { protein: 46, carbs: 0, fat: 5 }
+          }
+        ],
+        image_key: 'diary-123.jpg',
+      })
     })
 
     it('应支持不带图片的创建', async () => {
@@ -135,20 +207,61 @@ describe('DiaryService', () => {
         ]
       }
 
-      const mockEntry = {
+      // 模拟后端返回的数据
+      const mockBackendEntry = {
+        id: 'entry-3',
+        userId: 'user-1',
+        foodId: 'food-3',
+        mealType: 'snack',  // 后端使用小写
+        portion: 200,
+        date: '2024-01-15',
+        calories: 104,
+        protein: 0,
+        carbs: 28,
+        fat: 0,
+        note: null,
+        food: {
+          id: 'food-3',
+          name: '苹果',
+          category: 'FRUIT',
+          calories: 52,
+          protein: 0,
+          carbs: 14,
+          fat: 0,
+        },
+        createdAt: '2024-01-15T15:00:00Z',
+        updatedAt: '2024-01-15T15:00:00Z',
+      }
+
+      // 期望的前端格式
+      const expectedEntry = {
         id: 'entry-3',
         date: '2024-01-15',
         mealType: 'SNACK',
-        items: createData.items,
+        items: [
+          { name: '苹果', portion: 200, calories: 104, protein: 0, carbs: 28, fat: 0 }
+        ],
         totalCalories: 104
       }
 
-      mockClient.post.mockResolvedValue(mockEntry)
+      mockClient.post.mockResolvedValue(mockBackendEntry)
 
       const result = await diaryService.createEntry(createData)
 
-      expect(result).toEqual(mockEntry)
-      expect(mockClient.post).toHaveBeenCalledWith('/diary/entry', createData)
+      expect(result).toEqual(expectedEntry)
+      // 验证发送给后端的数据格式（snake_case）
+      expect(mockClient.post).toHaveBeenCalledWith('/diary/entry', {
+        date: expect.any(String),
+        meal_type: 'SNACK',
+        items: [
+          {
+            food_name: '苹果',
+            portion_g: 200,
+            calories: 104,
+            macros: { protein: 0, carbs: 28, fat: 0 }
+          }
+        ],
+      })
     })
   })
 
@@ -160,20 +273,52 @@ describe('DiaryService', () => {
         ]
       }
 
-      const mockEntry = {
+      // 模拟后端返回的数据
+      const mockBackendEntry = {
+        id: 'entry-2',
+        userId: 'user-1',
+        foodId: 'food-2',
+        mealType: 'lunch',  // 后端使用小写
+        portion: 200,
+        date: '2024-01-15',
+        calories: 330,
+        protein: 62,
+        carbs: 0,
+        fat: 7,
+        note: null,
+        food: {
+          id: 'food-2',
+          name: '鸡胸肉',
+          category: 'PROTEIN',
+          calories: 165,
+          protein: 31,
+          carbs: 0,
+          fat: 3,
+        },
+        createdAt: '2024-01-15T12:00:00Z',
+        updatedAt: '2024-01-15T12:30:00Z',
+      }
+
+      // 期望的前端格式
+      const expectedEntry = {
         id: 'entry-2',
         date: '2024-01-15',
         mealType: 'LUNCH',
-        items: updateData.items,
+        items: [
+          { name: '鸡胸肉', portion: 200, calories: 330, protein: 62, carbs: 0, fat: 7 }
+        ],
         totalCalories: 330
       }
 
-      mockClient.patch.mockResolvedValue(mockEntry)
+      mockClient.patch.mockResolvedValue(mockBackendEntry)
 
       const result = await diaryService.updateEntry('entry-2', updateData)
 
-      expect(result).toEqual(mockEntry)
-      expect(mockClient.patch).toHaveBeenCalledWith('/diary/entry/entry-2', updateData)
+      expect(result).toEqual(expectedEntry)
+      // 验证发送给后端的数据格式（只发送 portion_g）
+      expect(mockClient.patch).toHaveBeenCalledWith('/diary/entry/entry-2', {
+        portion_g: 200,
+      })
     })
 
     it('应支持更新多个字段', async () => {
@@ -182,20 +327,40 @@ describe('DiaryService', () => {
         items: []
       }
 
-      const mockEntry = {
+      // 模拟后端返回的数据（空条目）
+      const mockBackendEntry = {
+        id: 'entry-2',
+        userId: 'user-1',
+        foodId: null,
+        mealType: 'dinner',  // 后端使用小写
+        portion: 0,
+        date: '2024-01-15',
+        calories: 0,
+        protein: 0,
+        carbs: 0,
+        fat: 0,
+        note: null,
+        food: null,
+        createdAt: '2024-01-15T12:00:00Z',
+        updatedAt: '2024-01-15T18:00:00Z',
+      }
+
+      // 期望的前端格式
+      const expectedEntry = {
         id: 'entry-2',
         date: '2024-01-15',
         mealType: 'DINNER',
-        items: [],
+        items: [
+          { name: '未知食物', portion: 0, calories: 0, protein: 0, carbs: 0, fat: 0 }
+        ],
         totalCalories: 0
       }
 
-      mockClient.patch.mockResolvedValue(mockEntry)
+      mockClient.patch.mockResolvedValue(mockBackendEntry)
 
       const result = await diaryService.updateEntry('entry-2', updateData)
 
-      expect(result).toEqual(mockEntry)
-      expect(mockClient.patch).toHaveBeenCalledWith('/diary/entry/entry-2', updateData)
+      expect(result).toEqual(expectedEntry)
     })
   })
 

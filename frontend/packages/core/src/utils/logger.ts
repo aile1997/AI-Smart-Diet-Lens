@@ -5,6 +5,26 @@
  */
 
 /**
+ * 模块级 console 引用（支持测试环境 mock）
+ */
+let moduleConsole: Console = console
+
+/**
+ * 设置 console 引用（用于测试）
+ * @internal
+ */
+export function __setConsole(c: Console) {
+  moduleConsole = c
+}
+
+/**
+ * 获取 console 引用
+ */
+function getConsole() {
+  return moduleConsole
+}
+
+/**
  * 日志级别
  */
 export enum LogLevel {
@@ -33,7 +53,23 @@ export function initLogger(level: string = 'info') {
     error: LogLevel.ERROR,
     none: LogLevel.NONE
   }
-  currentLogLevel = levelMap[level] || LogLevel.INFO
+  const mapped = levelMap[level]
+  currentLogLevel = mapped !== undefined ? mapped : LogLevel.INFO
+}
+
+/**
+ * 测试 levelMap 映射（用于调试）
+ * @internal
+ */
+export function __testLevelMap(level: string): LogLevel {
+  const levelMap: Record<string, LogLevel> = {
+    debug: LogLevel.DEBUG,
+    info: LogLevel.INFO,
+    warn: LogLevel.WARN,
+    error: LogLevel.ERROR,
+    none: LogLevel.NONE
+  }
+  return levelMap[level] ?? LogLevel.INFO
 }
 
 /**
@@ -52,6 +88,22 @@ function shouldLog(level: LogLevel): boolean {
 }
 
 /**
+ * 获取当前日志级别（用于测试）
+ * @internal
+ */
+export function __getCurrentLogLevel(): LogLevel {
+  return currentLogLevel
+}
+
+/**
+ * 检查是否应该输出特定级别的日志（用于测试）
+ * @internal
+ */
+export function __shouldLog(level: LogLevel): boolean {
+  return shouldLog(level)
+}
+
+/**
  * 格式化日志前缀
  */
 function formatPrefix(level: string): string {
@@ -67,8 +119,9 @@ export const logger = {
    * 调试级别日志
    */
   debug(...args: unknown[]) {
-    if (shouldLog(LogLevel.DEBUG)) {
-      console.log(formatPrefix('debug'), ...args)
+    const should = shouldLog(LogLevel.DEBUG)
+    if (should) {
+      getConsole().log(formatPrefix('debug'), ...args)
     }
   },
 
@@ -77,7 +130,7 @@ export const logger = {
    */
   info(...args: unknown[]) {
     if (shouldLog(LogLevel.INFO)) {
-      console.log(formatPrefix('info'), ...args)
+      getConsole().log(formatPrefix('info'), ...args)
     }
   },
 
@@ -86,17 +139,16 @@ export const logger = {
    */
   warn(...args: unknown[]) {
     if (shouldLog(LogLevel.WARN)) {
-      console.warn(formatPrefix('warn'), ...args)
+      getConsole().warn(formatPrefix('warn'), ...args)
     }
   },
 
   /**
-   * 错误级别日志
+   * 错误级别日志（始终记录）
+   * 错误日志不受日志级别控制，始终输出
    */
   error(...args: unknown[]) {
-    if (shouldLog(LogLevel.ERROR)) {
-      console.error(formatPrefix('error'), ...args)
-    }
+    getConsole().error(formatPrefix('error'), ...args)
   },
 
   /**
@@ -105,7 +157,7 @@ export const logger = {
    */
   security(...args: unknown[]) {
     // 安全日志始终记录，不受日志级别控制
-    console.error(formatPrefix('security'), ...args)
+    getConsole().error(formatPrefix('security'), ...args)
   }
 }
 

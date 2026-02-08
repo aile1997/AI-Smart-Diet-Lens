@@ -1,8 +1,11 @@
 /**
- * 文件上传服务
+ * 文件上传服务（纯 API 层）
  *
  * GET /api/upload/presigned - 获取预签名 URL
  * POST /api/upload/confirm - 确认上传
+ *
+ * 注意：完整的上传流程（获取预签名 URL -> 上传到云存储 -> 确认）应该在 UI 层实现，
+ * 因为涉及平台特定的文件 API（浏览器使用 File/XMLHttpRequest，UniApp 使用 uni.uploadFile）。
  */
 
 import type { ApiClient } from '../client'
@@ -12,6 +15,15 @@ import type { ApiClient } from '../client'
  */
 export interface PresignedUrlResponse {
   uploadUrl: string
+  fileKey: string
+  publicUrl: string
+}
+
+/**
+ * 直接上传响应
+ */
+export interface DirectUploadResponse {
+  publicUrl: string
   fileKey: string
 }
 
@@ -39,58 +51,24 @@ export class UploadService {
   }
 
   /**
+   * 后端直接上传（Base64 格式）
+   *
+   * @param fileKey 文件 Key
+   * @param base64 Base64 编码的图片数据（包含 data:image/... 前缀）
+   */
+  async directUpload(fileKey: string, base64: string): Promise<DirectUploadResponse> {
+    return this.client.post<DirectUploadResponse>('/upload/direct', {
+      fileKey,
+      base64
+    })
+  }
+
+  /**
    * 确认上传完成
    *
    * @param fileKey 文件 Key
    */
   async confirmUpload(fileKey: string): Promise<ConfirmUploadResponse> {
     return this.client.post<ConfirmUploadResponse>('/upload/confirm', { fileKey })
-  }
-
-  /**
-   * 完整上传流程（获取预签名 URL -> 上传到 S3 -> 确认）
-   *
-   * @param file 文件对象
-   * @param onProgress 上传进度回调（可选）
-   */
-  async uploadFile(
-    file: File,
-    onProgress?: (progress: number) => void
-  ): Promise<string> {
-    // 1. 获取预签名 URL
-    const { uploadUrl, fileKey } = await this.getPresignedUrl(file.name, file.type)
-
-    // 2. 直接上传到 S3
-    const xhr = new XMLHttpRequest()
-
-    return new Promise((resolve, reject) => {
-      xhr.upload.addEventListener('progress', (e) => {
-        if (e.lengthComputable && onProgress) {
-          onProgress(Math.round((e.loaded / e.total) * 100))
-        }
-      })
-
-      xhr.addEventListener('load', async () => {
-        if (xhr.status === 200) {
-          try {
-            // 3. 确认上传完成
-            const { url } = await this.confirmUpload(fileKey)
-            resolve(url)
-          } catch (error) {
-            reject(error)
-          }
-        } else {
-          reject(new Error(`上传失败: HTTP ${xhr.status}`))
-        }
-      })
-
-      xhr.addEventListener('error', () => {
-        reject(new Error('网络错误，上传失败'))
-      })
-
-      xhr.open('PUT', uploadUrl)
-      xhr.setRequestHeader('Content-Type', file.type)
-      xhr.send(file)
-    })
   }
 }

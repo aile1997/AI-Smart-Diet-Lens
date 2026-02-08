@@ -54,7 +54,15 @@ export class DashboardService {
    * @param date 日期 (YYYY-MM-DD)，默认今日
    */
   async getSummary(date?: string): Promise<DashboardSummary> {
+    console.log('[DashboardService] getSummary called, date:', date)
     const params = date ? { date } : undefined
-    return this.client.get<DashboardSummary>('/dashboard/summary', { params })
+    console.log('[DashboardService] params:', params)
+    // 当 params 为空时，不传递 options 参数
+    const result = await this.client.get<DashboardSummary>(
+      '/dashboard/summary',
+      params ? { params } : undefined
+    )
+    console.log('[DashboardService] result:', result)
+    return result
   }
 }

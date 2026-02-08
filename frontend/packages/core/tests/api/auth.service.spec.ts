@@ -58,6 +58,44 @@ describe('AuthService', () => {
     })
   })
 
+  describe('registerWithEmail', () => {
+    it('应成功注册新用户', async () => {
+      const mockResponse = {
+        token: 'new-jwt-token',
+        user: {
+          id: 'new-user-123',
+          email: 'new@example.com',
+          emailVerified: true,
+          needOnboarding: true
+        }
+      }
+
+      mockClient.post.mockResolvedValue(mockResponse)
+
+      const result = await authService.registerWithEmail('new@example.com', '123456')
+
+      expect(result).toEqual(mockResponse)
+      expect(mockClient.post).toHaveBeenCalledWith('/auth/register/email', {
+        email: 'new@example.com',
+        code: '123456'
+      })
+    })
+
+    it('应处理邮箱已注册', async () => {
+      mockClient.post.mockRejectedValue(new Error('该邮箱已注册，请直接登录'))
+
+      await expect(authService.registerWithEmail('existing@example.com', '123456'))
+        .rejects.toThrow('该邮箱已注册，请直接登录')
+    })
+
+    it('应处理验证码错误', async () => {
+      mockClient.post.mockRejectedValue(new Error('验证码错误'))
+
+      await expect(authService.registerWithEmail('test@example.com', '000000'))
+        .rejects.toThrow('验证码错误')
+    })
+  })
+
   describe('loginWithEmail', () => {
     it('应成功登录', async () => {
       const mockResponse = {

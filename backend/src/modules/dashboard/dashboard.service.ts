@@ -19,8 +19,13 @@ export interface SmartAlert {
   action: string
 }
 
+/**
+ * UI 策略枚举（API 层统一使用大写+下划线）
+ */
+export type UiStrategy = 'LOSE_WEIGHT' | 'MAINTAIN' | 'GAIN_MUSCLE'
+
 export interface DashboardSummary {
-  ui_strategy: string
+  ui_strategy: UiStrategy
   date: string
   hero_component: HeroComponent
   widgets: {
@@ -37,6 +42,20 @@ export interface DashboardSummary {
 @Injectable()
 export class DashboardService {
   constructor(private readonly prisma: PrismaService) {}
+
+  /**
+   * 数据库 goal 值映射到 UI 策略枚举
+   * 数据库存储: lose_weight | maintain | gain_muscle
+   * API 返回: LOSE_WEIGHT | MAINTAIN | GAIN_MUSCLE
+   */
+  private mapGoalToStrategy(goal: string | null): UiStrategy {
+    const goalMap: Record<string, UiStrategy> = {
+      'lose_weight': 'LOSE_WEIGHT',
+      'maintain': 'MAINTAIN',
+      'gain_muscle': 'GAIN_MUSCLE',
+    }
+    return goalMap[goal || ''] || 'MAINTAIN'
+  }
 
   /**
    * GET /api/dashboard/summary
@@ -64,26 +83,27 @@ export class DashboardService {
     const totalCalories = diaryEntries.reduce((sum, entry) => sum + entry.calories, 0)
     const totalProtein = diaryEntries.reduce((sum, entry) => sum + entry.protein, 0)
 
-    // 获取用户策略模式
-    const strategyMode = user.goal || 'MAINTAIN'
+    // 映射数据库 goal 值到 API 策略枚举
+    const uiStrategy = this.mapGoalToStrategy(user.goal)
 
     // 根据策略生成 UI 组件
     const heroComponent: HeroComponent = this.generateHeroComponent(
-      strategyMode,
+      uiStrategy,
       totalProtein,
       totalCalories,
       user.dailyCalorieTarget || 2000,
+      user.proteinTarget || 180,
     )
 
     // 智能弹窗（根据数据判断）
     const smartAlert = this.generateSmartAlert(
       user,
       diaryEntries,
-      strategyMode,
+      uiStrategy,
     )
 
     return {
-      ui_strategy: strategyMode,
+      ui_strategy: uiStrategy,
       date,
       hero_component: heroComponent,
       widgets: {
@@ -99,14 +119,13 @@ export class DashboardService {
    * 根据策略生成主组件
    */
   private generateHeroComponent(
-    strategy: string,
+    strategy: UiStrategy,
     protein: number,
     calories: number,
     targetCalories: number,
+    proteinTarget: number,
   ): HeroComponent {
-    const proteinTarget = 180 // TODO: 根据体重计算
-
-    if (strategy === 'MUSCLE_GAIN') {
+    if (strategy === 'GAIN_MUSCLE') {
       return {
         type: 'DUAL_BAR_CHART',
         data: {

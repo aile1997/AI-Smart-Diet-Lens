@@ -4,191 +4,208 @@
  * 测试认证状态管理
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { setActivePinia, createPinia } from 'pinia'
-import { useAuthStore } from '../../src/stores/auth'
-import { ApiClient } from '../../src/api/client'
+import { describe, it, expect, beforeEach, vi } from "vitest";
+import { setActivePinia, createPinia } from "pinia";
 
-// Mock API 客户端
-vi.mock('../../src/api')
+// 使用 vi.hoisted 创建 mock 函数
+const mockSendCode = vi.hoisted(() => vi.fn());
+const mockLoginWithCode = vi.hoisted(() => vi.fn());
+const mockLogout = vi.hoisted(() => vi.fn());
+const mockGetToken = vi.hoisted(() => vi.fn(() => null));
+const mockSetToken = vi.hoisted(() => vi.fn());
+const mockRemoveToken = vi.hoisted(() => vi.fn());
 
-// 暂时跳过 useAuth 测试，Pinia store mock 配置问题
-describe.skip('useAuth', () => {
-  let pinia: ReturnType<typeof createPinia>
+// Mock API 模块
+vi.mock("../../src/api", () => ({
+  getApi: vi.fn(() => ({
+    post: vi.fn(),
+    get: vi.fn(),
+  })),
+  initApi: vi.fn(),
+  // 导出所有服务（需要从 services 重新导出）
+  AuthService: class {
+    constructor() {}
+    sendCode = mockSendCode;
+    loginWithEmail = mockLoginWithCode;
+    loginWithWechat = vi.fn();
+    logout = mockLogout;
+  },
+}));
+
+// Mock services/auth.service（会自动被上面的 mock 覆盖）
+// 不需要单独 mock
+
+// Mock secure-storage
+vi.mock("../../src/utils/secure-storage", () => ({
+  tokenStorage: {
+    getToken: mockGetToken,
+    setToken: mockSetToken,
+    removeToken: mockRemoveToken,
+  },
+}));
+
+// Mock logger
+vi.mock("../../src/utils/logger", () => ({
+  logger: {
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    security: vi.fn(),
+  },
+  initLogger: vi.fn(),
+}));
+
+// Mock throttle
+vi.mock("../../src/utils/throttle", () => ({
+  createRateLimiter: vi.fn(() => {
+    let count = 0;
+    return () => {
+      count++;
+      return count <= 5;
+    };
+  }),
+}));
+
+import { useAuthStore } from "../../src/stores/auth";
+
+describe("useAuth", () => {
+  let pinia: ReturnType<typeof createPinia>;
 
   beforeEach(() => {
-    pinia = createPinia()
-    setActivePinia(pinia)
+    pinia = createPinia();
+    setActivePinia(pinia);
 
     // 重置所有 mocks
-    vi.clearAllMocks()
-  })
+    vi.clearAllMocks();
 
-  describe('初始状态', () => {
-    it('应有正确的初始状态', () => {
-      const authStore = useAuthStore()
+    // 设置默认返回值
+    mockSendCode.mockResolvedValue({ success: true });
+    mockLoginWithCode.mockResolvedValue({
+      token: "test-token",
+      user: { id: "1", email: "test@example.com" },
+    });
+  });
 
-      expect(authStore.token).toBeNull()
-      expect(authStore.loading).toBe(false)
-      expect(authStore.errorCode).toBeNull()
-      expect(authStore.canSendCode).toBe(true)
-      expect(authStore.codeCooldown).toBe(0)
-      expect(authStore.isLoggedIn).toBe(false)
-    })
-  })
+  describe("初始状态", () => {
+    it("应有正确的初始状态", () => {
+      const authStore = useAuthStore();
 
-  describe('isLoggedIn 计算属性', () => {
-    it('未设置 token 时应返回 false', () => {
-      const authStore = useAuthStore()
-      expect(authStore.isLoggedIn).toBe(false)
-    })
+      expect(authStore.token).toBeNull();
+      expect(authStore.loading).toBe(false);
+      expect(authStore.errorCode).toBeNull();
+      expect(authStore.canSendCode).toBe(true);
+      expect(authStore.codeCooldown).toBe(0);
+      expect(authStore.isLoggedIn).toBe(false);
+    });
+  });
 
-    it('设置 token 后应返回 true', () => {
-      const authStore = useAuthStore()
-      authStore.token = 'test-token'
+  describe("isLoggedIn 计算属性", () => {
+    it("未设置 token 时应返回 false", () => {
+      const authStore = useAuthStore();
+      expect(authStore.isLoggedIn).toBe(false);
+    });
 
-      expect(authStore.isLoggedIn).toBe(true)
-    })
-  })
+    it("设置 token 后应返回 true", () => {
+      const authStore = useAuthStore();
+      authStore.token = "test-token";
 
-  describe('sendCode 限流', () => {
-    it('应阻止频繁发送验证码', async () => {
-      const authStore = useAuthStore()
+      expect(authStore.isLoggedIn).toBe(true);
+    });
+  });
 
-      // Mock API 成功响应
-      const mockSendCode = vi.fn().mockResolvedValue({ success: true })
-      vi.doMock('../../src/api', () => ({
-        getApi: () => ({
-          constructor: vi.fn().mockImplementation(() => ({})),
-        }),
-        AuthService: class {
-          constructor() {}
-          sendCode = mockSendCode
-        }
-      }))
+  describe("initAuth", () => {
+    it("应从 storage 恢复 token", async () => {
+      mockGetToken.mockReturnValue("saved-token");
 
-      // 前次发送刚结束，冷却中
-      authStore.canSendCode = false
-      authStore.codeCooldown = 30000
+      const authStore = useAuthStore();
+      await authStore.initAuth();
 
-      const result = await authStore.sendCode('test@example.com')
+      expect(authStore.token).toBe("saved-token");
+      expect(authStore.isLoggedIn).toBe(true);
+    });
 
-      expect(result.success).toBe(false)
-      expect(result.error).toContain('秒后重试')
-      expect(mockSendCode).not.toHaveBeenCalled()
-    })
+    it("没有保存的 token 时应保持未登录状态", async () => {
+      mockGetToken.mockReturnValue(null);
 
-    it('应在冷却时间结束后允许发送', async () => {
-      const authStore = useAuthStore()
+      const authStore = useAuthStore();
+      await authStore.initAuth();
 
-      // Mock API 成功响应
-      const mockSendCode = vi.fn().mockResolvedValue({ success: true })
-      vi.doMock('../../src/api', () => ({
-        getApi: () => ({
-          constructor: vi.fn().mockImplementation(() => ({})),
-        }),
-        AuthService: class {
-          constructor() {}
-          sendCode = mockSendCode
-        }
-      }))
+      expect(authStore.token).toBeNull();
+      expect(authStore.isLoggedIn).toBe(false);
+    });
+  });
+
+  describe("sendCode", () => {
+    it("应成功发送验证码", async () => {
+      const authStore = useAuthStore();
+
+      const result = await authStore.sendCode("test@example.com");
+
+      expect(result.success).toBe(true);
+      expect(mockSendCode).toHaveBeenCalledWith("test@example.com");
+    });
+
+    it("应处理发送失败", async () => {
+      mockSendCode.mockRejectedValue(new Error("INVALID_EMAIL"));
+
+      const authStore = useAuthStore();
+      const result = await authStore.sendCode("invalid-email");
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("INVALID_EMAIL");
+    });
+
+    it("应在冷却时间结束后允许发送", async () => {
+      const authStore = useAuthStore();
 
       // 冷却时间已结束
-      authStore.canSendCode = true
-      authStore.codeCooldown = 0
+      authStore.canSendCode = true;
+      authStore.codeCooldown = 0;
 
-      const result = await authStore.sendCode('test@example.com')
+      const result = await authStore.sendCode("test@example.com");
 
-      expect(result.success).toBe(true)
-      expect(mockSendCode).toHaveBeenCalled()
-    })
-  })
+      expect(result.success).toBe(true);
+      expect(mockSendCode).toHaveBeenCalled();
+    });
+  });
 
-  describe('logout', () => {
-    it('应清除所有状态', () => {
-      const authStore = useAuthStore()
+  describe("loginWithEmail", () => {
+    it("应成功登录并保存 token", async () => {
+      const authStore = useAuthStore();
 
-      authStore.token = 'test-token'
-      authStore.errorCode = 'some-error'
+      const result = await authStore.loginWithEmail("test@example.com", "123456");
 
-      authStore.logout()
+      expect(result.success).toBe(true);
+      expect(authStore.token).toBe("test-token");
+      expect(mockSetToken).toHaveBeenCalledWith("test-token");
+      expect(mockLoginWithCode).toHaveBeenCalledWith("test@example.com", "123456");
+    });
 
-      expect(authStore.token).toBeNull()
-      expect(authStore.errorCode).toBeNull()
-    })
-  })
+    it("应处理登录失败", async () => {
+      mockLoginWithCode.mockRejectedValue(new Error("INVALID_CODE"));
 
-  describe('loginWithEmail', () => {
-    it('登录成功应保存 token', async () => {
-      const authStore = useAuthStore()
+      const authStore = useAuthStore();
+      const result = await authStore.loginWithEmail("test@example.com", "000000");
 
-      const mockLogin = vi.fn().mockResolvedValue({
-        token: 'jwt-token',
-        user: { id: '123', email: 'test@example.com' }
-      })
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("INVALID_CODE");
+      expect(authStore.token).toBeNull();
+    });
+  });
 
-      vi.doMock('../../src/api', () => ({
-        getApi: () => ({
-          constructor: vi.fn().mockImplementation(() => ({})),
-        }),
-        AuthService: class {
-          constructor() {}
-          loginWithEmail = mockLogin
-        }
-      }))
+  describe("logout", () => {
+    it("应清除所有状态", () => {
+      const authStore = useAuthStore();
 
-      const result = await authStore.loginWithEmail('test@example.com', '123456')
+      authStore.token = "test-token";
+      authStore.errorCode = "some-error";
 
-      expect(result.success).toBe(true)
-      expect(authStore.token).toBe('jwt-token')
-      expect(mockLogin).toHaveBeenCalledWith('test@example.com', '123456')
-    })
+      authStore.logout();
 
-    it('登录失败不应保存 token', async () => {
-      const authStore = useAuthStore()
-
-      const mockLogin = vi.fn().mockRejectedValue(new Error('验证码错误'))
-
-      vi.doMock('../../src/api', () => ({
-        getApi: () => ({
-          constructor: vi.fn().mockImplementation(() => ({})),
-        }),
-        AuthService: class {
-          constructor() {}
-          loginWithEmail = mockLogin
-        }
-      }))
-
-      const result = await authStore.loginWithEmail('test@example.com', '000000')
-
-      expect(result.success).toBe(false)
-      expect(authStore.token).toBeNull()
-    })
-  })
-
-  describe('loginWithWechat', () => {
-    it('微信登录成功应保存 token', async () => {
-      const authStore = useAuthStore()
-
-      const mockLogin = vi.fn().mockResolvedValue({
-        token: 'wechat-token',
-        user: { id: '456', email: 'wechat@example.com' }
-      })
-
-      vi.doMock('../../src/api', () => ({
-        getApi: () => ({
-          constructor: vi.fn().mockImplementation(() => ({})),
-        }),
-        AuthService: class {
-          constructor() {}
-          loginWithWechat = mockLogin
-        }
-      }))
-
-      const result = await authStore.loginWithWechat('wx-code', 'wx-openid')
-
-      expect(result.success).toBe(true)
-      expect(authStore.token).toBe('wechat-token')
-    })
-  })
-})
+      expect(authStore.token).toBeNull();
+      expect(authStore.errorCode).toBeNull();
+      expect(mockRemoveToken).toHaveBeenCalled();
+    });
+  });
+});

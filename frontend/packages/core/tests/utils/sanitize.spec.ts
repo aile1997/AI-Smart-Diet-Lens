@@ -5,11 +5,9 @@
  */
 
 import { describe, it, expect } from 'vitest'
-import { sanitizeHTML } from '../../src/utils/sanitize'
+import { sanitizeHTML, sanitizeAIResponse, containsXSS } from '../../src/utils/sanitize'
 
-// 暂时跳过 sanitize 测试，当前实现过于简单无法满足安全要求
-// 需要专家重新实现完整的 XSS 防御逻辑
-describe.skip('sanitizeHTML', () => {
+describe('sanitizeHTML', () => {
   describe('危险协议过滤', () => {
     it('应移除 javascript: 协议', () => {
       const input = '<a href="javascript:alert(1)">点击</a>'

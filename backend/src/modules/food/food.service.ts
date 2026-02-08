@@ -7,198 +7,115 @@ import {
   RecognizedFood,
 } from './dto/analyze.dto'
 import { FoodSearchResponse, FoodSearchItem } from './dto/search.dto'
-import {
-  S3Client,
-  GetObjectCommand,
-} from '@aws-sdk/client-s3'
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
-
-/**
- * Gemini API 响应格式
- */
-interface GeminiResponse {
-  candidates: Array<{
-    content: {
-      parts: Array<{
-        text: string
-      }>
-    }
-  }>
-}
+import OpenAI from 'openai'
 
 /**
  * 食物服务
+ * 使用阿里云 Qwen-VL 进行食物识别
  */
 @Injectable()
 export class FoodService {
   private readonly logger = new Logger(FoodService.name)
-  private readonly s3Client: S3Client
-  private readonly bucketName: string
+  private readonly qwen: OpenAI
 
   constructor(
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
   ) {
-    // 初始化 S3 客户端用于获取图片
-    this.s3Client = new S3Client({
-      region: this.config.get<string>('AWS_REGION') || 'us-east-1',
-      credentials: {
-        accessKeyId: this.config.get<string>('AWS_ACCESS_KEY_ID') || '',
-        secretAccessKey: this.config.get<string>('AWS_SECRET_ACCESS_KEY') || '',
-      },
+    // 初始化阿里云 Qwen-VL 客户端
+    this.qwen = new OpenAI({
+      apiKey: this.config.get<string>('DASHSCOPE_API_KEY') || '',
+      baseURL: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
     })
-    this.bucketName = this.config.get<string>('S3_BUCKET') || 'diet-lens-uploads'
   }
 
   /**
    * POST /api/ai/analyze
-   * 通过 Gemini API 识别食物
+   * 通过 Qwen-VL API 识别食物
    */
   async analyzeFood(dto: AnalyzeFoodDto): Promise<AnalyzeResponse> {
-    const apiKey = this.config.get<string>('GEMINI_API_KEY')
+    const apiKey = this.config.get<string>('DASHSCOPE_API_KEY')
 
-    if (!apiKey || apiKey === 'your-gemini-api-key') {
-      this.logger.warn('GEMINI_API_KEY 未配置，返回模拟数据')
-      return this.getMockAnalyzeResponse(dto.image_key)
+    if (!apiKey || apiKey === 'sk-xxxxxxxxxxxxxxxx') {
+      this.logger.warn('DASHSCOPE_API_KEY 未配置，返回模拟数据')
+      return this.getMockAnalyzeResponse(dto.image_url)
     }
 
     try {
-      const result = await this.callGeminiAPI(dto.image_key, apiKey)
+      const result = await this.callQwenVL(dto.image_url)
       return {
         foods: result,
-        image_key: dto.image_key,
+        image_url: dto.image_url,
         recognized_at: Date.now(),
       }
     } catch (error) {
-      this.logger.error('Gemini API 调用失败', error)
+      this.logger.error('Qwen-VL API 调用失败', error)
       // 失败时返回模拟数据作为降级处理
-      return this.getMockAnalyzeResponse(dto.image_key)
+      return this.getMockAnalyzeResponse(dto.image_url)
     }
   }
 
   /**
-   * 调用 Gemini API 进行食物识别
+   * 调用阿里云 Qwen-VL 进行食物识别
    */
-  private async callGeminiAPI(
-    imageKey: string,
-    apiKey: string,
-  ): Promise<RecognizedFood[]> {
+  private async callQwenVL(imageUrl: string): Promise<RecognizedFood[]> {
     try {
-      // 从 S3 获取图片数据
-      const imageBase64 = await this.getImageFromS3(imageKey)
-
-      const prompt = `
-请分析这张图片中的食物，并返回以下格式的 JSON：
+      const prompt = `你是一个专业的营养分析助手。请分析图片中的食物，返回 JSON 格式：
 
 {
-  "foods": [
-    {
-      "name": "食物名称",
-      "portion_g": 估算重量（克），
-      "confidence": 识别置信度（0-1之间的小数），
-      "nutrition": {
-        "calories": 卡路里，
-        "protein": 蛋白质（克），
-        "carbs": 碳水化合物（克），
-        "fat": 脂肪（克）
-      }
-    }
-  ]
+  "food_name": "食物名称",
+  "calories_per_100g": 卡路里数值,
+  "protein_g": 蛋白质含量,
+  "carbs_g": 碳水含量,
+  "fat_g": 脂肪含量,
+  "portion_estimate_g": 估计份量
 }
 
-请只返回 JSON，不要有其他文字。如果图片中没有食物，返回 {"foods": []}
-`
+只返回 JSON，不要其他文字。`
 
-      // 调用 Gemini Pro Vision API
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-vision:generateContent?key=${apiKey}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            contents: [
-              {
-                parts: [
-                  {
-                    text: prompt,
-                  },
-                  {
-                    inline_data: {
-                      mime_type: 'image/jpeg',
-                      data: imageBase64,
-                    },
-                  },
-                ],
-              },
+      const completion = await this.qwen.chat.completions.create({
+        model: 'qwen-vl-max',
+        messages: [
+          {
+            role: 'user',
+            content: [
+              { type: 'image_url', image_url: { url: imageUrl } },
+              { type: 'text', text: prompt },
             ],
-          }),
-        },
-      )
-
-      if (!response.ok) {
-        const errorText = await response.text()
-        this.logger.error(`Gemini API 错误: ${response.status} - ${errorText}`)
-        throw new Error(`Gemini API 调用失败: ${response.status}`)
-      }
-
-      const data: GeminiResponse = await response.json()
-
-      // 解析响应
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text || ''
-      const jsonMatch = text.match(/\{[\s\S]*\}/)
-
-      if (!jsonMatch) {
-        this.logger.warn('Gemini 返回的不是有效 JSON，返回模拟数据')
-        return this.getMockRecognizedFoods()
-      }
-
-      const parsed = JSON.parse(jsonMatch[0])
-
-      // 转换为标准格式
-      return (parsed.foods || []).map((food: any, index: number) => ({
-        id: `gemini_${Date.now()}_${index}`,
-        name: food.name,
-        portion_g: food.portion_g,
-        confidence: food.confidence,
-        nutrition: {
-          calories: food.nutrition?.calories || 0,
-          protein: food.nutrition?.protein || 0,
-          carbs: food.nutrition?.carbs || 0,
-          fat: food.nutrition?.fat || 0,
-        },
-      }))
-    } catch (error) {
-      this.logger.error('Gemini API 调用异常', error)
-      throw error
-    }
-  }
-
-  /**
-   * 从 S3 获取图片并转换为 base64
-   */
-  private async getImageFromS3(imageKey: string): Promise<string> {
-    try {
-      const command = new GetObjectCommand({
-        Bucket: this.bucketName,
-        Key: imageKey,
+          },
+        ],
       })
 
-      const url = await getSignedUrl(this.s3Client, command, { expiresIn: 3600 })
+      // 数据清洗：移除可能存在的 ```json ... ``` 标记
+      let content = completion.choices[0]?.message?.content || '{}'
+      content = content.replace(/```json/g, '').replace(/```/g, '').trim()
 
-      // 下载图片
-      const imageResponse = await fetch(url)
-      if (!imageResponse.ok) {
-        throw new Error(`无法获取图片: ${imageResponse.status}`)
-      }
+      this.logger.log(`Qwen-VL 原始响应: ${content}`)
 
-      const buffer = await imageResponse.arrayBuffer()
-      const base64 = Buffer.from(buffer).toString('base64')
+      // 解析 JSON（新的格式）
+      const parsed: any = JSON.parse(content)
 
-      return base64
+      // 转换为标准格式（营养值按 100g 基准）
+      const portion_g = parsed.portion_estimate_g || 100
+      const ratio = portion_g / 100
+
+      return [
+        {
+          id: `qwen_${Date.now()}`,
+          name: parsed.food_name || '未知食物',
+          portion_g: portion_g,
+          confidence: 0.9,
+          nutrition: {
+            calories: Math.round(parsed.calories_per_100g || 0),
+            protein: Math.round((parsed.protein_g || 0) * ratio),
+            carbs: Math.round((parsed.carbs_g || 0) * ratio),
+            fat: Math.round((parsed.fat_g || 0) * ratio),
+          },
+          tips: '营养数据基于 AI 识别估算，仅供参考',
+        },
+      ]
     } catch (error) {
-      this.logger.error(`从 S3 获取图片失败: ${imageKey}`, error)
+      this.logger.error('Qwen-VL API 调用异常', error)
       throw error
     }
   }
@@ -219,6 +136,7 @@ export class FoodService {
           carbs: 0,
           fat: 22,
         },
+        tips: '富含优质蛋白质和Omega-3脂肪酸，有益心血管健康',
       },
     ]
   }
@@ -226,10 +144,10 @@ export class FoodService {
   /**
    * 获取模拟分析响应（开发用）
    */
-  private getMockAnalyzeResponse(imageKey: string): AnalyzeResponse {
+  private getMockAnalyzeResponse(imageUrl: string): AnalyzeResponse {
     return {
       foods: this.getMockRecognizedFoods(),
-      image_key: imageKey,
+      image_url: imageUrl,
       recognized_at: Date.now(),
     }
   }

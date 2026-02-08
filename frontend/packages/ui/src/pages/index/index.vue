@@ -4,127 +4,130 @@
  *
  * 显示今日热量环形图、健康指标卡片
  */
-import { computed, onMounted } from 'vue'
-import { useDashboard } from '@diet-lens/core'
-import { useAuthStore } from '@diet-lens/core'
+import { computed, onMounted } from "vue";
+import { onShow } from "@dcloudio/uni-app";
+import { useDashboard, useDiary } from "@diet-lens/core";
+import { useAuthStore } from "@diet-lens/core";
 
-const authStore = useAuthStore()
-const { loading, error, calories, protein, steps, water, sleep, fetchDashboard } = useDashboard()
+const authStore = useAuthStore();
+const { loading, error, calories, fetchDashboard } = useDashboard();
+const { todayMealCount, nextMealPrompt, fetchAll: fetchDiary } = useDiary();
 
 // 检查登录状态
-const isLoggedIn = computed(() => authStore.isLoggedIn)
+const isLoggedIn = computed(() => authStore.isLoggedIn);
 
 // 热量环形图进度计算
 const circleProgress = computed(() => {
-  const progress = calories.value.current / calories.value.target
-  const circumference = 2 * Math.PI * 110 // r=110
-  return circumference * (1 - progress)
-})
-
-// 步数进度
-const stepsProgress = computed(() => {
-  return Math.min((steps.value.current / steps.value.target) * 100, 100)
-})
+  const progress = calories.value.current / calories.value.target;
+  const circumference = 2 * Math.PI * 110; // r=110
+  return circumference * (1 - progress);
+});
 
 /** 餐别类型 */
-type MealType = 'breakfast' | 'lunch' | 'dinner' | 'snack'
+type MealType = "breakfast" | "lunch" | "dinner" | "snack";
 
 /** 根据当前时间获取推荐餐别 */
 function getCurrentMealType(): MealType {
-  const hour = new Date().getHours()
-  if (hour >= 5 && hour < 10) return 'breakfast'
-  if (hour >= 10 && hour < 14) return 'lunch'
-  if (hour >= 14 && hour < 20) return 'dinner'
-  return 'snack'
+  const hour = new Date().getHours();
+  if (hour >= 5 && hour < 10) return "breakfast";
+  if (hour >= 10 && hour < 14) return "lunch";
+  if (hour >= 14 && hour < 20) return "dinner";
+  return "snack";
 }
 
 /** 获取餐别中文名称 */
 function getMealTypeName(type: MealType): string {
   const names = {
-    breakfast: '早餐',
-    lunch: '午餐',
-    dinner: '晚餐',
-    snack: '加餐'
-  }
-  return names[type]
+    breakfast: "早餐",
+    lunch: "午餐",
+    dinner: "晚餐",
+    snack: "加餐",
+  };
+  return names[type];
 }
 
 /** 获取中文问候语 */
 function getGreeting(): string {
-  const hour = new Date().getHours()
-  if (hour >= 5 && hour < 12) return '早上好'
-  if (hour >= 12 && hour < 18) return '下午好'
-  return '晚上好'
+  const hour = new Date().getHours();
+  if (hour >= 5 && hour < 12) return "早上好";
+  if (hour >= 12 && hour < 18) return "下午好";
+  return "晚上好";
 }
 
 /** 获取中文日期 */
 function getChineseDate(): string {
-  const now = new Date()
-  const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
-  const month = now.getMonth() + 1
-  const day = now.getDate()
-  const weekday = weekdays[now.getDay()]
-  return `${month}月${day}日 ${weekday}`
+  const now = new Date();
+  const weekdays = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
+  const month = now.getMonth() + 1;
+  const day = now.getDate();
+  const weekday = weekdays[now.getDay()];
+  return `${month}月${day}日 ${weekday}`;
 }
 
 // 当前推荐餐别
-const currentMealType = computed<MealType>(() => getCurrentMealType())
-const currentMealName = computed(() => getMealTypeName(currentMealType.value))
+const currentMealType = computed<MealType>(() => getCurrentMealType());
+const currentMealName = computed(() => getMealTypeName(currentMealType.value));
 
 // 日期和问候语
-const chineseDate = computed(() => getChineseDate())
-const greeting = computed(() => getGreeting())
+const chineseDate = computed(() => getChineseDate());
+const greeting = computed(() => getGreeting());
 
 // 用户名
 const userName = computed(() => {
   // 从 authStore 或 userStore 获取用户名
-  return 'Alex'
-})
+  return "Alex";
+});
 
 const navigateTo = (path: string) => {
   // 判断是否为 tabBar 页面
-  const tabBarPages = ['/pages/index/index', '/pages/scan/index', '/pages/diary/index', '/pages/wiki/index', '/pages/profile/index']
+  const tabBarPages = ["/pages/index/index", "/pages/scan/index", "/pages/diary/index", "/pages/wiki/index", "/pages/profile/index"];
   if (tabBarPages.includes(path)) {
-    uni.switchTab({ url: path })
+    uni.switchTab({ url: path });
   } else {
-    uni.navigateTo({ url: path })
+    uni.navigateTo({ url: path });
   }
-}
-
-const addWater = () => {
-  // 添加水分逻辑
-  console.log('Added water')
-}
+};
 
 const logMeal = () => {
   // 跳转到拍照识别页面
-  uni.switchTab({ url: '/pages/scan/index' })
-}
+  uni.switchTab({ url: "/pages/scan/index" });
+};
 
 // 跳转到烹饪助手页面（直接生成）
 const goToCookingAssistant = () => {
   uni.navigateTo({
-    url: '/pages/cooking-assistant/index'
-  })
-}
+    url: "/pages/cooking-assistant/index",
+  });
+};
 
 // 跳转到 AI 聊天页面（对话定制）
 const goToAIChat = () => {
   uni.navigateTo({
-    url: '/pages/ai-chat/index'
-  })
-}
+    url: "/pages/ai-chat/index",
+  });
+};
 
 // 页面加载时获取仪表盘数据
 onMounted(async () => {
   if (isLoggedIn.value) {
     try {
-      await fetchDashboard()
+      await Promise.all([fetchDashboard(), fetchDiary()]);
     } catch (err) {
-      console.error('获取仪表盘数据失败:', err)
+      console.error("获取仪表盘数据失败:", err);
     }
   }
-})
+});
+
+// 页面显示时刷新数据（从其他页面返回时触发）
+onShow(async () => {
+  if (isLoggedIn.value) {
+    try {
+      await Promise.all([fetchDashboard(), fetchDiary()]);
+    } catch (err) {
+      console.error("刷新仪表盘数据失败:", err);
+    }
+  }
+});
 </script>
 
 <template>
@@ -136,7 +139,10 @@ onMounted(async () => {
         <text class="text-xl font-bold text-[#0e1a13] leading-tight">{{ greeting }}，{{ userName }}</text>
       </view>
       <view class="relative group" @tap="navigateTo('/pages/profile/index')">
-        <image src="https://lh3.googleusercontent.com/aida-public/AB6AXuA4ARIueyn7oeLTPKejOMX_pPCmp0S85Xj29ku1HwdDtPDdRoJLpgvSEU23aY8xES40OHagpkPIqfDk5h8PItc2_ZuNCkUoO83GnslRZ4Gx9UhngYaK5meHb23uRdd1Ue7r6Bjz93OPt83tMVKCviO5oMtJvKgZOPTe5t_pOF9YKnKnqVpqMMP0f3XfNWt1iZ5Kc46ID7smBu2WqYsT__xkslaaSj5fpZsEypEKjwo_BMUp4cmuwKUxEHETmtlH3YOqCR9fNO3K127-" class="w-10 h-10 rounded-full border-2 border-white shadow-sm"></image>
+        <image
+          src="/static/images/food/food_9.jpg"
+          class="w-10 h-10 rounded-full border-2 border-white shadow-sm"
+        ></image>
         <view class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-primary border-2 border-white rounded-full"></view>
       </view>
     </view>
@@ -146,9 +152,7 @@ onMounted(async () => {
       <text class="material-symbols-outlined text-6xl text-slate-300 mb-4">lock</text>
       <text class="text-lg font-bold text-slate-700 mb-2">请先登录</text>
       <text class="text-sm text-slate-500 mb-6">登录后查看您的健康数据</text>
-      <view @tap="navigateTo('/pages/onboarding/login')" class="px-6 py-3 bg-primary text-white rounded-2xl font-bold">
-        立即登录
-      </view>
+      <view @tap="navigateTo('/pages/onboarding/login')" class="px-6 py-3 bg-primary text-white rounded-2xl font-bold"> 立即登录 </view>
     </view>
 
     <!-- 已登录状态 -->
@@ -171,7 +175,18 @@ onMounted(async () => {
             <view class="absolute inset-0 bg-primary/20 blur-3xl rounded-full opacity-20 animate-pulse"></view>
             <svg class="w-full h-full transform -rotate-90 drop-shadow-lg" viewBox="0 0 256 256">
               <circle class="text-sage-100 dark:text-sage-800/40" cx="128" cy="128" fill="transparent" r="110" stroke="currentColor" stroke-width="18"></circle>
-              <circle class="text-primary progress-ring-circle" cx="128" cy="128" fill="transparent" r="110" stroke="currentColor" stroke-dasharray="691" :stroke-dashoffset="circleProgress" stroke-linecap="round" stroke-width="18"></circle>
+              <circle
+                class="text-primary progress-ring-circle"
+                cx="128"
+                cy="128"
+                fill="transparent"
+                r="110"
+                stroke="currentColor"
+                stroke-dasharray="691"
+                :stroke-dashoffset="circleProgress"
+                stroke-linecap="round"
+                stroke-width="18"
+              ></circle>
             </svg>
             <view class="absolute flex flex-col items-center justify-center text-center inset-0 z-10">
               <text class="text-slate-400 dark:text-sage-300 text-sm font-semibold uppercase tracking-widest mb-1">剩余可摄入</text>
@@ -194,78 +209,10 @@ onMounted(async () => {
           </view>
         </view>
 
-        <!-- Metric Grid -->
-        <view class="grid grid-cols-2 gap-4">
-          <view class="flex flex-col p-5 bg-white dark:bg-sage-900/40 rounded-3xl border border-sage-100 dark:border-sage-800 shadow-card group hover:border-primary/30 transition-colors cursor-pointer relative overflow-hidden">
-            <view class="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-              <text class="material-symbols-outlined text-6xl">footprint</text>
-            </view>
-            <view class="flex items-center gap-2 mb-3">
-              <text class="material-symbols-outlined text-primary text-xl font-variation-FILL-1">footprint</text>
-            </view>
-            <text class="text-sm font-bold text-slate-700 dark:text-sage-200">步数</text>
-            <view class="mt-auto">
-              <text class="text-2xl font-bold text-[#0e1a13] dark:text-white">{{ steps.current.toLocaleString() }}</text>
-              <text class="text-xs text-slate-500 dark:text-sage-400 mb-3">/ {{ steps.target.toLocaleString() }}</text>
-              <view class="h-1.5 w-full bg-sage-50 dark:bg-sage-800 rounded-full overflow-hidden">
-                <view class="h-full bg-primary rounded-full" :style="{ width: stepsProgress + '%' }"></view>
-              </view>
-            </view>
-          </view>
-
-          <view class="flex flex-col p-5 bg-[#ebf7fd] dark:bg-slate-800/40 rounded-3xl border border-transparent dark:border-sage-800 shadow-card relative overflow-hidden">
-            <view class="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-              <text class="material-symbols-outlined text-6xl text-sky-500">water_drop</text>
-            </view>
-            <view class="flex items-center gap-2 mb-3">
-              <text class="material-symbols-outlined text-sky-500 text-xl font-variation-FILL-1">water_drop</text>
-            </view>
-            <text class="text-sm font-bold text-slate-700 dark:text-sage-200">水分</text>
-            <view class="mt-auto flex items-end justify-between">
-              <view>
-                <text class="text-2xl font-bold text-[#0e1a13] dark:text-white">{{ water.current }}</text>
-                <text class="text-xs text-slate-500 dark:text-sage-400">/ {{ water.target }} 杯</text>
-              </view>
-              <view @tap="addWater" class="bg-white dark:bg-sage-800 text-sky-500 rounded-full w-8 h-8 flex items-center justify-center shadow-sm hover:scale-110 active:scale-95 transition-transform">
-                <text class="material-symbols-outlined text-lg font-bold">add</text>
-              </view>
-            </view>
-          </view>
-
-          <view class="flex flex-col p-5 bg-[#f0f0fa] dark:bg-indigo-900/20 rounded-3xl border border-transparent dark:border-sage-800 shadow-card relative overflow-hidden">
-            <view class="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-              <text class="material-symbols-outlined text-6xl text-indigo-500">bedtime</text>
-            </view>
-            <view class="flex items-center gap-2 mb-3">
-              <text class="material-symbols-outlined text-indigo-500 text-xl font-variation-FILL-1">bedtime</text>
-            </view>
-            <text class="text-sm font-bold text-slate-700 dark:text-sage-200">睡眠</text>
-            <view class="mt-auto">
-              <text class="text-2xl font-bold text-[#0e1a13] dark:text-white">{{ Math.floor(sleep.hours) }}<text class="text-base font-medium text-slate-500 dark:text-sage-400">小时</text> {{ Math.round((sleep.hours % 1) * 60) }}<text class="text-base font-medium text-slate-500 dark:text-sage-400">分</text></text>
-              <text class="text-xs text-indigo-500 dark:text-indigo-400 font-medium mt-1 flex items-center gap-1">
-                <text class="material-symbols-outlined text-[10px]">trending_up</text>
-                <text>睡眠质量{{ sleep.quality === 'GOOD' ? '佳' : sleep.quality === 'FAIR' ? '一般' : '差' }}</text>
-              </text>
-            </view>
-          </view>
-
-          <view class="flex flex-col p-5 bg-[#fff8e6] dark:bg-amber-900/20 rounded-3xl border border-transparent dark:border-sage-800 shadow-card relative overflow-hidden">
-            <view class="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-              <text class="material-symbols-outlined text-6xl text-amber-500">sentiment_satisfied</text>
-            </view>
-            <view class="flex items-center gap-2 mb-3">
-              <text class="material-symbols-outlined text-amber-500 text-xl font-variation-FILL-1">sentiment_satisfied</text>
-            </view>
-            <text class="text-sm font-bold text-slate-700 dark:text-sage-200">蛋白质</text>
-            <view class="mt-auto">
-              <text class="text-2xl font-bold text-[#0e1a13] dark:text-white">{{ protein.current }}</text>
-              <text class="text-xs text-slate-500 dark:text-sage-400">/ {{ protein.target }} g</text>
-            </view>
-          </view>
-        </view>
-
         <!-- AI Cooking Assistant -->
-        <view class="relative w-full overflow-hidden rounded-[24px] bg-white dark:bg-[#1A2C22] border border-slate-100 dark:border-white/5 p-6 shadow-[0_8px_20px_-6px_rgba(0,0,0,0.05)]">
+        <view
+          class="relative w-full overflow-hidden rounded-[24px] bg-white dark:bg-[#1A2C22] border border-slate-100 dark:border-white/5 p-6 shadow-[0_8px_20px_-6px_rgba(0,0,0,0.05)]"
+        >
           <!-- 背景装饰光晕 -->
           <view class="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full bg-primary/10 blur-[50px] dark:bg-primary/5"></view>
 
@@ -273,40 +220,44 @@ onMounted(async () => {
             <!-- 标题栏 -->
             <view class="mb-3 flex items-center gap-2.5">
               <view class="flex h-8 w-8 items-center justify-center rounded-full bg-green-50 dark:bg-primary/10">
-                <text class="material-symbols-outlined text-[18px] text-primary" style="font-variation-settings: 'FILL' 1">skillet</text>
+                <text class="material-symbols-outlined text-[18px] text-primary" style="font-variation-settings: &quot;FILL&quot; 1">skillet</text>
               </view>
               <text class="text-xs font-bold uppercase tracking-wider text-primary">AI 智能烹饪助手</text>
             </view>
 
             <!-- 主标题 -->
-            <text class="mb-2 text-xl font-extrabold leading-tight text-slate-900 dark:text-white">
-              AI 为你定制今日餐单
-            </text>
+            <text class="mb-2 text-xl font-extrabold leading-tight text-slate-900 dark:text-white"> AI 为你定制今日餐单 </text>
 
             <!-- 描述文字 -->
-            <text class="mb-6 text-sm leading-relaxed text-slate-500 dark:text-slate-400">
+            <text class="mb-2 text-sm leading-relaxed text-slate-500 dark:text-slate-400">
               通过 AI 对话表达你的口味偏好，或直接为您智能匹配最佳营养方案。
+            </text>
+
+            <!-- 餐次提示 -->
+            <text v-if="todayMealCount < 4" class="mb-4 text-xs font-medium text-primary bg-primary/10 px-3 py-1.5 rounded-lg inline-block">
+              {{ nextMealPrompt }}
             </text>
 
             <!-- 操作按钮 -->
             <view class="mt-auto flex gap-3">
               <button
-                class="flex-1 items-center justify-center rounded-xl bg-primary py-3.5 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-all after:border-none"
+                class="flex-1 flex-row items-center justify-center gap-1.5 rounded-xl border-2 border-primary bg-primary py-3.5 text-sm font-bold text-white shadow-lg shadow-primary/30 transition-all after:border-none"
                 hover-class="opacity-90 scale-[0.98]"
-                :hover-stay-time="100"
-                @tap="goToCookingAssistant"
-              >
-                直接生成
-              </button>
-
-              <button
-                class="flex-1 flex-row items-center justify-center gap-1.5 rounded-xl border border-slate-200 dark:border-white/10 bg-transparent py-3.5 text-sm font-bold text-primary transition-all after:border-none"
-                hover-class="bg-primary/5 scale-[0.98]"
                 :hover-stay-time="100"
                 @tap="goToAIChat"
               >
                 <text class="material-symbols-outlined text-[20px]">chat_bubble</text>
                 <text>对话定制</text>
+              </button>
+
+              <button
+                class="flex-1 flex-row items-center justify-center rounded-xl bg-transparent py-3.5 text-sm font-bold text-primary transition-all"
+                style="border: 2px solid #e2e8f0;"
+                hover-class="bg-primary/5 scale-[0.98]"
+                :hover-stay-time="100"
+                @tap="goToCookingAssistant"
+              >
+                直接生成
               </button>
             </view>
           </view>
@@ -320,7 +271,9 @@ onMounted(async () => {
           </view>
 
           <!-- Empty State -->
-          <view class="relative w-full rounded-3xl bg-white dark:bg-sage-900/30 border-2 border-dashed border-sage-200 dark:border-sage-800 p-8 flex flex-col items-center text-center">
+          <view
+            class="relative w-full rounded-3xl bg-white dark:bg-sage-900/30 border-2 border-dashed border-sage-200 dark:border-sage-800 p-8 flex flex-col items-center text-center"
+          >
             <view class="relative w-28 h-28 mb-4">
               <view class="absolute inset-2 rounded-full border border-slate-200 dark:border-sage-700 bg-sage-50 dark:bg-sage-800/50"></view>
               <view class="absolute inset-4 rounded-full border border-slate-100 dark:border-sage-700/50 shadow-inner"></view>
@@ -328,11 +281,16 @@ onMounted(async () => {
                 <text class="material-symbols-outlined text-4xl">restaurant_menu</text>
               </view>
             </view>
-            <text class="text-base font-bold text-[#0e1a13] dark:text-white mb-1">您的餐盘是空的</text>
-            <text class="text-sm text-slate-500 dark:text-sage-400 max-w-[200px] leading-relaxed">
-              记录您的第一顿餐食，解锁个性化分析建议。
+            <text class="text-base font-bold text-[#0e1a13] dark:text-white mb-1">
+              {{ todayMealCount === 0 ? '您的餐盘是空的' : `已记录 ${todayMealCount} 餐` }}
             </text>
-            <view @tap="logMeal" class="mt-5 px-5 py-2.5 rounded-full bg-sage-100 dark:bg-sage-800 text-slate-700 dark:text-sage-200 text-sm font-bold hover:bg-sage-200 dark:hover:bg-sage-700 transition-colors inline-flex items-center gap-2">
+            <text class="text-sm text-slate-500 dark:text-sage-400 max-w-[200px] leading-relaxed">
+              {{ nextMealPrompt }}
+            </text>
+            <view
+              @tap="logMeal"
+              class="mt-5 px-5 py-2.5 rounded-full bg-sage-100 dark:bg-sage-800 text-slate-700 dark:text-sage-200 text-sm font-bold hover:bg-sage-200 dark:hover:bg-sage-700 transition-colors inline-flex items-center gap-2"
+            >
               <text class="material-symbols-outlined text-lg">add</text>
               <text>记录{{ currentMealName }}</text>
             </view>
@@ -347,8 +305,8 @@ onMounted(async () => {
 <route lang="json">
 {
   "style": {
-    "navigationBarTitleText": "智能健康仪表盘",
-    "navigationStyle": "default"
+    "navigationBarTitleText": "",
+    "navigationStyle": "custom"
   }
 }
 </route>
@@ -362,7 +320,11 @@ onMounted(async () => {
 
 /* Material Symbols 填充效果 */
 .font-variation-FILL-1 {
-  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  font-variation-settings:
+    "FILL" 1,
+    "wght" 400,
+    "GRAD" 0,
+    "opsz" 24;
 }
 
 /* 解决小程序 button 默认样式干扰 */

@@ -7,46 +7,44 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 
-// Mock API
-vi.mock('../../src/api')
+// 使用 vi.hoisted 创建 mock 函数（在模块导入前执行）
+const mockGetList = vi.hoisted(() => vi.fn())
+const mockGetSummary = vi.hoisted(() => vi.fn())
+const mockCreateEntry = vi.hoisted(() => vi.fn())
+const mockUpdateEntry = vi.hoisted(() => vi.fn())
+const mockDeleteEntry = vi.hoisted(() => vi.fn())
 
-// 暂时跳过 useDiary 测试，需要修复模块加载问题
-describe.skip('useDiary', () => {
-  let useDiary: () => ReturnType<typeof import('../../src/composables/useDiary').useDiary>
-  let mockGetList: ReturnType<typeof vi.fn>
-  let mockGetSummary: ReturnType<typeof vi.fn>
-  let mockCreateEntry: ReturnType<typeof vi.fn>
-  let mockUpdateEntry: ReturnType<typeof vi.fn>
-  let mockDeleteEntry: ReturnType<typeof vi.fn>
+// Mock API 模块
+vi.mock('../../src/api', () => ({
+  getApi: vi.fn(() => ({
+    get: vi.fn(),
+    post: vi.fn(),
+    put: vi.fn(),
+    delete: vi.fn(),
+    patch: vi.fn(),
+  })),
+  initApi: vi.fn(),
+}))
 
+// Mock DiaryService
+vi.mock('../../src/api/services/diary.service', () => ({
+  DiaryService: class {
+    constructor() {}
+    getList = mockGetList
+    getSummary = mockGetSummary
+    createEntry = mockCreateEntry
+    updateEntry = mockUpdateEntry
+    deleteEntry = mockDeleteEntry
+  },
+}))
+
+import { useDiary } from '../../src/composables/useDiary'
+
+describe('useDiary', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     setActivePinia(createPinia())
-
-    // Mock API
-    mockGetList = vi.fn()
-    mockGetSummary = vi.fn()
-    mockCreateEntry = vi.fn()
-    mockUpdateEntry = vi.fn()
-    mockDeleteEntry = vi.fn()
-
-    vi.doMock('../../src/api', () => ({
-      getApi: () => ({
-        constructor: vi.fn().mockImplementation(() => ({})),
-      }),
-      DiaryService: class {
-        constructor() {}
-        getList = mockGetList
-        getSummary = mockGetSummary
-        createEntry = mockCreateEntry
-        updateEntry = mockUpdateEntry
-        deleteEntry = mockDeleteEntry
-      }
-    }))
   })
-
-  // Import after mocking (at describe block level)
-  useDiary = () => require('../../src/composables/useDiary').useDiary()
 
   describe('初始状态', () => {
     it('应有正确的初始状态', () => {
@@ -89,7 +87,7 @@ describe.skip('useDiary', () => {
       const mockEntries = [
         {
           id: '1',
-          mealType: 'BREAKFAST',
+          mealType: 'BREAKFAST' as const,
           totalCalories: 500,
           items: [{ name: '燕麦粥', portion: 100 }]
         }
@@ -196,13 +194,13 @@ describe.skip('useDiary', () => {
 
       const newEntry = {
         id: '1',
-        mealType: 'LUNCH',
+        mealType: 'LUNCH' as const,
         totalCalories: 600,
         items: [{ name: '鸡胸肉沙拉', portion: 200 }]
       }
 
       mockCreateEntry.mockResolvedValue(newEntry)
-      mockGetSummary.mockResolvedValue({ date: '2024-01-15' })
+      mockGetSummary.mockResolvedValue({ date: '2024-01-15' } as any)
 
       const result = await diary.addEntry({
         mealType: 'LUNCH',
@@ -217,9 +215,9 @@ describe.skip('useDiary', () => {
     it('添加后应刷新汇总数据', async () => {
       const diary = useDiary()
 
-      const newEntry = { id: '1', mealType: 'LUNCH', totalCalories: 600, items: [] }
+      const newEntry = { id: '1', mealType: 'LUNCH' as const, totalCalories: 600, items: [] }
       mockCreateEntry.mockResolvedValue(newEntry)
-      mockGetSummary.mockResolvedValue({ date: '2024-01-15', totalCalories: 600 })
+      mockGetSummary.mockResolvedValue({ date: '2024-01-15', totalCalories: 600 } as any)
 
       await diary.addEntry({ mealType: 'LUNCH', items: [] })
 
@@ -247,7 +245,7 @@ describe.skip('useDiary', () => {
 
       const existingEntry = {
         id: '1',
-        mealType: 'BREAKFAST',
+        mealType: 'BREAKFAST' as const,
         totalCalories: 400,
         items: [{ name: '鸡蛋', portion: 100 }]
       }
@@ -259,7 +257,7 @@ describe.skip('useDiary', () => {
       }
 
       mockUpdateEntry.mockResolvedValue(updatedEntry)
-      mockGetSummary.mockResolvedValue({ date: '2024-01-15' })
+      mockGetSummary.mockResolvedValue({ date: '2024-01-15' } as any)
 
       const result = await diary.updateEntry('1', { items: [{ name: '鸡蛋', portion: 150 }] })
 
@@ -282,12 +280,12 @@ describe.skip('useDiary', () => {
     it('应成功删除日记条目', async () => {
       const diary = useDiary()
 
-      const entry1 = { id: '1', mealType: 'BREAKFAST', totalCalories: 400, items: [] }
-      const entry2 = { id: '2', mealType: 'LUNCH', totalCalories: 600, items: [] }
+      const entry1 = { id: '1', mealType: 'BREAKFAST' as const, totalCalories: 400, items: [] }
+      const entry2 = { id: '2', mealType: 'LUNCH' as const, totalCalories: 600, items: [] }
       diary.entries.value = [entry1, entry2]
 
       mockDeleteEntry.mockResolvedValue(undefined)
-      mockGetSummary.mockResolvedValue({ date: '2024-01-15' })
+      mockGetSummary.mockResolvedValue({ date: '2024-01-15' } as any)
 
       const result = await diary.deleteEntry('1')
 
@@ -332,7 +330,7 @@ describe.skip('useDiary', () => {
             { name: '米饭', portion: 150 }
           ]
         }
-      ]
+      ] as any
 
       const meals = diary.meals.value
 
@@ -352,7 +350,7 @@ describe.skip('useDiary', () => {
         { id: '1', mealType: 'DINNER', totalCalories: 500, items: [] },
         { id: '2', mealType: 'BREAKFAST', totalCalories: 400, items: [] },
         { id: '3', mealType: 'LUNCH', totalCalories: 600, items: [] }
-      ]
+      ] as any
 
       const meals = diary.meals.value
 
@@ -367,7 +365,7 @@ describe.skip('useDiary', () => {
       diary.entries.value = [
         { id: '1', mealType: 'BREAKFAST', totalCalories: 300, items: [] },
         { id: '2', mealType: 'BREAKFAST', totalCalories: 200, items: [] }
-      ]
+      ] as any
 
       const meals = diary.meals.value
 
@@ -381,7 +379,7 @@ describe.skip('useDiary', () => {
       diary.selectedDate.value = '2024-01-15'
 
       mockGetList.mockResolvedValue([])
-      mockGetSummary.mockResolvedValue({ date: '2024-01-15' })
+      mockGetSummary.mockResolvedValue({ date: '2024-01-15' } as any)
 
       await diary.refresh()
 

@@ -25,13 +25,13 @@ const seasonalItems = [
     name: '牛油果 (Avocado)',
     score: 98,
     tags: ['优质脂肪'],
-    img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDejXUH1BDXEER9F3FELKud7iUO2KZ17RgJNrY4lDkBhH6Tc-u3bNIYyRX91RiuaPOa4I7wLJvn6ZUSSmnhptpgGJWgUy1pMWSHcxRkbWu65p9oHvIJk_e7cqKWSNSDfevoIE_bSJifkE_AMUrRxghzYnjTlZv07HY2OSH-10MW9ENvQf0j3PD7NWS0Uv_gzq-Ieqr8QVH5oTOAe5OysgaFENlD31regyrBhJ67q22tef3bWB41TtKa_NW5dYKxf5jURrpnZrWZzf7E'
+    img: '/static/images/food/food_1.jpg'
   },
   {
     name: '深海三文鱼',
     score: 95,
     tags: ['Omega-3'],
-    img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBtDm4ZjOk45gKnLqrSyl18-u_ix9MGrFYxCQiVwzgo2AUJMw6ss2Z52uY5fDyJa2xBipdL0gY1_AvQmYyBCK9fgHtWeviyM3CmmbXBlzxTKBWRWuuL8GrNTDKs2s78Oh0O_4DYsR8VjWWRLExZzmS-xUqQXVW5bubUsCVBZ5I6dkrWxgZfE2f9qsXKeIAxlMq4cb5sLmQ2hdTHSczrJJi-2uRgj_g79pA9yjqjVLN2owINHy5RLiLvGxolQEy56yEsvu9VtzrPdBg3'
+    img: '/static/images/food/food_2.jpg'
   }
 ]
 
@@ -42,14 +42,14 @@ const foodItems: FoodItem[] = [
     score: 94,
     tags: ['AI 小贴士'],
     desc: '建议水煮控制在 8 分钟内。',
-    img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDZEvgua3_rMOGa0OylbPtsG-yB1s_8OHCZxsEST06iY-IP8bR4N7LRQ-HiFpXY2oND-UdOXiPHb7cARuyJGHit4a7LnLWg-_iAk9aL4V3bPpqw9hwKF7174DgpYk0ZuZNgPe4HtnyJiIBFhGRvcQl10VxeorChMg8qgakFhfVAM7oeGJa-uItNLPmmQYXNmIJttaxsPdvwg4KihNu5cpbxQiTH4zqIScn9uTX9luc1o2hCIo0jQ5Etx-xAEATzm7dC5nrxuAH3hphA'
+    img: '/static/images/food/food_3.jpg'
   },
   {
     name: '野生蓝莓',
     sub: '花青素之王',
     score: 88,
     tags: ['抗氧化', '低糖'],
-    img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBX9vgDOQ4BdB-gds4ceL23WIpsqJRuBUuK9l6hzg0OGzU-B9IWcWmIuG2pOY2P1u1hGd64edy_CUXqTBYr7op9WVHIbAZcB08PlgWFbqHFy86MAPj7sH_WdnTp7QnOFx3vXRWhkxHv-zklLOs4DwI3ddwLWupcsgOZiEn_WRghc68hBBHyFJUG5h77v1W_qbw5RfZt6ytFY8VArMsijfDFmiUJtV7cIYO6ZB3n3gZAR1xBWmchy33KrPHTADD05B1WrIeetriFy7iT'
+    img: '/static/images/food/food_4.jpg'
   },
   {
     name: '奇亚籽',
@@ -57,14 +57,14 @@ const foodItems: FoodItem[] = [
     score: 96,
     tags: ['AI 小贴士'],
     desc: '需浸泡 10 分钟激活胶质。',
-    img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuC0yzc3cWm8uQmrgASYcHb5nHNijPeRaODHRVXS4wKNUHHr9eFkMZrYqp2B9fYm4PYYFnwjh1OtO7Tw6U2whTV2IYrSt-oiS9nQcyLA3KpRIdNiu_yF2acQXlxU2gbwahh9RNSdW2S2lXIXt6N83QW8xGolfbWg89-f5rBjITCYa7sAFYvH7Hxo53UUhhow0Lj0EzYHB2wSs7asscrnB8ZFYx98N89Pq4f4tVZ-huL6ex3tmk-M8sg4ufaS36D9dRaed72UHXwvQfMS'
+    img: '/static/images/food/food_5.jpg'
   },
   {
     name: '羽衣甘蓝',
     sub: '维生素K之王',
     score: 92,
     tags: ['高纤维', '排毒'],
-    img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBXUV-xiVHMPWSTmkIKfwT35kSoWU1qwQN3MGj4P-FgTk5GK6IeoU9hBcoLs369Tn_98uBhs_AKkrjs6ZKdJ84Vk9Kt1CV3TffaD7Xr4nxQbURfmO546cPKE1kPEGIu-iMc03tzLbomopQ-nWLZMcobgVhYBGEpK26wC0Gezm2yc3fmVml8drTJnF8Ze-vId86BM605eq7cw4LOf41tOETtECswDlk679f54m6dlBE05IaUOtX6JvLzb7amsK2IlZ2tfUzah4WX2NfU'
+    img: '/static/images/food/food_6.jpg'
   }
 ]
 

@@ -31,7 +31,7 @@ export class AIController {
    * 提交食物识别分析
    */
   @Post('analyze')
-  @ApiOperation({ summary: 'AI 食物识别', description: '基于 Gemini API 进行食物拍照识别' })
+  @ApiOperation({ summary: 'AI 食物识别', description: '基于阿里云 Qwen-VL 进行食物拍照识别' })
   @SwaggerApiResponse({ status: 200, description: '成功返回识别结果' })
   async analyze(@Body() dto: AnalyzeFoodDto) {
     const result = await this.foodService.analyzeFood(dto)

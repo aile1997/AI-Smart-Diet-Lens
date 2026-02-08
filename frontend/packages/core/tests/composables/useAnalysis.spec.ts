@@ -7,34 +7,39 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 
-// Mock API
-vi.mock('../../src/api')
+// 使用 vi.hoisted 创建 mock 函数（在模块导入前执行）
+const mockGetSummary = vi.hoisted(() => vi.fn())
 
-// 暂时跳过 useAnalysis 测试，需要修复模块加载问题
-describe.skip('useAnalysis', () => {
-  let useAnalysis: () => ReturnType<typeof import('../../src/composables/useAnalysis').useAnalysis>
-  let mockGetSummary: ReturnType<typeof vi.fn>
+// Mock API 模块
+vi.mock('../../src/api', () => ({
+  getApi: vi.fn(() => ({
+    get: vi.fn(),
+    post: vi.fn(),
+    put: vi.fn(),
+    delete: vi.fn(),
+    patch: vi.fn(),
+  })),
+  initApi: vi.fn(),
+}))
 
+// Mock DiaryService
+vi.mock('../../src/api/services/diary.service', () => ({
+  DiaryService: class {
+    constructor() {}
+    getSummary = mockGetSummary
+  },
+}))
+
+import { useAnalysis } from '../../src/composables/useAnalysis'
+
+describe('useAnalysis', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    // 重置 mock 行为，避免测试间互相影响
+    mockGetSummary.mockReset()
+    // 不设置默认返回值，让每个测试自己设置
     setActivePinia(createPinia())
-
-    // Mock API
-    mockGetSummary = vi.fn()
-
-    vi.doMock('../../src/api', () => ({
-      getApi: () => ({
-        constructor: vi.fn().mockImplementation(() => ({})),
-      }),
-      DiaryService: class {
-        constructor() {}
-        getSummary = mockGetSummary
-      }
-    }))
   })
-
-  // Import after mocking (at describe block level)
-  useAnalysis = () => require('../../src/composables/useAnalysis').useAnalysis()
 
   describe('初始状态', () => {
     it('应有正确的初始状态', () => {
@@ -86,10 +91,16 @@ describe.skip('useAnalysis', () => {
       const mockSummaries = Array.from({ length: 7 }, (_, i) => ({
         date: new Date(Date.now() - (6 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         totalCalories: 1800 + i * 50,
-        targetCalories: 2000
+        targetCalories: 2000,
+        totalProtein: 100,
+        totalCarbs: 200,
+        totalFat: 60
       }))
 
-      mockGetSummary.mockResolvedValue(...mockSummaries)
+      // 使用 mockResolvedValueOnce 按顺序返回
+      mockSummaries.forEach((s) => mockGetSummary.mockResolvedValueOnce(s))
+      // 设置默认返回值
+      mockGetSummary.mockResolvedValue(mockSummaries[0])
 
       await analysis.fetchTrends('week')
 
@@ -106,7 +117,10 @@ describe.skip('useAnalysis', () => {
       mockGetSummary.mockResolvedValue({
         date: today,
         totalCalories: 1800,
-        targetCalories: 2000
+        targetCalories: 2000,
+        totalProtein: 100,
+        totalCarbs: 200,
+        totalFat: 60
       })
 
       await analysis.fetchTrends('week')
@@ -133,7 +147,10 @@ describe.skip('useAnalysis', () => {
       mockGetSummary.mockResolvedValue({
         date: '2024-01-15',
         totalCalories: 1800,
-        targetCalories: 2000
+        targetCalories: 2000,
+        totalProtein: 100,
+        totalCarbs: 200,
+        totalFat: 60
       })
 
       await analysis.fetchTrends('month')
@@ -150,7 +167,10 @@ describe.skip('useAnalysis', () => {
       mockGetSummary.mockResolvedValue({
         date: '2024-01-15',
         totalCalories: 1800,
-        targetCalories: 2000
+        targetCalories: 2000,
+        totalProtein: 100,
+        totalCarbs: 200,
+        totalFat: 60
       })
 
       await analysis.fetchTrends('week')
@@ -162,19 +182,33 @@ describe.skip('useAnalysis', () => {
     it('应计算最近 7 天的平均值（即使有更多数据）', async () => {
       const analysis = useAnalysis()
 
-      // 模拟 10 天数据
-      const summaries = Array.from({ length: 10 }, (_, i) => ({
+      // 创建 10 天数据：前5天1500，后5天2000
+      // 但 fetchTrends('week') 只会获取最后 7 天
+      const tenDaySummaries = Array.from({ length: 10 }, (_, i) => ({
         date: new Date(Date.now() - (9 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        totalCalories: i < 3 ? 1500 : 2000, // 前3天1500，后7天2000
-        targetCalories: 2000
+        totalCalories: i < 5 ? 1500 : 2000, // 前5天1500，后5天2000
+        targetCalories: 2000,
+        totalProtein: 100,
+        totalCarbs: 200,
+        totalFat: 60
       }))
 
-      mockGetSummary.mockResolvedValue(...summaries)
+      // Mock 按顺序返回 10 天数据中的后 7 天（索引 3-9）
+      let callCount = 0
+      mockGetSummary.mockImplementation(() => {
+        // fetchTrends('week') 会调用 7 次
+        // 返回 tenDaySummaries 的后 7 个元素（索引 3-9）
+        // 前 2 个是 1500，后 5 个是 2000
+        const index = 3 + callCount
+        callCount++
+        return Promise.resolve(tenDaySummaries[index])
+      })
 
       await analysis.fetchTrends('week')
 
-      // 周 range 时只计算最近 7 天
-      expect(analysis.averageCalories.value).toBe(2000)
+      // 最后 7 天：前 2 天 1500，后 5 天 2000
+      // 平均值 = (1500 * 2 + 2000 * 5) / 7 = 3000 + 10000 / 7 = 1857
+      expect(analysis.averageCalories.value).toBe(1857)
     })
 
     it('应在月度范围计算最近 30 天平均值', async () => {
@@ -183,7 +217,10 @@ describe.skip('useAnalysis', () => {
       mockGetSummary.mockResolvedValue({
         date: '2024-01-15',
         totalCalories: 1800,
-        targetCalories: 2000
+        targetCalories: 2000,
+        totalProtein: 100,
+        totalCarbs: 200,
+        totalFat: 60
       })
 
       await analysis.fetchTrends('month')
@@ -196,23 +233,44 @@ describe.skip('useAnalysis', () => {
     it('应正确计算周同比变化', async () => {
       const analysis = useAnalysis()
 
-      // 14天数据：上周平均1500，这周平均1800
-      const summaries = [
-        ...Array.from({ length: 7 }, () => ({ // 上周
-          date: '2024-01-08',
+      // 创建 30 天数据：前7天1500，后7天1800，其余任意
+      const monthSummaries = [
+        // 前16天（任意值）
+        ...Array.from({ length: 16 }, () => ({
+          date: '2024-01-01',
           totalCalories: 1500,
-          targetCalories: 2000
+          targetCalories: 2000,
+          totalProtein: 100,
+          totalCarbs: 200,
+          totalFat: 60
         })),
-        ...Array.from({ length: 7 }, () => ({ // 这周
-          date: '2024-01-15',
+        // 上周 (第17-23天) - 平均1500
+        ...Array.from({ length: 7 }, (_, i) => ({
+          date: new Date(Date.now() - (13 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          totalCalories: 1500,
+          targetCalories: 2000,
+          totalProtein: 100,
+          totalCarbs: 200,
+          totalFat: 60
+        })),
+        // 这周 (第24-30天) - 平均1800
+        ...Array.from({ length: 7 }, (_, i) => ({
+          date: new Date(Date.now() - (6 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
           totalCalories: 1800,
-          targetCalories: 2000
+          targetCalories: 2000,
+          totalProtein: 100,
+          totalCarbs: 200,
+          totalFat: 60
         }))
       ]
 
-      mockGetSummary.mockResolvedValue(...summaries)
+      // 使用 mockImplementation 精确控制返回值
+      let callCount = 0
+      mockGetSummary.mockImplementation(() => {
+        return Promise.resolve(monthSummaries[callCount++ % monthSummaries.length])
+      })
 
-      await analysis.fetchTrends('week')
+      await analysis.fetchTrends('month')
 
       // (1800 - 1500) / 1500 * 100 = 20%
       expect(analysis.weekOverWeekChange.value).toBe(20)
@@ -221,22 +279,44 @@ describe.skip('useAnalysis', () => {
     it('应处理负增长', async () => {
       const analysis = useAnalysis()
 
-      const summaries = [
-        ...Array.from({ length: 7 }, () => ({
-          date: '2024-01-08',
+      // 创建 30 天数据：前7天2000，后7天1600，其余任意
+      const monthSummaries = [
+        // 前16天（任意值）
+        ...Array.from({ length: 16 }, () => ({
+          date: '2024-01-01',
           totalCalories: 2000,
-          targetCalories: 2000
+          targetCalories: 2000,
+          totalProtein: 100,
+          totalCarbs: 200,
+          totalFat: 60
         })),
-        ...Array.from({ length: 7 }, () => ({
-          date: '2024-01-15',
+        // 上周 (第17-23天) - 平均2000
+        ...Array.from({ length: 7 }, (_, i) => ({
+          date: new Date(Date.now() - (13 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          totalCalories: 2000,
+          targetCalories: 2000,
+          totalProtein: 100,
+          totalCarbs: 200,
+          totalFat: 60
+        })),
+        // 这周 (第24-30天) - 平均1600
+        ...Array.from({ length: 7 }, (_, i) => ({
+          date: new Date(Date.now() - (6 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
           totalCalories: 1600,
-          targetCalories: 2000
+          targetCalories: 2000,
+          totalProtein: 100,
+          totalCarbs: 200,
+          totalFat: 60
         }))
       ]
 
-      mockGetSummary.mockResolvedValue(...summaries)
+      // 使用 mockImplementation 精确控制返回值
+      let callCount = 0
+      mockGetSummary.mockImplementation(() => {
+        return Promise.resolve(monthSummaries[callCount++ % monthSummaries.length])
+      })
 
-      await analysis.fetchTrends('week')
+      await analysis.fetchTrends('month')
 
       // (1600 - 2000) / 2000 * 100 = -20%
       expect(analysis.weekOverWeekChange.value).toBe(-20)
@@ -326,7 +406,10 @@ describe.skip('useAnalysis', () => {
       mockGetSummary.mockResolvedValue({
         date: '2024-01-15',
         totalCalories: 1800,
-        targetCalories: 2000
+        targetCalories: 2000,
+        totalProtein: 100,
+        totalCarbs: 200,
+        totalFat: 60
       })
 
       await analysis.refresh()

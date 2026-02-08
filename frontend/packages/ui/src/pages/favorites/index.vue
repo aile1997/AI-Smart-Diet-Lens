@@ -38,7 +38,12 @@ const filteredList = computed(() => {
 
 // 返回
 const navigateBack = () => {
-  uni.navigateBack()
+  const pages = getCurrentPages()
+  if (pages.length > 1) {
+    uni.navigateBack()
+  } else {
+    uni.reLaunch({ url: '/pages/index/index' })
+  }
 }
 
 // 切换标签
@@ -101,7 +106,7 @@ onMounted(async () => {
       <view @tap="navigateBack" class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-[#5a847b] active:scale-95 transition-transform">
         <text class="material-symbols-outlined">arrow_back</text>
       </view>
-      <text class="text-[20px] font-bold text-slate-900 tracking-tight">我的收藏</text>
+      <text class="text-xl font-bold text-slate-900 tracking-tight">我的收藏</text>
       <view class="w-10 h-10 rounded-full bg-transparent flex items-center justify-center text-[#5a847b]">
         <text class="material-symbols-outlined">more_horiz</text>
       </view>
@@ -122,7 +127,7 @@ onMounted(async () => {
       <view class="px-4 mt-2">
         <view class="relative">
           <view class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-            <text class="material-symbols-outlined text-gray-400 text-[20px]">search</text>
+            <text class="material-symbols-outlined text-gray-400 text-xl">search</text>
           </view>
           <input
             v-model="searchQuery"
@@ -191,17 +196,17 @@ onMounted(async () => {
                 @tap.stop="removeFavorite(item.id)"
                 class="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center text-red-500 shadow-sm active:scale-90 transition-transform"
               >
-                <text class="material-symbols-outlined filled text-[18px]">favorite</text>
+                <text class="material-symbols-outlined filled text-lg">favorite</text>
               </view>
             </view>
-            <text class="font-bold text-slate-800 text-[15px] leading-tight mb-1 block truncate">{{ item.name }}</text>
+            <text class="font-bold text-slate-800 text-sm leading-tight mb-1 block truncate">{{ item.name }}</text>
             <view v-if="selectedType === 'recipe'" class="flex items-center gap-1 text-[#5a847b] font-bold text-xs mt-2">
-              <text class="material-symbols-outlined filled text-[14px]">local_fire_department</text>
+              <text class="material-symbols-outlined filled text-sm">local_fire_department</text>
               <text>{{ item.calories }} kcal</text>
             </view>
             <view v-else class="flex items-center justify-between mt-2">
               <view class="flex items-center gap-1 text-[#5a847b] font-bold text-xs">
-                <text class="material-symbols-outlined filled text-[14px]">verified</text>
+                <text class="material-symbols-outlined filled text-sm">verified</text>
                 <text>已收藏</text>
               </view>
             </view>

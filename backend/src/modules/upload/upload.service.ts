@@ -1,21 +1,30 @@
 import { Injectable, Logger, BadRequestException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { randomBytes } from 'crypto'
-import {
-  S3Client,
-  PutObjectCommand,
-  GetObjectCommand,
-} from '@aws-sdk/client-s3'
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
+// 使用 require 兼容 CommonJS 模块
+const COS = require('cos-nodejs-sdk-v5')
+
+/**
+ * 腾讯云 COS 预签名 URL 授权参数
+ */
+interface PresignedUrlOptions {
+  Bucket: string
+  Region: string
+  Key: string
+  Method: string
+  Expires: number
+  Headers?: Record<string, string>
+  Query?: Record<string, string>
+}
 
 /**
  * 预签名 URL 响应
  */
 export interface PresignedUrlResponse {
-  upload_url: string      // 预签名的 PUT URL
-  file_key: string        // 文件在 S3 中的 key
-  public_url: string      // 文件的公开访问 URL
-  expires_at: number      // 过期时间戳
+  uploadUrl: string      // 预签名的 PUT URL
+  fileKey: string        // 文件在 COS 中的 key
+  publicUrl: string      // 文件的公开访问 URL
+  expiresAt: number      // 过期时间戳
 }
 
 /**
@@ -37,23 +46,23 @@ const ALLOWED_CONTENT_TYPES = [
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 
 /**
- * S3 上传服务
+ * 腾讯云 COS 上传服务
  */
 @Injectable()
 export class UploadService {
   private readonly logger = new Logger(UploadService.name)
-  private readonly s3Client: S3Client
+  private readonly cos: any
   private readonly bucketName: string
+  private readonly region: string
 
   constructor(private readonly config: ConfigService) {
-    this.s3Client = new S3Client({
-      region: this.config.get<string>('AWS_REGION') || 'us-east-1',
-      credentials: {
-        accessKeyId: this.config.get<string>('AWS_ACCESS_KEY_ID') || '',
-        secretAccessKey: this.config.get<string>('AWS_SECRET_ACCESS_KEY') || '',
-      },
+    // 初始化腾讯云 COS
+    this.cos = new COS({
+      SecretId: this.config.get<string>('TENCENT_SECRET_ID') || '',
+      SecretKey: this.config.get<string>('TENCENT_SECRET_KEY') || '',
     })
-    this.bucketName = this.config.get<string>('S3_BUCKET') || 'diet-lens-uploads'
+    this.bucketName = this.config.get<string>('TENCENT_BUCKET') || 'smart-diet-lens'
+    this.region = this.config.get<string>('TENCENT_REGION') || 'ap-beijing'
   }
 
   /**
@@ -83,7 +92,7 @@ export class UploadService {
   }
 
   /**
-   * 生成 S3 预签名上传 URL
+   * 生成腾讯云 COS 预签名上传 URL
    * @param filename 原始文件名
    * @param contentType 文件 MIME 类型
    * @param fileSize 文件大小（字节）
@@ -108,43 +117,90 @@ export class UploadService {
     const ext = filename.split('.').pop()?.toLowerCase() || 'jpg'
     const fileKey = `uploads/${this.generateSecureFilename(ext)}`
 
-    const command = new PutObjectCommand({
-      Bucket: this.bucketName,
-      Key: fileKey,
-      ContentType: contentType,
-      ContentLength: fileSize,
-      Metadata: {
-        originalName: filename,
-        uploadedAt: new Date().toISOString(),
-      },
+    // 使用腾讯云 COS SDK 生成预签名 PUT URL
+    return new Promise((resolve, reject) => {
+      this.cos.getObjectUrl(
+        {
+          Bucket: this.bucketName,
+          Region: this.region,
+          Key: fileKey,
+          Method: 'PUT',
+          Sign: true,
+          Expires: 600, // 10分钟有效期
+          Headers: {
+            'Content-Type': contentType, // 必须包含 Content-Type
+          },
+        },
+        (err: any, data: any) => {
+          if (err) {
+            this.logger.error('生成预签名 URL 失败', err)
+            return reject(err)
+          }
+
+          const publicUrl = `https://${this.bucketName}.cos.${this.region}.myqcloud.com/${fileKey}`
+          this.logger.log(`生成 COS 预签名 URL: ${fileKey}`)
+
+          resolve({
+            uploadUrl: data.Url, // 预签名的 PUT URL
+            fileKey: fileKey,
+            publicUrl: publicUrl,
+            expiresAt: Date.now() + 10 * 60 * 1000,
+          })
+        },
+      )
     })
+  }
 
-    // 生成 15 分钟有效的预签名 URL
-    const uploadUrl = await getSignedUrl(this.s3Client, command, {
-      expiresIn: 15 * 60,
+  /**
+   * 后端直接上传文件到 COS
+   * @param fileBuffer 文件缓冲区
+   * @param fileKey COS 中的文件 key
+   * @returns 公开访问 URL
+   */
+  async uploadFileToCOS(fileBuffer: Buffer, fileKey: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      this.cos.putObject(
+        {
+          Bucket: this.bucketName,
+          Region: this.region,
+          Key: fileKey,
+          Body: fileBuffer,
+        },
+        (err: any, data: any) => {
+          if (err) {
+            this.logger.error('COS 上传失败', err)
+            return reject(err)
+          }
+          const publicUrl = `https://${this.bucketName}.cos.${this.region}.myqcloud.com/${fileKey}`
+          this.logger.log(`COS 上传成功: ${fileKey}`)
+          resolve(publicUrl)
+        },
+      )
     })
-
-    const publicUrl = `https://${this.bucketName}.s3.amazonaws.com/${fileKey}`
-
-    this.logger.log(`生成预签名 URL: ${fileKey} (${contentType})`)
-
-    return {
-      upload_url: uploadUrl,
-      file_key: fileKey,
-      public_url: publicUrl,
-      expires_at: Date.now() + 15 * 60 * 1000,
-    }
   }
 
   /**
    * 获取对象 URL（可选）
    */
   async getObjectUrl(fileKey: string): Promise<string> {
-    const command = new GetObjectCommand({
-      Bucket: this.bucketName,
-      Key: fileKey,
+    return new Promise((resolve, reject) => {
+      this.cos.getObjectUrl(
+        {
+          Bucket: this.bucketName,
+          Region: this.region,
+          Key: fileKey,
+          Sign: true,
+          Expires: 3600,
+        },
+        (err: any, data: any) => {
+          if (err) {
+            this.logger.error('获取 COS 对象 URL 失败', err)
+            return reject(err)
+          }
+          resolve(data.Url || '')
+        },
+      )
     })
-
-    return await getSignedUrl(this.s3Client, command, { expiresIn: 3600 })
   }
 }
+

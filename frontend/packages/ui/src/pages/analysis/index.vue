@@ -4,100 +4,80 @@
  *
  * 显示热量趋势、营养分布、AI 智能建议
  */
-import { computed, onMounted } from 'vue'
-import BottomNav from '@/components/BottomNav.vue'
-import { useAuthStore, useAnalysis } from '@diet-lens/core'
+import { computed, onMounted } from "vue";
+import BottomNav from "@/components/BottomNav.vue";
+import { useAuthStore, useAnalysis } from "@diet-lens/core";
 
-const authStore = useAuthStore()
-const isLoggedIn = computed(() => authStore.isLoggedIn)
+const authStore = useAuthStore();
+const isLoggedIn = computed(() => authStore.isLoggedIn);
 
-const {
-  loading,
-  error,
-  timeRange,
-  calorieTrend,
-  nutritionDistribution,
-  aiSuggestions,
-  averageCalories,
-  weekOverWeekChange,
-  fetchTrends,
-  refresh,
-} = useAnalysis()
+const { loading, error, timeRange, calorieTrend, nutritionDistribution, aiSuggestions, averageCalories, weekOverWeekChange, fetchTrends, refresh } =
+  useAnalysis();
 
-const isWeek = computed(() => timeRange.value === 'week')
+const isWeek = computed(() => timeRange.value === "week");
 
-const setTimeRange = async (range: 'week' | 'month') => {
-  await fetchTrends(range)
-}
+const setTimeRange = async (range: "week" | "month") => {
+  await fetchTrends(range);
+};
 
 // 跳转到登录页
 const goToLogin = () => {
-  uni.navigateTo({ url: '/pages/onboarding/login' })
-}
+  uni.navigateTo({ url: "/pages/onboarding/login" });
+};
 
 // 获取柱状图高度百分比
 const getBarHeight = (index: number): string => {
-  if (calorieTrend.value.length === 0) return '0%'
-  const maxCalories = Math.max(...calorieTrend.value.map((d) => d.target || 2000))
-  const calories = calorieTrend.value[index]?.calories || 0
-  return `${Math.min((calories / maxCalories) * 100, 100)}%`
-}
+  if (calorieTrend.value.length === 0) return "0%";
+  const maxCalories = Math.max(...calorieTrend.value.map((d) => d.target || 2000));
+  const calories = calorieTrend.value[index]?.calories || 0;
+  return `${Math.min((calories / maxCalories) * 100, 100)}%`;
+};
 
 // 获取最大值用于标签显示
 const getMaxCalories = computed(() => {
-  if (calorieTrend.value.length === 0) return 2000
-  return Math.max(...calorieTrend.value.map((d) => d.calories))
-})
+  if (calorieTrend.value.length === 0) return 2000;
+  return Math.max(...calorieTrend.value.map((d) => d.calories));
+});
 
 // 获取最大值的索引
 const maxCaloriesIndex = computed(() => {
-  if (calorieTrend.value.length === 0) return -1
-  return calorieTrend.value.findIndex((d) => d.calories === getMaxCalories.value)
-})
+  if (calorieTrend.value.length === 0) return -1;
+  return calorieTrend.value.findIndex((d) => d.calories === getMaxCalories.value);
+});
 
 // 格式化周环比变化
 const formatChange = (change: number): string => {
-  const sign = change >= 0 ? '+' : ''
-  return `${sign}${change}%`
-}
+  const sign = change >= 0 ? "+" : "";
+  return `${sign}${change}%`;
+};
 
 onMounted(async () => {
   if (isLoggedIn.value) {
-    await fetchTrends('week')
+    await fetchTrends("week");
   }
-})
+});
 </script>
 
 <template>
   <view class="page-container pb-24 overflow-y-auto no-scrollbar bg-[#F5F7F8]">
     <!-- 未登录提示 -->
-    <view v-if="!isLoggedIn" class="flex flex-col items-center justify-center px-10" style="min-height: 60vh;">
+    <view v-if="!isLoggedIn" class="flex flex-col items-center justify-center px-10" style="min-height: 60vh">
       <text class="material-symbols-outlined text-slate-300 text-6xl mb-4">lock</text>
       <text class="text-base font-medium text-slate-600 mb-2">需要登录</text>
       <text class="text-sm text-slate-400 text-center mb-6">请先登录以查看营养分析数据</text>
-      <view
-        class="bg-[#34C759] text-white py-3 px-8 rounded-full font-medium"
-        @tap="goToLogin"
-      >
-        去登录
-      </view>
+      <view class="bg-[#34C759] text-white py-3 px-8 rounded-full font-medium" @tap="goToLogin"> 去登录 </view>
     </view>
 
     <!-- 加载状态 -->
-    <view v-else-if="loading" class="flex items-center justify-center" style="min-height: 50vh;">
+    <view v-else-if="loading" class="flex items-center justify-center" style="min-height: 50vh">
       <view class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#34C759]"></view>
     </view>
 
     <!-- 错误状态 -->
-    <view v-else-if="error" class="flex flex-col items-center justify-center px-10" style="min-height: 50vh;">
+    <view v-else-if="error" class="flex flex-col items-center justify-center px-10" style="min-height: 50vh">
       <text class="material-symbols-outlined text-red-300 text-5xl mb-4">error</text>
       <text class="text-sm text-slate-500 text-center mb-4">{{ error }}</text>
-      <view
-        class="bg-slate-200 text-slate-700 py-2 px-6 rounded-full text-sm"
-        @tap="refresh"
-      >
-        重试
-      </view>
+      <view class="bg-slate-200 text-slate-700 py-2 px-6 rounded-full text-sm" @tap="refresh"> 重试 </view>
     </view>
 
     <!-- 主内容 -->
@@ -109,8 +89,8 @@ onMounted(async () => {
           <view
             @tap="setTimeRange('week')"
             :class="[
-              'flex-1 py-1.5 text-sm rounded-lg transition-all',
-              timeRange === 'week' ? 'font-semibold bg-white shadow-sm text-slate-900' : 'font-medium text-slate-500'
+              'flex-1 py-1.5 text-sm text-center rounded-lg transition-all',
+              timeRange === 'week' ? 'font-semibold bg-white shadow-sm text-slate-900' : 'font-medium text-slate-500',
             ]"
           >
             周
@@ -118,8 +98,8 @@ onMounted(async () => {
           <view
             @tap="setTimeRange('month')"
             :class="[
-              'flex-1 py-1.5 text-sm rounded-lg transition-all',
-              timeRange === 'month' ? 'font-semibold bg-white shadow-sm text-slate-900' : 'font-medium text-slate-500'
+              'flex-1 py-1.5 text-sm text-center rounded-lg transition-all',
+              timeRange === 'month' ? 'font-semibold bg-white shadow-sm text-slate-900' : 'font-medium text-slate-500',
             ]"
           >
             月
@@ -133,16 +113,15 @@ onMounted(async () => {
           <view class="flex justify-between items-center mb-6">
             <view>
               <text class="text-sm font-medium text-slate-500 block">摄入热量趋势</text>
-              <text class="text-2xl font-bold text-slate-900">{{ averageCalories.toLocaleString() }} <text class="text-sm font-normal text-slate-400">平均 Kcal</text></text>
+              <text class="text-2xl font-bold text-slate-900"
+                >{{ averageCalories.toLocaleString() }} <text class="text-sm font-normal text-slate-400">平均 Kcal</text></text
+              >
             </view>
             <view class="text-right">
               <text
-                :class="[
-                  'text-xs font-bold px-2 py-1 rounded-full',
-                  weekOverWeekChange < 0 ? 'text-[#34C759] bg-[#34C759]/10' : 'text-red-500 bg-red-500/10'
-                ]"
+                :class="['text-xs font-bold px-2 py-1 rounded-full', weekOverWeekChange < 0 ? 'text-[#34C759] bg-[#34C759]/10' : 'text-red-500 bg-red-500/10']"
               >
-                {{ weekOverWeekChange > 0 ? '+' : '' }}{{ weekOverWeekChange }}% 较上周
+                {{ weekOverWeekChange > 0 ? "+" : "" }}{{ weekOverWeekChange }}% 较上周
               </text>
             </view>
           </view>
@@ -156,7 +135,7 @@ onMounted(async () => {
               :class="[
                 'w-2 rounded-t-full relative',
                 day.calories > 0 ? 'bg-[#34C759]' : 'bg-slate-100',
-                index === maxCaloriesIndex && day.calories > 0 ? 'bg-[#34C759]' : ''
+                index === maxCaloriesIndex && day.calories > 0 ? 'bg-[#34C759]' : '',
               ]"
             >
               <view
@@ -168,11 +147,7 @@ onMounted(async () => {
             </view>
           </view>
           <view class="flex justify-between mt-3 px-0.5 text-[10px] font-medium text-slate-400">
-            <text
-              v-for="day in calorieTrend"
-              :key="day.date"
-              :class="day.dayLabel === '今天' ? 'text-[#34C759] font-bold' : ''"
-            >
+            <text v-for="day in calorieTrend" :key="day.date" :class="day.dayLabel === '今天' ? 'text-[#34C759] font-bold' : ''">
               {{ day.dayLabel }}
             </text>
           </view>
@@ -198,12 +173,14 @@ onMounted(async () => {
                       #FF3B30 ${(nutritionDistribution.protein.percentage + nutritionDistribution.carbs.percentage) * 3.6}deg 360deg
                     )`,
                     mask: 'radial-gradient(transparent 60%, black 61%)',
-                    '-webkit-mask': 'radial-gradient(transparent 60%, black 61%)'
+                    '-webkit-mask': 'radial-gradient(transparent 60%, black 61%)',
                   }"
                 ></view>
                 <view class="absolute text-center">
                   <text class="text-xs font-bold text-slate-400 block">均衡度</text>
-                  <text class="text-lg font-bold text-slate-900">{{ Math.round((nutritionDistribution.protein.percentage + nutritionDistribution.carbs.percentage) / 2) }}</text>
+                  <text class="text-lg font-bold text-slate-900">{{
+                    Math.round((nutritionDistribution.protein.percentage + nutritionDistribution.carbs.percentage) / 2)
+                  }}</text>
                 </view>
               </view>
 
@@ -239,7 +216,7 @@ onMounted(async () => {
         <view class="space-y-3">
           <view class="flex items-center gap-2 px-1">
             <text class="material-symbols-outlined text-[#34C759] text-xl filled">auto_awesome</text>
-            <text class="text-base font-bold text-slate-900">AI 智能建议</text>
+            <text class="text-base font-bold text-slate-900">AI 智能建议（占位符，若用户需要，后续转正。）</text>
           </view>
           <view class="space-y-3">
             <view
@@ -249,7 +226,7 @@ onMounted(async () => {
               :class="[
                 item.color === 'amber' ? 'border-l-4 border-amber-400' : '',
                 item.color === 'sage' ? 'border-l-4 border-[#34C759]' : '',
-                item.color === 'sky' ? 'border-l-4 border-sky-400' : ''
+                item.color === 'sky' ? 'border-l-4 border-sky-400' : '',
               ]"
             >
               <view
@@ -257,7 +234,7 @@ onMounted(async () => {
                   'w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0',
                   item.color === 'amber' ? 'bg-amber-50 text-amber-500' : '',
                   item.color === 'sage' ? 'bg-[#34C759]/10 text-[#34C759]' : '',
-                  item.color === 'sky' ? 'bg-sky-50 text-sky-500' : ''
+                  item.color === 'sky' ? 'bg-sky-50 text-sky-500' : '',
                 ]"
               >
                 <text class="material-symbols-outlined">{{ item.icon }}</text>
@@ -291,6 +268,10 @@ onMounted(async () => {
 }
 
 .filled {
-  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  font-variation-settings:
+    "FILL" 1,
+    "wght" 400,
+    "GRAD" 0,
+    "opsz" 24;
 }
 </style>

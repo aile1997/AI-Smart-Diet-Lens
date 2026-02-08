@@ -13,15 +13,28 @@ export class JwtGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<Request>()
     const token = this.extractTokenFromHeader(request)
 
+    console.log('[JwtGuard] 开始验证')
+    console.log('[JwtGuard] Token 存在?', !!token)
+    console.log('[JwtGuard] Token 长度:', token?.length)
+
     if (!token) {
+      console.error('[JwtGuard] 未提供认证令牌')
       throw new UnauthorizedException('未提供认证令牌')
     }
 
     try {
+      console.log('[JwtGuard] 验证 Token...')
       const payload = await this.jwtService.verifyAsync(token)
+      console.log('[JwtGuard] 验证成功')
+      console.log('[JwtGuard] payload.sub:', payload.sub)
+      console.log('[JwtGuard] payload.email:', payload.email)
+
       request['user'] = payload
+      console.log('[JwtGuard] user 已设置到 request')
+
       return true
-    } catch {
+    } catch (error) {
+      console.error('[JwtGuard] Token 验证失败:', error)
       throw new UnauthorizedException('认证令牌无效或已过期')
     }
   }

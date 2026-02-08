@@ -27,7 +27,7 @@ const reviewedList = ref<ReviewItem[]>([
   {
     id: 1,
     name: '牛油果全麦吐司',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA34JUKI5b1c688bzatliFCATVYpg372mGvMbqBJj1_u5FQj4zyMKzoi-CJaM6-lhyd5BF-Zp2Ta4l0adMgXWaXMaf4QeWQeEzGPBKUmQa3-9ySOVjFePY0kO8-e-HI76G5anzOiPqoJjnyoZ18x9sMTRtzzmbPW6khZzc4_AQycZYw2cz5OVJA61pJIrJAinwHtSb5OF2PV_AWYz_xl8816OyhRjhUV_c4TSRc5OuueEFObu__up5nLTCPxvahfFlu_hPxqiXsran8',
+    image: '/static/images/food/food_23.jpg',
     rating: 5,
     content: '非常清爽的早餐选择，牛油果熟度刚刚好，配上黑胡椒简直完美。热量也很低，适合减脂期。',
     date: '2小时前',
@@ -37,7 +37,7 @@ const reviewedList = ref<ReviewItem[]>([
   {
     id: 2,
     name: '彩虹藜麦沙拉',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAnAGTVADedyHtSENgXobRvnWHyXGmssTOhxnLUFgYh90FwLtl2JfpAx47-z8-usaowj3ge5JLiBp0NkyUVnKj7gEeaJx3Io40113ObLpFZskO4qdEDd9A19hdeteGtxwsKZXJpRFlDI8PbOr6bpwlxSBHAd21hw4VEqrS8IYODSBZqzFDSEj7Cu2mMgYJ6OekpW62Zn_7OT6_zAmzO4c2oM30lTTISruv2xd4M_Hx-hCAe9C4NVt-SJ47dgosYS6v5loyDrhWsndYJ',
+    image: '/static/images/food/food_24.jpg',
     rating: 4,
     content: '食材很新鲜，但是酱汁稍微有点少。希望能增加一些低脂油醋汁的选项。整体口感还是很丰富的。',
     date: '昨天',
@@ -47,7 +47,7 @@ const reviewedList = ref<ReviewItem[]>([
   {
     id: 3,
     name: '韩式低脂拌饭',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDlYWwB3drZLkhajkujrB2MjoFsw4mTwOZcgpkvyzkaWTa6bLyTRpiFQ9kAtqvVyBiqV8VZWfOpxWbY-VeMHkXif9qFh3ScUIptIx-9WvzJzhUQGwxyco4mtmjZq_1eTbbax9-BGuOYBE_0Dxi20sJ8a6wKCOk9K4Paus8auHkJI0kehNBJpJJZa1Jxs60FKqxwkIH9OSmSqA4pZJFRt-AptaYHQ3uqIPzS51lV9YUCiYp7zqvDaNDGT1ONd6pCWAwaYQAGbfJSSpz-',
+    image: '/static/images/food/food_25.jpg',
     rating: 5,
     content: '味道出乎意料的好！完全感觉不到是减脂餐，强烈推荐大家尝试。特别是那个特制的拌饭酱，绝了。',
     date: '10月22日',
@@ -149,7 +149,7 @@ const showMore = (id: number) => {
       <view @tap="navigateBack" class="w-10 h-10 -ml-2 rounded-full flex items-center justify-center text-slate-800 active:scale-95 transition-transform">
         <text class="material-symbols-outlined">arrow_back_ios_new</text>
       </view>
-      <text class="text-[20px] font-bold text-[#273936] tracking-tight">我的评价</text>
+      <text class="text-xl font-bold text-[#273936] tracking-tight">我的评价</text>
       <view class="w-10"></view>
     </view>
 
@@ -187,15 +187,15 @@ const showMore = (id: number) => {
           <view class="w-14 h-14 rounded-xl bg-cover bg-center shadow-inner flex-shrink-0" :style="`background-image: url('${item.image}')`"></view>
           <view class="flex-1 min-w-0">
             <view class="flex justify-between items-start">
-              <text class="font-bold text-slate-900 truncate pr-2 text-[15px]">{{ item.name }}</text>
-              <text class="text-[11px] text-gray-400 whitespace-nowrap mt-0.5">{{ item.date }}</text>
+              <text class="font-bold text-slate-900 truncate pr-2 text-sm">{{ item.name }}</text>
+              <text class="text-xs text-gray-400 whitespace-nowrap mt-0.5">{{ item.date }}</text>
             </view>
             <!-- Stars -->
             <view class="flex items-center gap-1 mt-1">
               <view
                 v-for="(filled, idx) in renderStars(item.rating)"
                 :key="idx"
-                class="text-[#5a847b] text-[16px]"
+                class="text-[#5a847b] text-base"
                 :class="filled ? 'text-[#5a847b]' : 'text-gray-300'"
               >
                 <text class="material-symbols-outlined" :class="filled ? 'filled' : ''">star</text>
@@ -206,7 +206,7 @@ const showMore = (id: number) => {
         </view>
 
         <!-- Content -->
-        <text class="text-[14px] text-slate-600 leading-relaxed block">{{ item.content }}</text>
+        <text class="text-xs text-slate-600 leading-relaxed block">{{ item.content }}</text>
 
         <!-- Footer -->
         <view class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
@@ -223,13 +223,13 @@ const showMore = (id: number) => {
             @tap="showMore(item.id)"
             class="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:text-[#5a847b] hover:bg-[#f4f7f5] transition-colors"
           >
-            <text class="material-symbols-outlined text-[20px]">more_horiz</text>
+            <text class="material-symbols-outlined text-xl">more_horiz</text>
           </view>
         </view>
 
         <!-- Merchant Reply -->
         <view v-if="item.hasMerchantReply" class="mt-3 flex items-center gap-2 bg-gray-50 px-2.5 py-1 rounded-full">
-          <text class="material-symbols-outlined text-[12px] filled text-[#5a847b]">check_circle</text>
+          <text class="material-symbols-outlined text-xs filled text-[#5a847b]">check_circle</text>
           <text class="text-[10px] text-gray-500 font-medium">商家已回复</text>
         </view>
       </view>
@@ -246,7 +246,7 @@ const showMore = (id: number) => {
         <view class="flex gap-4">
           <view class="w-14 h-14 rounded-xl bg-cover bg-center shadow-inner flex-shrink-0" :style="`background-image: url('${item.image}')`"></view>
           <view class="flex-1 flex flex-col justify-center">
-            <text class="font-bold text-slate-900 text-[15px] mb-1">{{ item.name }}</text>
+            <text class="font-bold text-slate-900 text-sm mb-1">{{ item.name }}</text>
             <text class="text-xs text-gray-400">点击进行评价</text>
           </view>
           <view class="flex items-center">

@@ -82,7 +82,7 @@ export class UserService {
    * 切换策略
    */
   async switchStrategy(data: SwitchStrategyRequest): Promise<{ dailyCalories: number }> {
-    return this.client.post('/user/strategy/switch', data)
+    return this.client.post<{ dailyCalories: number }>('/user/strategy/switch', data)
   }
 
   /**

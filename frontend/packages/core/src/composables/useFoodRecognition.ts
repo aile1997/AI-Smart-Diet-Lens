@@ -3,6 +3,9 @@
  *
  * 通过适配器接口调用相机和 HTTP 服务，
  * 实现拍照识别食物的核心业务逻辑
+ *
+ * 注意：IHttp 实现者需要正确处理 baseURL 拼接
+ * URL 应该是相对路径（如 '/food/recognize'），而非 '/api/food/recognize'
  */
 
 import { ref } from 'vue'
@@ -25,7 +28,7 @@ export function useFoodRecognition(http: IHttp, camera: ICamera) {
     try {
       const photo = await camera.takePicture()
       const response = await http.request<FoodRecognitionResult>({
-        url: '/api/food/recognize',
+        url: '/food/recognize',
         method: 'POST',
         data: { image: photo.tempFilePath },
       })
@@ -51,7 +54,7 @@ export function useFoodRecognition(http: IHttp, camera: ICamera) {
     try {
       const photo = await camera.chooseFromAlbum()
       const response = await http.request<FoodRecognitionResult>({
-        url: '/api/food/recognize',
+        url: '/food/recognize',
         method: 'POST',
         data: { image: photo.tempFilePath },
       })

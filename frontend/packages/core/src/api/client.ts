@@ -52,9 +52,36 @@ interface UniRequestFailResponse {
 
 /**
  * 默认配置
+ * 开发环境：
+ *   - H5: 使用相对路径（通过 Vite 代理）
+ *   - UniApp: 使用局域网 IP（手机调试）
+ * 生产环境：必须通过环境变量配置 API 地址
  */
+const getBaseURL = () => {
+  // 生产环境：必须从环境变量读取（防止使用局域网地址）
+  if (import.meta.env.PROD) {
+    const prodUrl = import.meta.env.VITE_API_BASE_URL
+    if (!prodUrl) {
+      console.error('[ApiClient] 生产环境必须设置 VITE_API_BASE_URL 环境变量')
+      throw new Error('生产环境缺少 VITE_API_BASE_URL 配置，请联系管理员')
+    }
+    return prodUrl
+  }
+
+  // 开发环境
+  // H5 环境使用相对路径，通过 Vite 代理访问后端（避免跨域）
+  if (typeof window !== 'undefined') {
+    return '/api' // 通过 Vite 代理
+  }
+
+  // UniApp 环境：使用局域网 IP（手机和电脑都可以访问）
+  const serverIP = '192.168.10.29'
+  const serverPort = '3000'
+  return `http://${serverIP}:${serverPort}/api`
+}
+
 const DEFAULT_CONFIG: ApiClientConfig = {
-  baseURL: 'http://localhost:3000/api',
+  baseURL: getBaseURL(),
   timeout: 30000,
 }
 
@@ -118,7 +145,8 @@ export class ApiClient {
     this.timeout = finalConfig.timeout || 30000
     this.onUnauthorized = finalConfig.onUnauthorized || null
     // 使用注入的 fetch 提供器，默认使用原生 fetch
-    this.fetchProvider = finalConfig.fetchProvider || (fetch as typeof fetch)
+    // 使用箭头函数确保 fetch 在正确的上下文中执行
+    this.fetchProvider = finalConfig.fetchProvider || ((url, options) => fetch(url, options))
   }
 
   /**
@@ -130,9 +158,17 @@ export class ApiClient {
 
   /**
    * 构建完整 URL
+   *
+   * 注意：由于 new URL() 的行为，endpoint 以 / 开头会替换 baseURL 的路径部分
+   * 因此需要手动拼接路径，确保 baseURL 和 endpoint 正确连接
    */
   private buildUrl(endpoint: string, params?: Record<string, string | number>): string {
-    const url = new URL(endpoint, this.baseURL)
+    // 移除 baseURL 末尾的斜杠和 endpoint 开头的斜杠，避免重复
+    const cleanBaseURL = this.baseURL.replace(/\/$/, '')
+    const cleanEndpoint = endpoint.replace(/^\//, '')
+    const fullUrl = `${cleanBaseURL}/${cleanEndpoint}`
+
+    const url = new URL(fullUrl)
 
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
@@ -155,9 +191,15 @@ export class ApiClient {
     // 添加认证 token
     if (this.tokenGetter) {
       const token = this.tokenGetter()
+      console.log('[ApiClient getHeaders] tokenGetter 存在:', !!this.tokenGetter)
+      console.log('[ApiClient getHeaders] token 存在:', !!token)
+      console.log('[ApiClient getHeaders] token 长度:', token?.length || 0)
       if (token) {
         headers['Authorization'] = `Bearer ${token}`
+        console.log('[ApiClient getHeaders] Authorization header 已设置')
       }
+    } else {
+      console.log('[ApiClient getHeaders] tokenGetter 不存在！')
     }
 
     return headers
@@ -198,33 +240,77 @@ export class ApiClient {
     }
 
     try {
+      console.log('[ApiClient Request] URL:', url)
+      console.log('[ApiClient Request] Config:', { method: config.method, headers: config.headers })
       const response = await this.fetchProvider(url, config)
+
+      console.log('[ApiClient Response] Status:', response.status, 'OK:', response.ok)
 
       // 处理 401 未授权错误
       if (response.status === 401) {
         if (this.onUnauthorized) {
           this.onUnauthorized()
         }
-        const errorData = await response.json().catch(() => ({ message: '未授权' }))
-        throw new Error(errorData.error || errorData.message || '未授权访问')
+        const errorData = await this.safeJsonParse(response)
+        throw new Error(errorData?.error || errorData?.message || '未授权访问')
       }
 
       // 处理其他非 2xx 响应
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: '请求失败' }))
-        throw new Error(errorData.error || errorData.message || `HTTP ${response.status}`)
+        const errorData = await this.safeJsonParse(response)
+        throw new Error(errorData?.error || errorData?.message || `HTTP ${response.status}`)
       }
 
-      const result: ApiResponse<T> = await response.json()
+      // 尝试解析响应
+      const result = await this.safeJsonParse<ApiResponse<T>>(response)
+      console.log('[ApiClient Parsed Result]:', result)
+      console.log('[ApiClient Result Keys]:', result ? Object.keys(result) : 'null')
+
+      // 检查是否成功解析
+      if (!result) {
+        throw new Error('响应解析失败：返回数据不是有效 JSON')
+      }
 
       // 检查业务状态码
       if (!result.success) {
         throw new Error(result.error || result.message || '请求失败')
       }
 
+      // 检查 data 是否存在
+      if (result.data === undefined || result.data === null) {
+        console.warn('[ApiClient] Warning: result.data is', result.data)
+      }
+
+      console.log('[ApiClient Returning data]:', result.data)
       return result.data as T
     } catch (error) {
-      throw error instanceof Error ? error : new Error(String(error))
+      console.error('[ApiClient Error]:', error)
+      if (error instanceof Error) {
+        throw error
+      }
+      throw new Error(String(error))
+    }
+  }
+
+  /**
+   * 安全解析 JSON 响应
+   */
+  private async safeJsonParse<T>(response: Response): Promise<T | null> {
+    try {
+      // 优先尝试使用 text() 方法（可以更好地处理错误）
+      if (typeof response.text === 'function') {
+        const text = await response.text()
+        if (!text || text.trim() === '') {
+          return null
+        }
+        return JSON.parse(text) as T
+      }
+      // 如果没有 text() 方法，直接使用 json()（用于兼容 mock）
+      const result = await response.json()
+      return result as T
+    } catch (error) {
+      console.error('[ApiClient] JSON parse error:', error)
+      return null
     }
   }
 

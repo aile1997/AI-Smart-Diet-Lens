@@ -24,6 +24,7 @@ export function useFavorites() {
 
   // 计算属性 - 按类型分组的收藏
   const recipes = computed(() => {
+    if (!favorites.value || !Array.isArray(favorites.value)) return []
     return favorites.value.filter(f => f.type === 'recipe').map(f => ({
       id: f.id,
       itemId: f.itemId,
@@ -35,6 +36,7 @@ export function useFavorites() {
   })
 
   const foods = computed(() => {
+    if (!favorites.value || !Array.isArray(favorites.value)) return []
     return favorites.value.filter(f => f.type === 'food').map(f => ({
       id: f.id,
       itemId: f.itemId,
@@ -65,7 +67,7 @@ export function useFavorites() {
       const favoritesService = new FavoritesService(api)
 
       const response = await favoritesService.getFavorites(type)
-      favorites.value = response.favorites
+      favorites.value = response.favorites || []
 
       if (type) {
         selectedType.value = type

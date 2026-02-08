@@ -50,14 +50,24 @@ export class ChatService {
    * @param context 上下文历史（可选）
    */
   async sendMessage(message: string, context?: ChatMessage[]): Promise<ChatResponse> {
-    return this.client.post<ChatResponse>('/ai/chat/message', { message, context })
+    // 将 ChatMessage[] 转换为后端期望的 { role, content }[] 格式
+    const contextForBackend = context?.map(msg => ({
+      role: msg.isUser ? 'user' : 'assistant',
+      content: msg.content
+    }))
+
+    return this.client.post<ChatResponse>('/ai/chat/message', { message, context: contextForBackend })
   }
 
   /**
    * 获取对话历史
    */
   async getHistory(): Promise<ChatHistoryResponse> {
-    return this.client.get<ChatHistoryResponse>('/ai/chat/history')
+    console.log('[ChatService] 开始获取对话历史...')
+    const result = await this.client.get<ChatHistoryResponse>('/ai/chat/history')
+    console.log('[ChatService] 获取历史结果:', result)
+    console.log('[ChatService] result.messages:', result?.messages)
+    return result
   }
 
   /**

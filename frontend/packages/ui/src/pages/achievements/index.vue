@@ -4,73 +4,66 @@
  *
  * 显示用户成就和挑战进度
  */
-import { ref, computed, onMounted } from 'vue'
-import { useAuthStore, useGamification } from '@diet-lens/core'
+import { ref, computed, onMounted } from "vue";
+import { useAuthStore, useGamification } from "@diet-lens/core";
 
-const authStore = useAuthStore()
-const isLoggedIn = computed(() => authStore.isLoggedIn)
+const authStore = useAuthStore();
+const isLoggedIn = computed(() => authStore.isLoggedIn);
 
-const {
-  loading,
-  level,
-  streakDays,
-  achievements,
-  progress,
-  fetchAchievements,
-} = useGamification()
+const { loading, level, streakDays, achievements, progress, fetchAchievements } = useGamification();
 
 // 返回
 const navigateBack = () => {
-  uni.navigateBack()
-}
+  uni.navigateBack();
+};
 
 // 跳转到登录页
 const goToLogin = () => {
-  uni.navigateTo({ url: '/pages/onboarding/login' })
-}
+  uni.navigateTo({ url: "/pages/onboarding/login" });
+};
 
 // 获取成就图标和颜色
 const getAchievementStyle = (achievement: any) => {
   const iconMap: Record<string, string> = {
-    '减脂先锋': 'fitness_center',
-    '营养达人': 'restaurant_menu',
-    '热量燃烧': 'local_fire_department',
-    'AI探索者': 'smart_toy',
-    '马拉松': 'directions_run',
-    '深度睡眠': 'nightlight',
-    '早起挑战': 'wb_twilight',
-  }
+    减脂先锋: "fitness_center",
+    营养达人: "restaurant_menu",
+    热量燃烧: "local_fire_department",
+    AI探索者: "smart_toy",
+    马拉松: "directions_run",
+    深度睡眠: "nightlight",
+    早起挑战: "wb_twilight",
+  };
 
   const colorMap: Record<string, string> = {
-    '减脂先锋': 'bg-amber-100 text-amber-600',
-    '营养达人': 'bg-gray-100 text-gray-600',
-    '热量燃烧': 'bg-orange-100 text-orange-500',
-    'AI探索者': 'bg-blue-100 text-blue-500',
-    '马拉松': 'bg-purple-100 text-purple-500',
-    '深度睡眠': 'bg-indigo-100 text-indigo-500',
-    '早起挑战': 'bg-orange-100 text-orange-500',
-  }
+    减脂先锋: "bg-amber-100 text-amber-600",
+    营养达人: "bg-gray-100 text-gray-600",
+    热量燃烧: "bg-orange-100 text-orange-500",
+    AI探索者: "bg-blue-100 text-blue-500",
+    马拉松: "bg-purple-100 text-purple-500",
+    深度睡眠: "bg-indigo-100 text-indigo-500",
+    早起挑战: "bg-orange-100 text-orange-500",
+  };
 
   return {
-    icon: iconMap[achievement.name] || 'military_tech',
-    color: colorMap[achievement.name] || 'bg-gray-100 text-gray-600',
-  }
-}
+    icon: iconMap[achievement.name] || "military_tech",
+    color: colorMap[achievement.name] || "bg-gray-100 text-gray-600",
+  };
+};
 
 // 正在进行的挑战 (模拟数据，可从后端获取)
 const currentChallenge = computed(() => ({
-  name: '早起挑战',
+  name: "早起挑战",
   progress: Math.min(streakDays.value, 7),
   total: 7,
   remainingDays: Math.max(0, 7 - streakDays.value),
-}))
+}));
 
 // 页面加载时获取成就数据
 onMounted(async () => {
   if (isLoggedIn.value) {
-    await fetchAchievements()
+    await fetchAchievements();
   }
-})
+});
 </script>
 
 <template>
@@ -91,13 +84,11 @@ onMounted(async () => {
     </view>
 
     <!-- 未登录提示 -->
-    <view v-if="!isLoggedIn" class="flex flex-col items-center justify-center px-10 z-10" style="min-height: 50vh;">
-      <text class="material-symbols-outlined text-slate-300 text-6xl mb-4">lock</text>
-      <text class="text-base font-medium text-slate-600 mb-2">需要登录</text>
+    <view v-if="!isLoggedIn" class="flex flex-col items-center justify-center px-10 z-10" style="min-height: 50vh">
+      <text class="material-symbols-outlined text-slate-300 text-5xl mb-4">lock</text>
+      <text class="text-sm font-medium text-slate-600 mb-2">需要登录</text>
       <text class="text-sm text-slate-400 text-center mb-6">请先登录以查看您的成就</text>
-      <view class="bg-[#34C759] text-white py-3 px-8 rounded-full font-medium" @tap="goToLogin">
-        去登录
-      </view>
+      <view class="bg-[#34C759] text-white py-3 px-8 rounded-full font-medium" @tap="goToLogin"> 去登录 </view>
     </view>
 
     <template v-else>
@@ -123,19 +114,19 @@ onMounted(async () => {
                 <text class="material-symbols-outlined text-2xl">wb_twilight</text>
               </view>
               <view>
-                <text class="font-bold text-gray-900 text-lg">{{ currentChallenge.name }}</text>
+                <text class="font-bold text-gray-900 text-base">{{ currentChallenge.name }}</text>
                 <text class="text-gray-500 text-sm">已坚持 {{ currentChallenge.progress }}/{{ currentChallenge.total }} 天</text>
               </view>
             </view>
             <view class="relative">
               <view class="flex justify-between text-xs font-medium text-gray-500 mb-1.5">
                 <text>进度</text>
-                <text>{{ Math.round(currentChallenge.progress / currentChallenge.total * 100) }}%</text>
+                <text>{{ Math.round((currentChallenge.progress / currentChallenge.total) * 100) }}%</text>
               </view>
               <view class="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
                 <view
                   class="h-full bg-gradient-to-r from-primary to-emerald-400 rounded-full"
-                  :style="{ width: (currentChallenge.progress / currentChallenge.total * 100) + '%' }"
+                  :style="{ width: (currentChallenge.progress / currentChallenge.total) * 100 + '%' }"
                 ></view>
               </view>
             </view>
@@ -176,7 +167,7 @@ onMounted(async () => {
               <view class="text-center">
                 <text class="text-sm font-bold text-gray-900">{{ achievement.name }}</text>
                 <text class="text-[10px] text-gray-500 mt-0.5 block">{{ achievement.description }}</text>
-                <text v-if="achievement.progress" class="text-[9px] text-primary mt-1 block">{{ achievement.progress }}</text>
+                <text v-if="achievement.progress" class="text-[10px] text-primary mt-1 block">{{ achievement.progress }}</text>
               </view>
             </view>
           </view>
@@ -189,7 +180,8 @@ onMounted(async () => {
 <route lang="json">
 {
   "style": {
-    "navigationBarTitleText": "成就"
+    "navigationBarTitleText": "",
+    "navigationStyle": "custom"
   }
 }
 </route>

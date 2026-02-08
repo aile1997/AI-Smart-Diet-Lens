@@ -42,7 +42,29 @@
       "Bash(timeout /t 2)",
       "Bash(if [ ! -d \"d:\\\\Coding\\\\Work\\\\AI-Smart-Diet-Lens\\\\frontend\\\\packages\\\\ui\\\\src\\\\components\" ])",
       "Bash(then mkdir -p \"d:\\\\Coding\\\\Work\\\\AI-Smart-Diet-Lens\\\\frontend\\\\packages\\\\ui\\\\src\\\\components\")",
-      "Bash(fi)"
+      "Bash(fi)",
+      "mcp__zai-mcp-server__ui_to_artifact",
+      "Bash(cmd /c \"taskkill /PID 18644 /F\")",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjbWxiMW9udHAwMDAwdGozY2JpaGxiMXM4IiwiZW1haWwiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaWF0IjoxNzcwMzk1MDg2LCJleHAiOjE3NzA5OTk4ODZ9.Inzja_behQlbi03s_4rwPsJQQZrHLl7r7x-xTCuvB80\")",
+      "Bash(Get-Process -Id 52624 -ErrorAction SilentlyContinue)",
+      "Bash(Stop-Process:*)",
+      "Bash(lsof:*)",
+      "Bash(xargs kill:*)",
+      "Bash(fuser:*)",
+      "Bash(psql:*)",
+      "Bash(grep:*)",
+      "Bash(jq:*)",
+      "Bash(find:*)",
+      "Bash(ipconfig)",
+      "Bash(netsh advfirewall firewall show rule:*)",
+      "Bash(netsh advfirewall firewall add rule:*)",
+      "Bash(git reset:*)",
+      "Bash(git ls-tree:*)",
+      "Bash(timeout:*)",
+      "Bash(__NEW_LINE_4b570389a20a4968__ echo \"\")",
+      "Bash(VITE_API_BASE_URL=http://192.168.10.29:3000/api pnpm build:h5:*)",
+      "Bash(python -m http.server:*)",
+      "Bash(PORT=8082 node:*)"
     ]
   }
 }

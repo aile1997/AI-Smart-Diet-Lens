@@ -1,4 +1,4 @@
-export { useAuth } from './useAuth'
+// useAuth 已移除，请使用 stores/auth.ts 中的 useAuthStore
 export { useNutrition } from './useNutrition'
 export { useFoodRecognition } from './useFoodRecognition'
 export { useDiary } from './useDiary'

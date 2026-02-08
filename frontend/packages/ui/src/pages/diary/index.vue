@@ -4,94 +4,101 @@
  *
  * 显示每日营养摄入记录和 AI 分析建议
  */
-import { ref, computed, onMounted } from 'vue'
-import BottomNav from '@/components/BottomNav.vue'
-import { useAuthStore, useDiary } from '@diet-lens/core'
+import { ref, computed, onMounted } from "vue";
+import { onShow } from "@dcloudio/uni-app";
+import BottomNav from "@/components/BottomNav.vue";
+import { useAuthStore, useDiary } from "@diet-lens/core";
 
-const authStore = useAuthStore()
-const isLoggedIn = computed(() => authStore.isLoggedIn)
+const authStore = useAuthStore();
+const isLoggedIn = computed(() => authStore.isLoggedIn);
 
-const {
-  loading,
-  error,
-  selectedDate,
-  dailySummary,
-  macros,
-  meals,
-  fetchAll,
-  refresh,
-} = useDiary()
+const { loading, error, selectedDate, dailySummary, macros, meals, fetchAll, refresh } = useDiary();
 
-// 选中的日期索引（用于周视图）
-const selectedDayIndex = ref(2) // 默认今天
-
-const weekDays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
+const weekDays = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
 
 // 获取本周日期
 const getWeekDates = () => {
-  const today = new Date()
-  const dayOfWeek = today.getDay()
-  const startOfWeek = new Date(today)
-  startOfWeek.setDate(today.getDate() - dayOfWeek)
+  const today = new Date();
+  const dayOfWeek = today.getDay();
+  const startOfWeek = new Date(today);
+  startOfWeek.setDate(today.getDate() - dayOfWeek);
 
-  const dates = []
+  const dates = [];
   for (let i = 0; i < 7; i++) {
-    const date = new Date(startOfWeek)
-    date.setDate(startOfWeek.getDate() + i)
-    dates.push(date.toISOString().split('T')[0])
+    const date = new Date(startOfWeek);
+    date.setDate(startOfWeek.getDate() + i);
+    dates.push({
+      isoDate: date.toISOString().split("T")[0],
+      dayOfMonth: date.getDate(),
+    });
   }
-  return dates
-}
+  return dates;
+};
 
-const weekDates = getWeekDates()
+const weekDates = getWeekDates();
+
+// 计算今天是星期几（0-6），用于默认选中
+const getTodayIndex = () => {
+  return new Date().getDay();
+};
+
+// 选中的日期索引（用于周视图）- 默认今天
+const selectedDayIndex = ref(getTodayIndex());
 
 // 选择日期
 const selectDay = async (index: number) => {
-  selectedDayIndex.value = index
-  const date = weekDates[index]
-  await fetchAll(date)
-}
+  selectedDayIndex.value = index;
+  const date = weekDates[index].isoDate;
+  await fetchAll(date);
+};
 
 // 今日摄入总量
-const totalCalories = computed(() => dailySummary.value?.totalCalories || 0)
-const targetCalories = computed(() => dailySummary.value?.targetCalories || 2000)
+const totalCalories = computed(() => dailySummary.value?.totalCalories || 0);
+const targetCalories = computed(() => dailySummary.value?.targetCalories || 2000);
 
 const navigateBack = () => {
-  uni.navigateBack()
-}
+  // diary 是 tabBar 页面，返回需要切换到首页 tabBar
+  uni.switchTab({ url: "/pages/index/index" });
+};
 
 // 跳转到数据分析页面
 const navigateToAnalysis = () => {
-  uni.navigateTo({ url: '/pages/analysis/index' })
-}
+  uni.navigateTo({ url: "/pages/analysis/index" });
+};
 
 // 跳转到登录页
 const goToLogin = () => {
-  uni.navigateTo({ url: '/pages/onboarding/login' })
-}
+  uni.navigateTo({ url: "/pages/onboarding/login" });
+};
 
 // 页面加载时获取数据
 onMounted(async () => {
   if (isLoggedIn.value) {
-    await fetchAll()
+    await fetchAll();
   }
-})
+});
+
+// 页面显示时刷新数据（从其他页面返回时触发）
+onShow(async () => {
+  if (isLoggedIn.value) {
+    // 刷新当前选中的日期数据
+    await fetchAll(selectedDate.value);
+  }
+});
 </script>
 
 <template>
   <view class="page-container pb-24 overflow-y-auto no-scrollbar bg-gray-50">
     <!-- 未登录提示 -->
-    <view v-if="!isLoggedIn" class="flex flex-col items-center justify-center px-10" style="min-height: 80vh;">
+    <view v-if="!isLoggedIn" class="flex flex-col items-center justify-center px-10" style="min-height: 80vh">
       <text class="material-symbols-outlined text-slate-300 text-6xl mb-4">lock</text>
       <text class="text-base font-medium text-slate-600 mb-2">需要登录</text>
       <text class="text-sm text-slate-400 text-center mb-6">请先登录以查看饮食日记</text>
-      <view class="bg-[#34C759] text-white py-3 px-8 rounded-full font-medium" @tap="goToLogin">
-        去登录
-      </view>
+      <view class="bg-[#34C759] text-white py-3 px-8 rounded-full font-medium" @tap="goToLogin"> 去登录 </view>
     </view>
 
     <!-- 加载状态 -->
-    <view v-else-if="loading" class="flex items-center justify-center" style="min-height: 50vh;">
+    <view v-else-if="loading" class="flex items-center justify-center" style="min-height: 50vh">
       <view class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#34C759]"></view>
     </view>
 
@@ -113,13 +120,14 @@ onMounted(async () => {
           <view class="flex px-4 gap-2">
             <view v-for="(day, idx) in weekDays" :key="idx" class="flex flex-col items-center gap-1 shrink-0">
               <text :class="['text-[10px] font-medium', selectedDayIndex === idx ? 'text-primary' : 'text-gray-500']">{{ day }}</text>
-              <view @tap="selectDay(idx)" :class="[
-                'w-10 h-10 rounded-full text-sm font-bold flex items-center justify-center transition-all',
-                selectedDayIndex === idx
-                  ? 'bg-primary text-white shadow-lg shadow-primary/30 scale-105'
-                  : 'text-gray-700 active:bg-gray-100'
-              ]">
-                <text>{{ 22 + idx }}</text>
+              <view
+                @tap="selectDay(idx)"
+                :class="[
+                  'w-10 h-10 rounded-full text-sm font-bold flex items-center justify-center transition-all',
+                  selectedDayIndex === idx ? 'bg-primary text-white shadow-lg shadow-primary/30 scale-105' : 'text-gray-700 active:bg-gray-100',
+                ]"
+              >
+                <text>{{ weekDates[idx].dayOfMonth }}</text>
               </view>
             </view>
           </view>
@@ -160,9 +168,7 @@ onMounted(async () => {
           <view v-if="meals.length === 0" class="text-center py-8">
             <text class="material-symbols-outlined text-slate-300 text-5xl">no_meals</text>
             <text class="text-sm text-slate-500 mt-2 block">今天还没有记录饮食</text>
-            <view class="mt-4 text-primary text-sm font-medium" @tap="navigateBack">
-              返回首页添加记录
-            </view>
+            <view class="mt-4 text-primary text-sm font-medium" @tap="navigateBack"> 返回首页添加记录 </view>
           </view>
           <view v-for="(meal, idx) in meals" :key="idx" class="space-y-3">
             <view class="flex items-center justify-between">
@@ -174,7 +180,11 @@ onMounted(async () => {
             </view>
 
             <view class="flex flex-col gap-3">
-              <view v-for="(item, i) in meal.items" :key="i" class="flex items-center gap-4 p-3 bg-white rounded-xl shadow-sm border border-transparent active:border-gray-200 transition-all">
+              <view
+                v-for="(item, i) in meal.items"
+                :key="i"
+                class="flex items-center gap-4 p-3 bg-white rounded-xl shadow-sm border border-transparent active:border-gray-200 transition-all"
+              >
                 <view class="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 shrink-0">
                   <image :src="item.img" mode="aspectFill" class="w-full h-full" />
                 </view>
@@ -201,12 +211,8 @@ onMounted(async () => {
               <text>AI 智能分析</text>
             </view>
             <text class="text-gray-600 text-xs leading-relaxed">
-              您的蛋白质摄入非常理想，达到了目标的 110%。但晚餐后的脂肪摄入略高。建议明天早餐增加全麦面包来平衡碳水比例。
+              您的蛋白质摄入非常理想，达到了目标的 110%。但晚餐后的脂肪摄入略高。建议明天早餐增加全麦面包来平衡碳水比例（暂未实现，占位符）。
             </text>
-            <view @tap="navigateToAnalysis" class="text-xs font-bold text-primary flex items-center gap-1 mt-2 active:opacity-70">
-              <text>查看详细报告</text>
-              <text class="material-symbols-outlined text-xs">arrow_forward</text>
-            </view>
           </view>
         </view>
       </view>

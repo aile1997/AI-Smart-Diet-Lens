@@ -22,7 +22,7 @@ interface PostItem {
 const posts = ref<PostItem[]>([
   {
     id: 1,
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBR51GwUPK1ruZBVzsPdGFwwoRdLGt4yCx2XFVkyEDaymgm0opvrHMXXfRpIlepi7nm4yKbVKMkMVbuRwnyyo1zlJSYLgVlBVsjQrVqho3GmkstgzPYXHPBKjE-GSZK7R_ZOfTbAQAbWm4XrtvruqI22RBpr6reCJFfp1_sAAKBEiqBsEw2velKn_HS5J7pkrUpohSlRqr8be0Jg52lMpyM1PtdBrUJN0oNJv4BvStUeD-v-OZdT-asBps2jgNfG3qLnT9r9mIJfVgi',
+    image: '/static/images/food/food_27.jpg',
     title: '牛油果鲜虾能量碗',
     content: '午餐选择了富含优质脂肪的牛油果搭配高蛋白鲜虾，淋上自制油醋汁，清爽又饱腹。',
     aiScore: 98,
@@ -32,7 +32,7 @@ const posts = ref<PostItem[]>([
   },
   {
     id: 2,
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCvjxhEwE_W6l4VFnwESobgKPfCu8siiQG0SUZ-fm-Q-S8Vt8vsl-gZpqH_nFrNZg17GaugGuLhTFQ01DgveNlY6OJ4ngipH-I-LWkWx0s-s3xyqrU3PAY-0B05opjovJ5rn6JGi4my6hWKxQzWf0QYV8ZrfSpBOtj3uEnswOAza6oQoBszC72fwhHDy5nEl46S7ms29itcuCTgPZMdxNN7ZoSVbrC0OQ-a00WtR-gLm3VNoXwlZboiQfTXpLoIeU4ZGK7VlrOJz768',
+    image: '/static/images/food/food_28.jpg',
     title: '轻断食：缤纷时蔬沙拉',
     content: '周一轻断食日，用五色蔬菜补充维生素，简单调味还原食材本味。',
     aiScore: 92,
@@ -42,7 +42,7 @@ const posts = ref<PostItem[]>([
   },
   {
     id: 3,
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBcFRtb3rVN4YUeuDo225bugquZd8Y3qS0Q1bByTX-apo9Q6XJLdzrrWBZ3fKSZ3GKeuZsU_YDRJVv-fX6Jv2Sst_hBRyjdH62Zr1b_JqFAE_5bLKsBV2y9BSHTHUyVsFHxA05pdRAE7ss93dYYCachWQieQhzVrTutQGb_edalJPt6tcwRx0Kp0aXp6OxVKxpmSoYNVNgyS_Em_2Yv3LkgFHzXca4iU0FuNJ85ZqCwQQuNX056p7MUqQ0ITCmBCDRSbGcbmZJTjk_e',
+    image: '/static/images/food/food_29.jpg',
     title: '低温慢煮鸡胸肉',
     content: '尝试了新的低温慢煮法，鸡胸肉嫩滑多汁，完全不柴！健身后的完美补给。',
     aiScore: 88,
@@ -118,7 +118,7 @@ const formatLikes = (num: number) => {
         <view @tap="navigateBack" class="w-10 h-10 -ml-2 rounded-full flex items-center justify-center text-[#5a847b] active:bg-black/5 transition-colors">
           <text class="material-symbols-outlined">arrow_back_ios_new</text>
         </view>
-        <text class="text-[28px] font-extrabold text-[#273936] tracking-tight">我的发布</text>
+        <text class="text-2xl font-extrabold text-[#273936] tracking-tight">我的发布</text>
       </view>
       <view class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-[#5a847b]">
         <text class="material-symbols-outlined">search</text>
@@ -143,8 +143,8 @@ const formatLikes = (num: number) => {
                 @tap="createNewPost"
                 class="flex items-center gap-1 bg-[#f4f7f5] px-3 py-1.5 rounded-full border border-[#e3ebe5] active:scale-95 transition-transform"
               >
-                <text class="material-symbols-outlined text-[16px] text-[#5a847b] filled">add_circle</text>
-                <text class="text-[11px] font-bold text-[#456960]">新建</text>
+                <text class="material-symbols-outlined text-base text-[#5a847b] filled">add_circle</text>
+                <text class="text-xs font-bold text-[#456960]">新建</text>
               </view>
             </view>
           </view>
@@ -164,7 +164,7 @@ const formatLikes = (num: number) => {
           <image :src="post.image" class="w-full h-full" mode="aspectFill" />
           <!-- AI Score Badge -->
           <view class="absolute top-3 right-3 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-xl shadow-sm flex flex-col items-center min-w-[50px]">
-            <text class="text-[9px] text-[#5a847b] uppercase tracking-wide">AI 评分</text>
+            <text class="text-[10px] text-[#5a847b] uppercase tracking-wide">AI 评分</text>
             <text class="text-lg text-[#5a847b] font-extrabold">{{ post.aiScore }}</text>
           </view>
           <!-- Date Badge -->
@@ -175,7 +175,7 @@ const formatLikes = (num: number) => {
 
         <!-- Post Content -->
         <view class="px-1">
-          <text class="font-bold text-[17px] text-slate-800 leading-snug mb-1.5 block">{{ post.title }}</text>
+          <text class="font-bold text-base text-slate-800 leading-snug mb-1.5 block">{{ post.title }}</text>
           <text class="text-sm text-slate-500 mb-4 block leading-relaxed">{{ post.content }}</text>
 
           <!-- Actions -->
@@ -186,7 +186,7 @@ const formatLikes = (num: number) => {
               class="flex items-center gap-1.5 px-2.5 py-1 rounded-full"
               :class="post.isLiked ? 'text-red-500 bg-red-50' : 'text-[#5a847b] bg-[#f4f7f5]'"
             >
-              <text class="material-symbols-outlined text-[16px]" :class="post.isLiked ? 'filled' : ''">favorite</text>
+              <text class="material-symbols-outlined text-base" :class="post.isLiked ? 'filled' : ''">favorite</text>
               <text class="text-xs font-bold">{{ formatLikes(post.likes) }}</text>
             </view>
 
@@ -196,14 +196,14 @@ const formatLikes = (num: number) => {
                 @tap="editPost(post.id)"
                 class="flex items-center gap-1 px-3 py-1.5 bg-gray-100 text-slate-600 rounded-xl text-xs font-semibold active:scale-95 transition-all"
               >
-                <text class="material-symbols-outlined text-[16px]">edit</text>
+                <text class="material-symbols-outlined text-base">edit</text>
                 <text>编辑</text>
               </view>
               <view
                 @tap="deletePost(post.id)"
                 class="flex items-center gap-1 px-3 py-1.5 bg-white border border-red-100 text-red-500 rounded-xl text-xs font-semibold active:scale-95 transition-all"
               >
-                <text class="material-symbols-outlined text-[16px]">delete</text>
+                <text class="material-symbols-outlined text-base">delete</text>
                 <text>删除</text>
               </view>
             </view>

@@ -69,16 +69,14 @@ export class UpdateDiaryEntryDto {
 }
 
 /**
- * 每日汇总响应
+ * 每日汇总响应 (API 层统一使用 camelCase)
  */
 export interface DailySummary {
   date: string
   entries: any[]
-  total_nutrition: {
-    calories: number
-    protein: number
-    carbs: number
-    fat: number
-  }
-  target_calories: number
+  totalCalories: number
+  targetCalories: number
+  totalProtein: number
+  totalCarbs: number
+  totalFat: number
 }

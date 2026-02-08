@@ -308,10 +308,10 @@ describe('ApiClient', () => {
         json: async () => mockResponse
       } as Response)
 
-      // endpoint 不带 / 前缀时，由于 new URL() 的行为，会替换 baseURL 的路径部分
+      // endpoint 不带 / 前缀时，会直接拼接到 baseURL 后面
       await api.get('users')
 
-      expect(mockFetch.mock.calls[0][0]).toBe('http://test.com/users')
+      expect(mockFetch.mock.calls[0][0]).toBe('http://test.com/api/users')
     })
 
     it('应处理以 / 开头的 endpoint（替换 baseURL 路径）', async () => {
@@ -322,10 +322,10 @@ describe('ApiClient', () => {
         json: async () => mockResponse
       } as Response)
 
-      // endpoint 带 / 前缀时，会替换 baseURL 的路径部分
+      // endpoint 带 / 前缀时，会自动去除斜杠后拼接
       await api.get('/users')
 
-      expect(mockFetch.mock.calls[0][0]).toBe('http://test.com/users')
+      expect(mockFetch.mock.calls[0][0]).toBe('http://test.com/api/users')
     })
 
     it('应处理绝对路径 endpoint', async () => {

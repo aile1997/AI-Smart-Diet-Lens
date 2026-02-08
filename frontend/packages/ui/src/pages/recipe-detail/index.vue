@@ -3,8 +3,31 @@
  * 食谱详情页
  *
  * 显示食谱详情、营养分析、食材清单和烹饪步骤
+ * 支持从 AI 聊天页面传递食谱数据
  */
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+
+interface RecipeCard {
+  name: string
+  image: string
+  calories: number
+  time: string
+  difficulty: string
+  description: string
+}
+
+// 从 URL 参数获取食谱数据
+const recipeData = ref<RecipeCard | null>(null)
+
+// 默认食谱数据
+const defaultRecipe: RecipeCard = {
+  name: '香煎三文鱼配芦笋',
+  image: '/static/images/food/food_10.jpg',
+  calories: 450,
+  time: '20 分钟',
+  difficulty: '简单',
+  description: '富含 Omega-3 的优质蛋白，搭配鲜嫩芦笋，15分钟即可享受的米其林级美味。'
+}
 
 const aiAssistantEnabled = ref(true)
 
@@ -16,36 +39,105 @@ interface NutritionStat {
 }
 
 interface Ingredient {
-  n: string
-  q: string
+  name: string
+  quantity: string
 }
 
 interface CookingStep {
-  t: string
-  d: string
+  title: string
+  description: string
 }
 
-const nutritionStats: NutritionStat[] = [
-  { label: '蛋白质', val: '35g', pct: 85, color: 'text-primary' },
-  { label: '脂肪', val: '12g', pct: 40, color: 'text-orange-400' },
-  { label: '碳水', val: '5g', pct: 15, color: 'text-blue-400' }
-]
+// 根据卡路里计算营养比例
+const calculateNutrition = (calories: number) => {
+  // 假设蛋白质约 30%，脂肪约 25%，碳水约 45%
+  const protein = Math.round(calories * 0.3 / 4)
+  const fat = Math.round(calories * 0.25 / 9)
+  const carbs = Math.round(calories * 0.45 / 4)
 
-const ingredients: Ingredient[] = [
-  { n: '三文鱼排', q: '200g' },
-  { n: '鲜嫩芦笋', q: '100g' },
-  { n: '初榨橄榄油', q: '1勺' },
-  { n: '海盐与黑胡椒', q: '适量' }
-]
+  return {
+    protein: { label: '蛋白质', val: `${protein}g`, pct: 30, color: 'text-primary' },
+    fat: { label: '脂肪', val: `${fat}g`, pct: 25, color: 'text-orange-400' },
+    carbs: { label: '碳水', val: `${carbs}g`, pct: 45, color: 'text-blue-400' }
+  }
+}
 
+// 计算的营养数据
+const nutritionStats = computed(() => {
+  const calories = recipeData.value?.calories || defaultRecipe.calories
+  return Object.values(calculateNutrition(calories))
+})
+
+// 模拟食材数据（根据卡路里调整）
+const ingredients = computed<Ingredient[]>(() => {
+  const calories = recipeData.value?.calories || defaultRecipe.calories
+  if (calories < 300) {
+    return [
+      { name: '鸡胸肉', quantity: '150g' },
+      { name: '西兰花', quantity: '100g' },
+      { name: '橄榄油', quantity: '1勺' },
+      { name: '海盐与黑胡椒', quantity: '适量' }
+    ]
+  } else if (calories > 500) {
+    return [
+      { name: '牛排', quantity: '200g' },
+      { name: '土豆', quantity: '200g' },
+      { name: '芦笋', quantity: '100g' },
+      { name: '黄油', quantity: '20g' }
+    ]
+  } else {
+    return [
+      { name: '三文鱼排', quantity: '200g' },
+      { name: '鲜嫩芦笋', quantity: '100g' },
+      { name: '初榨橄榄油', quantity: '1勺' },
+      { name: '海盐与黑胡椒', quantity: '适量' }
+    ]
+  }
+})
+
+// 模拟烹饪步骤
 const cookingSteps: CookingStep[] = [
-  { t: '腌制调味', d: '在鱼肉两面均匀撒上海盐和现磨黑胡椒，静置5分钟入味。同时在芦笋上淋少许橄榄油。' },
-  { t: '煎制鱼皮', d: '平底锅中火加热，倒入橄榄油。将三文鱼皮朝下放入锅中，用铲子轻压，中小火煎3-4分钟至鱼皮金黄酥脆。' },
-  { t: '完成出锅', d: '翻面继续煎2-3分钟，同时放入芦笋一同煎熟。待鱼肉变色且熟透后即可装盘。' }
+  { title: '准备食材', description: '将主料清洗干净，用厨房纸吸干水分。蔬菜去除老根，洗净沥干。' },
+  { title: '调味腌制', description: '在主料两面均匀撒上海盐和现磨黑胡椒，静置5分钟入味。同时在蔬菜上淋少许橄榄油。' },
+  { title: '开始烹饪', description: '平底锅中火加热，倒入油。将主料放入锅中，中小火煎至两面金黄。' },
+  { title: '完成出锅', description: '加入蔬菜一同煎熟。待主料变色且熟透后即可装盘享用。' }
 ]
+
+// 显示的食谱名称
+const displayRecipeName = computed(() => recipeData.value?.name || defaultRecipe.name)
+// 显示的食谱描述
+const displayRecipeDesc = computed(() => recipeData.value?.description || defaultRecipe.description)
+// 显示的食谱图片
+const displayRecipeImage = computed(() => recipeData.value?.image || defaultRecipe.image)
+// 显示的烹饪时间
+const displayRecipeTime = computed(() => recipeData.value?.time || defaultRecipe.time)
+// 显示的难度
+const displayRecipeDifficulty = computed(() => recipeData.value?.difficulty || defaultRecipe.difficulty)
+// 显示的卡路里
+const displayRecipeCalories = computed(() => recipeData.value?.calories || defaultRecipe.calories)
+
+onMounted(() => {
+  // 获取页面参数
+  const pages = getCurrentPages()
+  const currentPage = pages[pages.length - 1]
+  const options = (currentPage as any).options
+
+  if (options.data) {
+    try {
+      recipeData.value = JSON.parse(decodeURIComponent(options.data))
+    } catch (e) {
+      console.error('解析食谱数据失败:', e)
+    }
+  }
+})
 
 const navigateBack = () => {
-  uni.navigateBack()
+  const pages = getCurrentPages()
+  if (pages.length > 1) {
+    uni.navigateBack()
+  } else {
+    uni.reLaunch({ url: '/pages/index/index' })
+  }
 }
 
 const navigateToScan = () => {
@@ -66,7 +158,7 @@ const startCooking = () => {
     <!-- Hero Section -->
     <view class="relative w-full h-[460px] shrink-0">
       <image
-        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCjzSEoi6HdN7_oDhZ1YSC_cxw8HLvaz15PmOoZBhJsWUfsRtTFhRh0iWcGq1oJQXIxGnh7carV5qEUHOSau3MVSUpBLpVF--Fogwn__vECHTzsWfbZlYMQJIlKW7lgGNreZra2Ga9iwmn7Azn2t2Ecn9kcjULEF6NLAIeMe5RViTl-EbsQHB4hjYpTN6tY3Y6TLXHfKSit9IHrF3U0nPTpNsq1K2fYBboezJt3N7KntyVDDB64o-U2V05l46-OFzFTwW9dpUxYEQuq"
+        :src="displayRecipeImage"
         class="absolute inset-0 w-full h-full"
         mode="aspectFill"
       />
@@ -94,7 +186,7 @@ const startCooking = () => {
       <view class="absolute bottom-0 left-0 w-full p-6 pb-8 z-10">
         <view class="flex items-center gap-2 mb-3">
           <text class="inline-flex items-center px-2.5 py-1 rounded-md bg-primary/20 backdrop-blur-sm border border-primary/30 text-primary text-xs font-semibold tracking-wide uppercase shadow-sm">
-            Keto Friendly
+            健康推荐
           </text>
           <view class="flex items-center gap-1 text-gray-200 text-xs font-medium bg-black/30 px-2 py-1 rounded-lg backdrop-blur-sm">
             <text class="material-symbols-outlined text-primary text-sm">star</text>
@@ -103,8 +195,8 @@ const startCooking = () => {
             <text>128 评价</text>
           </view>
         </view>
-        <text class="text-3xl font-bold text-white leading-tight mb-2">香煎三文鱼配芦笋</text>
-        <text class="text-gray-200 text-sm leading-relaxed opacity-90">富含 Omega-3 的优质蛋白，搭配鲜嫩芦笋，15分钟即可享受的米其林级美味。</text>
+        <text class="text-3xl font-bold text-white leading-tight mb-2">{{ displayRecipeName }}</text>
+        <text class="text-gray-200 text-sm leading-relaxed opacity-90">{{ displayRecipeDesc }}</text>
       </view>
     </view>
 
@@ -118,16 +210,16 @@ const startCooking = () => {
       <!-- Quick Stats -->
       <scroll-view scroll-x class="flex gap-3 py-4" show-scrollbar="false">
         <view class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white border border-gray-100 px-4 shadow-sm">
-          <text class="material-symbols-outlined text-primary text-[18px]">schedule</text>
-          <text class="text-gray-800 text-sm font-medium">20 分钟</text>
+          <text class="material-symbols-outlined text-primary text-lg">schedule</text>
+          <text class="text-gray-800 text-sm font-medium">{{ displayRecipeTime }}</text>
         </view>
         <view class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white border border-gray-100 px-4 shadow-sm">
-          <text class="material-symbols-outlined text-primary text-[18px]">signal_cellular_alt</text>
-          <text class="text-gray-800 text-sm font-medium">简单</text>
+          <text class="material-symbols-outlined text-primary text-lg">signal_cellular_alt</text>
+          <text class="text-gray-800 text-sm font-medium">{{ displayRecipeDifficulty }}</text>
         </view>
         <view class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white border border-gray-100 px-4 shadow-sm">
-          <text class="material-symbols-outlined text-primary text-[18px]">local_fire_department</text>
-          <text class="text-gray-800 text-sm font-medium">450 kcal</text>
+          <text class="material-symbols-outlined text-primary text-lg">local_fire_department</text>
+          <text class="text-gray-800 text-sm font-medium">{{ displayRecipeCalories }} kcal</text>
         </view>
       </scroll-view>
 
@@ -171,9 +263,9 @@ const startCooking = () => {
       <!-- Ingredients -->
       <view class="mt-4">
         <view class="flex items-center justify-between mb-4">
-          <text class="text-lg font-bold text-gray-900">所需食材 <text class="text-gray-400 font-normal text-sm ml-1">(4项)</text></text>
+          <text class="text-lg font-bold text-gray-900">所需食材 <text class="text-gray-400 font-normal text-sm ml-1">({{ ingredients.length }}项)</text></text>
           <view @tap="navigateToList" class="text-emerald-600 text-sm font-medium border border-emerald-600/30 active:bg-emerald-50 px-3 py-1.5 rounded-lg flex items-center gap-1">
-            <text class="material-symbols-outlined text-[16px]">add</text>
+            <text class="material-symbols-outlined text-sm">add</text>
             <text>加入清单</text>
           </view>
         </view>
@@ -181,26 +273,21 @@ const startCooking = () => {
           <view v-for="(item, idx) in ingredients" :key="idx" class="flex items-center gap-3 p-3 rounded-xl bg-white border border-gray-100 shadow-sm">
             <checkbox class="scale-75" />
             <view class="flex-1 flex justify-between items-center">
-              <text class="text-gray-900 text-sm font-medium">{{ item.n }}</text>
-              <text class="text-gray-400 text-sm">{{ item.q }}</text>
+              <text class="text-gray-900 text-sm font-medium">{{ item.name }}</text>
+              <text class="text-gray-400 text-sm">{{ item.quantity }}</text>
             </view>
           </view>
         </view>
       </view>
 
       <!-- Steps -->
-      <view class="mt-8 pb-32">
+      <view class="mt-8 pb-24">
         <text class="text-lg font-bold text-gray-900 mb-6">烹饪步骤</text>
         <view class="relative border-l-2 border-gray-200 ml-3 space-y-8">
-          <view class="relative pl-8">
-            <view class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-primary shadow-lg"></view>
-            <text class="text-gray-900 font-semibold text-base mb-2">准备食材</text>
-            <text class="text-gray-600 text-sm leading-relaxed mb-3">将三文鱼清洗干净，用厨房纸吸干水分。芦笋去除老根，洗净沥干。</text>
-          </view>
           <view v-for="(step, idx) in cookingSteps" :key="idx" class="relative pl-8">
-            <view class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-white border-2 border-gray-300"></view>
-            <text class="text-gray-900 font-semibold text-base mb-2">{{ step.t }}</text>
-            <text class="text-gray-600 text-sm leading-relaxed">{{ step.d }}</text>
+            <view :class="['absolute -left-[9px] top-0 w-4 h-4 rounded-full', idx === 0 ? 'bg-primary shadow-lg' : 'bg-gray-200 border-2 border-gray-400 shadow-sm']"></view>
+            <text class="text-gray-900 font-semibold text-base mb-2">{{ step.title }}</text>
+            <text class="text-gray-600 text-sm leading-relaxed">{{ step.description }}</text>
           </view>
         </view>
       </view>
@@ -211,9 +298,9 @@ const startCooking = () => {
       <view class="flex items-center justify-between gap-4 p-4 rounded-2xl bg-white/90 backdrop-blur-xl border border-gray-200/50 shadow-2xl">
         <view class="flex flex-col">
           <text class="text-[10px] text-gray-400 uppercase tracking-wide font-medium">预计耗时</text>
-          <text class="text-gray-900 font-bold text-lg">20:00</text>
+          <text class="text-gray-900 font-bold text-lg">{{ displayRecipeTime }}</text>
         </view>
-        <view @tap="startCooking" class="flex-1 bg-primary text-gray-900 font-bold text-base py-3 px-6 rounded-xl active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg">
+        <view @tap="startCooking" class="flex-1 flex-row items-center justify-center bg-primary text-gray-900 font-bold text-base py-3 px-6 rounded-xl active:scale-[0.98] gap-2 shadow-lg">
           <text class="material-symbols-outlined text-2xl">play_arrow</text>
           <text>开始烹饪</text>
         </view>
@@ -232,5 +319,11 @@ const startCooking = () => {
 </route>
 
 <style scoped>
-/* RecipeDetail page specific styles */
+.space-y-3 > view + view {
+  margin-top: 0.75rem;
+}
+
+.space-y-8 > view + view {
+  margin-top: 2rem;
+}
 </style>

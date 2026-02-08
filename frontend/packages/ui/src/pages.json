@@ -11,14 +11,15 @@
       "path": "pages/index/index",
       "type": "home",
       "style": {
-        "navigationBarTitleText": "智能健康仪表盘"
+        "navigationBarTitleText": "",
+        "navigationStyle": "custom"
       }
     },
     {
       "path": "pages/achievements/index",
       "type": "page",
       "style": {
-        "navigationBarTitleText": "成就"
+        "navigationStyle": "custom"
       }
     },
     {
@@ -48,7 +49,8 @@
       "path": "pages/diary/index",
       "type": "page",
       "style": {
-        "navigationBarTitleText": "饮食日记"
+        "navigationBarTitleText": "",
+        "navigationStyle": "custom"
       }
     },
     {
@@ -160,7 +162,7 @@
       "path": "pages/scan/index",
       "type": "page",
       "style": {
-        "navigationBarTitleText": "拍照识别",
+        "navigationBarTitleText": "",
         "navigationStyle": "custom"
       }
     },
@@ -198,7 +200,8 @@
       "path": "pages/wiki/index",
       "type": "page",
       "style": {
-        "navigationBarTitleText": "食材百科"
+        "navigationBarTitleText": "",
+        "navigationStyle": "custom"
       }
     }
   ],

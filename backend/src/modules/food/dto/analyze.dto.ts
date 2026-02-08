@@ -1,13 +1,14 @@
-import { IsString, IsOptional, IsNumber } from 'class-validator'
+import { IsString, IsOptional, IsNumber, IsUrl } from 'class-validator'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 
 /**
  * AI 分析请求 DTO
+ * 使用腾讯云 COS 公网 URL
  */
 export class AnalyzeFoodDto {
-  @ApiProperty({ example: 'food_photo.jpg', description: 'S3 图片 key' })
-  @IsString()
-  image_key!: string
+  @ApiProperty({ example: 'https://smart-diet-lens.cos.ap-beijing.myqcloud.com/uploads/xxx.jpg', description: '腾讯云 COS 公网 URL' })
+  @IsUrl()
+  image_url!: string
 
   @ApiPropertyOptional({
     description: 'AR 上下文信息',
@@ -44,6 +45,7 @@ export interface RecognizedFood {
   portion_g: number
   confidence: number
   nutrition: NutritionInfo
+  tips?: string
 }
 
 /**
@@ -51,6 +53,21 @@ export interface RecognizedFood {
  */
 export interface AnalyzeResponse {
   foods: RecognizedFood[]
-  image_key: string
+  image_url: string
   recognized_at: number
+}
+
+/**
+ * Qwen-VL API 原始响应
+ */
+export interface QwenVLResponse {
+  food_name: string
+  calories: number
+  weight_g: number
+  macros: {
+    protein: number
+    fat: number
+    carbs: number
+  }
+  tips?: string
 }

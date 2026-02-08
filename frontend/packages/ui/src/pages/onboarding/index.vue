@@ -3,6 +3,7 @@
  * 欢迎页
  *
  * 首次使用时的引导页面
+ * 体验版可以直接进入模式设置
  */
 const navigateToLogin = () => {
   uni.navigateTo({ url: "/pages/onboarding/login" });
@@ -10,6 +11,11 @@ const navigateToLogin = () => {
 
 const navigateToRegister = () => {
   uni.navigateTo({ url: "/pages/onboarding/register" });
+};
+
+// 体验版：直接进入模式设置
+const startTrial = () => {
+  uni.navigateTo({ url: "/pages/onboarding/body-metrics" });
 };
 </script>
 
@@ -21,7 +27,7 @@ const navigateToRegister = () => {
       <view class="absolute inset-0 bg-black/20 z-10"></view>
       <!-- Background Image -->
       <image
-        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCKpU8-BmuUcwnIowcHLeddG0QjxzcRqAUC3sJZg_5r00tXCYQtQCo5ihFBetiL6I8g_FQaSftFCFomjXxPemPbJTmU_jqpNaY3Yf6z2MhUSY1PBqhMyrIvXJc8KBQP_HQTvmhggTs0L_RM75hmHJ775Dw89LgjWwW4yn1AGTQ9J6OjASbbqVeyG6cMvppqKwU1VD2jriqkdnXIaEnmDvE9srD6_pXfqHSwm1Shb1PHut6BllPBBQCatWzlYIyF-GBvV651dwo4hwk2"
+        src="/static/images/food/food_8.jpg"
         class="w-full h-full bg-cover bg-center"
         mode="aspectFill"
       ></image>
@@ -44,8 +50,8 @@ const navigateToRegister = () => {
     <view class="relative z-30 flex-1 flex flex-col justify-end px-6 pb-12 w-full">
       <!-- Headlines -->
       <view class="flex flex-col items-start mb-10">
-        <text class="text-white text-[42px] font-extrabold leading-[1.05] tracking-tight mb-4"> Eat Smarter, </text>
-        <text class="text-[42px] font-extrabold leading-[1.05] tracking-tight mb-4 text-transparent bg-clip-text bg-gradient-to-r from-primary to-green-200">
+        <text class="text-white text-5xl font-extrabold leading-[1.05] tracking-tight mb-4"> Eat Smarter, </text>
+        <text class="text-5xl font-extrabold leading-[1.05] tracking-tight mb-4 text-transparent bg-clip-text bg-gradient-to-r from-primary to-green-200">
           Not Less
         </text>
         <text class="text-gray-200 text-lg font-medium leading-relaxed max-w-[90%]">
@@ -57,27 +63,32 @@ const navigateToRegister = () => {
       <view class="flex flex-col gap-4 w-full">
         <!-- Primary Action Button -->
         <view
-          @tap="navigateToRegister"
+          @tap="startTrial"
           class="relative w-full h-14 overflow-hidden rounded-2xl p-[1px] shadow-[0_0_40px_-10px_rgba(56,224,123,0.6)] active:scale-[0.98] transition-transform duration-200"
         >
           <!-- Button Border Gradient -->
           <view class="absolute inset-0 bg-gradient-to-r from-primary/80 to-primary/40 rounded-2xl opacity-100"></view>
           <!-- Button Inner Background -->
           <view class="relative h-full w-full bg-primary/90 backdrop-blur-md rounded-[14px] flex items-center justify-center gap-2">
-            <text class="text-gray-900 text-base font-bold tracking-wide">Get Started</text>
+            <text class="text-gray-900 text-base font-bold tracking-wide">立即体验</text>
             <text class="material-symbols-outlined text-gray-900 text-xl">arrow_forward</text>
           </view>
         </view>
 
-        <!-- Secondary Action: Login -->
-        <view @tap="navigateToLogin" class="w-full py-3 flex items-center justify-center rounded-xl active:scale-[0.98] transition-transform">
-          <text class="text-white/90 text-sm font-semibold tracking-wide">Log In</text>
+        <!-- Secondary Actions -->
+        <view class="flex gap-3">
+          <view @tap="navigateToLogin" class="flex-1 py-3 flex items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm active:scale-[0.98] transition-transform">
+            <text class="text-white/90 text-sm font-semibold tracking-wide">登录</text>
+          </view>
+          <view @tap="navigateToRegister" class="flex-1 py-3 flex items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm active:scale-[0.98] transition-transform">
+            <text class="text-white/90 text-sm font-semibold tracking-wide">注册</text>
+          </view>
         </view>
       </view>
 
       <!-- Footer -->
       <view class="mt-8 flex justify-center">
-        <text class="text-white/40 text-[11px] font-medium tracking-wider uppercase text-center"> Powered by Smart-Diet AI Engine </text>
+        <text class="text-white/40 text-[10px] font-medium tracking-wider uppercase text-center"> Powered by Smart-Diet AI Engine </text>
       </view>
     </view>
   </view>

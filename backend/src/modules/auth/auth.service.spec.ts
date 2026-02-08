@@ -4,6 +4,7 @@ import { AuthService } from './auth.service'
 import { PrismaService } from '../../common/prisma.service'
 import { JwtService } from '@nestjs/jwt'
 import { MailService } from '../mail/mail.service'
+import { ConfigService } from '@nestjs/config'
 
 describe('AuthService', () => {
   let service: AuthService
@@ -49,6 +50,12 @@ describe('AuthService', () => {
         {
           provide: MailService,
           useValue: mockMailService,
+        },
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn(),
+          },
         },
       ],
     }).compile()
@@ -96,14 +103,11 @@ describe('AuthService', () => {
         email,
         nickname: 'Test User',
         avatar: null,
-        emailVerified: false,
+        emailVerified: true,
+        onboardingCompleted: true,
       }
 
       mockPrismaService.user.findUnique.mockResolvedValue(mockUser)
-      mockPrismaService.user.update.mockResolvedValue({
-        ...mockUser,
-        emailVerified: true,
-      })
 
       const result = await service.loginWithEmail(email, code)
 
@@ -112,6 +116,7 @@ describe('AuthService', () => {
         id: 'user_123',
         email,
         emailVerified: true,
+        needOnboarding: false,
       })
       expect(jwtService.sign).toHaveBeenCalledWith({
         sub: 'user_123',
@@ -119,26 +124,8 @@ describe('AuthService', () => {
       })
     })
 
-    it('should create new user when not exists', async () => {
-      mockPrismaService.user.findUnique.mockResolvedValue(null)
-      mockPrismaService.user.create.mockResolvedValue({
-        id: 'new_user_123',
-        email,
-        nickname: null,
-        avatar: null,
-        emailVerified: true,
-      })
-
-      const result = await service.loginWithEmail(email, code)
-
-      expect(mockPrismaService.user.create).toHaveBeenCalledWith({
-        data: {
-          email,
-          emailVerified: true,
-        },
-      })
-      expect(result.user.id).toBe('new_user_123')
-    })
+    // 注意: 旧测试 "should create new user when not exists" 已删除
+    // 因为 loginWithEmail 现在不再自动创建用户，需要先注册
 
     it('should throw error when code is wrong', async () => {
       await expect(service.loginWithEmail(email, '000000')).rejects.toThrow(
@@ -165,7 +152,7 @@ describe('AuthService', () => {
 
       mockPrismaService.user.findUnique.mockResolvedValue(mockUser)
 
-      const result = await service.loginWithWechat('dummy_code', openid)
+      const result = await service.loginWithWechat('dummy_code')
 
       expect(result.token).toBe('mock_jwt_token')
       expect(result.user.id).toBe('wx_user_123')
@@ -183,7 +170,7 @@ describe('AuthService', () => {
       mockPrismaService.user.findUnique.mockResolvedValue(null)
       mockPrismaService.user.create.mockResolvedValue(newUser)
 
-      const result = await service.loginWithWechat('dummy_code', openid)
+      const result = await service.loginWithWechat('dummy_code')
 
       expect(mockPrismaService.user.create).toHaveBeenCalled()
       expect(result.user.id).toBe('new_wx_user')

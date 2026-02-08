@@ -28,16 +28,22 @@ let apiInstance: ApiClient | null = null
 export function initApi(
   tokenGetter: () => string | null,
   options?: {
+    baseURL?: string
     fetchProvider?: typeof fetch | ((url: string, config: RequestInit) => Promise<Response>)
     onUnauthorized?: OnUnauthorizedCallback
   }
 ): ApiClient {
+  console.log('[initApi] Initializing API client...')
+  const baseURL = options?.baseURL || 'http://localhost:3000/api'
+  console.log('[initApi] baseURL:', baseURL)
+  console.log('[initApi] fetchProvider:', !!options?.fetchProvider)
   apiInstance = new ApiClient({
-    baseURL: import.meta.env?.VITE_API_BASE_URL || 'http://localhost:3000/api',
+    baseURL,
     tokenGetter,
     fetchProvider: options?.fetchProvider,
     onUnauthorized: options?.onUnauthorized,
   })
+  console.log('[initApi] API client created:', !!apiInstance)
   return apiInstance
 }
 
@@ -55,9 +61,12 @@ export function setOnUnauthorizedCallback(callback: OnUnauthorizedCallback) {
  * 获取 API 客户端实例
  */
 export function getApi(): ApiClient {
+  console.log('[getApi] Called, apiInstance:', !!apiInstance)
   if (!apiInstance) {
+    console.error('[getApi] API 未初始化！请先调用 initApi()')
     throw new Error('API 未初始化，请先调用 initApi()')
   }
+  console.log('[getApi] Returning apiInstance')
   return apiInstance
 }
 
@@ -67,6 +76,7 @@ export { ChatService } from './chat.service'
 export { CommunityService } from './community.service'
 export { DashboardService } from './dashboard.service'
 export { FavoritesService } from './favorites.service'
+export { FoodService } from './food.service'
 export { NotificationsService } from './notifications.service'
 export { RecipeService } from './recipe.service'
 export { UploadService } from './upload.service'
@@ -80,6 +90,7 @@ export type { ChatMessage, ChatResponse } from './chat.service'
 export type { Post, Comment, LikeResponse, PostsResponse } from './community.service'
 export type { DashboardSummary } from './dashboard.service'
 export type { Favorite, FavoriteType, FavoritesResponse, CheckFavoritedResponse } from './favorites.service'
+export type { NutritionInfo, RecognizedFood, AnalyzeResponse, FoodSearchItem, FoodSearchResponse } from './food.service'
 export type { Notification, MessageType, NotificationsResponse, UnreadCountResponse } from './notifications.service'
 export type { Recipe, RecipeRecommendResponse } from './recipe.service'
 export type { PresignedUrlResponse, ConfirmUploadResponse } from './upload.service'

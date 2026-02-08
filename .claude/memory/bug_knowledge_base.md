@@ -714,4 +714,238 @@ AI Chat 对话历史接口方法错误，前端使用 GET 但后端是 POST。
 
 ---
 
+### 25. 密码认证功能实现 ✅ 已完成
+
+**日期**: 2026-02-07
+
+**严重程度**: 🟢 P2 - 功能增强
+
+**用户需求**:
+"注册时是邮箱 + 密码 + 验证码，'密码登录'作为主要方式。一般APP都是这么做的"
+
+**实现内容**:
+1. **后端依赖**: 添加 `bcrypt` 和 `@types/bcrypt`
+2. **DTO 更新**:
+   - 新增 `PasswordRegisterDto`: email + password + code
+   - 新增 `PasswordLoginDto`: email + password
+3. **AuthService 新方法**:
+   - `registerWithPassword()`: 哈希密码并注册
+   - `loginWithPassword()`: 验证密码并登录
+4. **AuthController 新路由**:
+   - `POST /api/auth/register/password`: 密码注册
+   - `POST /api/auth/login/password`: 密码登录（主要方式）
+   - `POST /api/auth/login/email`: 验证码登录（备用方式）
+
+**技术细节**:
+- 使用 bcrypt 哈希密码（salt rounds: 10）
+- 密码最小长度 8 位
+- 注册仍需验证码验证邮箱
+- 前端已实现对应方法，无需修改
+
+---
+
+### 26. 数据库缺少 password 列 ✅ 已修复
+
+**日期**: 2026-02-07
+
+**严重程度**: 🔴 P0 - 数据库同步问题
+
+**错误信息**:
+```
+The column `users.password` does not exist in the current database.
+```
+
+**问题原因**:
+Prisma schema 已定义 `password` 字段，但数据库未同步。
+
+**解决方案**:
+由于数据库与迁移历史不同步，使用 `prisma db push` 直接同步：
+```bash
+npx prisma db push
+```
+
+**注意**:
+- `prisma migrate dev` 会因为 drift 检测失败
+- `db push` 适合开发环境，不创建迁移历史
+- 生产环境应创建正式迁移文件
+
+---
+
+### 27. 通知服务方法名不匹配 ✅ 已修复
+
+**日期**: 2026-02-07
+
+**严重程度**: 🟡 P1 - 前端调用错误
+
+**错误信息**:
+```
+TypeError: notificationsService.getList is not a function
+```
+
+**问题原因**:
+前端调用了不存在的 `getList()` 方法，正确方法名是 `getMessages()`。
+
+**修复内容**:
+[frontend/packages/ui/src/pages/messages/index.vue:48]
+```typescript
+// 修改前
+const data = await notificationsService.getList()
+notifications.value = data
+
+// 修改后
+const response = await notificationsService.getMessages()
+notifications.value = response.messages  // 同时修正响应数据结构
+```
+
+**根本原因**:
+前端服务层 (`NotificationsService`) 返回的是 `{ messages: Notification[] }` 包装结构，但页面直接使用数组。
+
+---
+
+## 前端问题 (2026-02-07 续)
+
+### 28. formatNumber 函数空值处理缺失 ✅ 已修复
+
+**日期**: 2026-02-07
+
+**严重程度**: 🔴 P0 - 运行时崩溃
+
+**错误信息**:
+```
+TypeError: Cannot read properties of undefined (reading 'toString')
+```
+
+**问题位置**:
+`frontend/packages/ui/src/pages/discover/index.vue:107`
+
+**问题描述**:
+`formatNumber` 函数假设 `num` 参数始终是有效数字，当传入 `undefined` 时调用 `.toString()` 导致崩溃。
+
+**触发场景**:
+社区帖子的 `likes` 字段为 `undefined` 时，在模板中调用 `formatNumber(post.likes)` 会触发错误。
+
+**解决方案**:
+添加空值检查，处理 `undefined`、`null` 和 `NaN`：
+```typescript
+// 修改前
+const formatNumber = (num: number) => {
+  if (num >= 1000) {
+    return (num / 1000).toFixed(1) + "k";
+  }
+  return num.toString(); // ❌ undefined.toString() 崩溃
+};
+
+// 修改后
+const formatNumber = (num?: number) => {
+  if (num === undefined || num === null || isNaN(num)) {
+    return "0";
+  }
+  if (num >= 1000) {
+    return (num / 1000).toFixed(1) + "k";
+  }
+  return num.toString();
+};
+```
+
+**修复提交**:
+- 修复 `formatNumber` 函数空值处理
+
+---
+
+### 29. fetchHistory 函数空值处理缺失 ✅ 已修复
+
+**日期**: 2026-02-07
+
+**严重程度**: 🔴 P0 - 运行时崩溃
+
+**错误信息**:
+```
+TypeError: Cannot read properties of undefined (reading 'map')
+```
+
+**问题位置**:
+`frontend/packages/core/src/composables/useChat.ts:104`
+
+**问题描述**:
+`fetchHistory` 函数假设 API 响应总是包含 `messages` 字段，当响应格式不符或为空时调用 `.map()` 导致崩溃。
+
+**触发场景**:
+- API 返回错误响应但被 catch 捕获
+- API 返回的响应结构不包含 `messages` 字段
+- 用户未登录时返回 null
+
+**解决方案**:
+添加响应空值检查：
+```typescript
+// 修改前
+const response = await chatService.getHistory()
+messages.value = response.messages.map((msg) => ({ // ❌ undefined.map() 崩溃
+  ...msg,
+  timestamp: new Date(msg.timestamp).toLocaleTimeString('zh-CN', {
+    hour: '2-digit',
+    minute: '2-digit'
+  }),
+}))
+
+// 修改后
+const response = await chatService.getHistory()
+// 检查 response.messages 是否存在
+if (!response || !response.messages) {
+  messages.value = []
+  return
+}
+messages.value = response.messages.map((msg) => ({
+  ...msg,
+  timestamp: new Date(msg.timestamp).toLocaleTimeString('zh-CN', {
+    hour: '2-digit',
+    minute: '2-digit'
+  }),
+}))
+```
+
+**修复提交**:
+- 修复 `useChat.ts` fetchHistory 空值处理
+
+---
+
+## 防御性编程规范更新
+
+### 函数参数空值检查原则
+
+从以上两个问题中总结的规范：
+
+1. **所有外部数据源必须做空值检查**
+   - API 响应数据
+   - 用户输入
+   - 查询参数
+   - URL 参数
+
+2. **工具函数默认值策略**
+   ```typescript
+   // ✅ 正确：使用可选参数 + 默认值
+   const formatNumber = (num?: number) => {
+     if (num == null || isNaN(num)) return '0'
+     // ...
+   }
+
+   // ✅ 正确：提供默认值
+   const getValue = (obj: any, key: string, defaultValue = null) => {
+     return obj?.[key] ?? defaultValue
+   }
+   ```
+
+3. **数组操作前的防护**
+   ```typescript
+   // ✅ 正确：先检查再操作
+   if (!Array.isArray(items) || items.length === 0) {
+     return []
+   }
+   return items.map(x => transform(x))
+
+   // ❌ 错误：直接假设是数组
+   return items.map(x => transform(x))
+   ```
+
+---
+
 **最后更新**: 2026-02-07

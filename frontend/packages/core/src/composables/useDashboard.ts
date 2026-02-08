@@ -75,11 +75,18 @@ export function useDashboard() {
     error.value = null
 
     try {
+      console.log('[Dashboard] 开始获取数据, date:', date)
       const api = getApi()
+      console.log('[Dashboard] api 实例:', !!api)
       const dashboardService = new DashboardService(api)
-      data.value = await dashboardService.getSummary(date)
+      console.log('[Dashboard] 开始调用 getSummary')
+      const result = await dashboardService.getSummary(date)
+      console.log('[Dashboard] getSummary 返回:', result)
+      data.value = result
+      console.log('[Dashboard] data.value 已设置')
       return data.value
     } catch (err) {
+      console.error('[Dashboard] 获取数据失败:', err)
       const message = err instanceof Error ? err.message : '获取数据失败'
       error.value = message
       throw err

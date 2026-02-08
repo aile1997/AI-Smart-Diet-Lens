@@ -94,10 +94,12 @@ export class CommunityService {
   /**
    * 点赞/取消点赞
    *
+   * 后端返回更新后的 Post 对象，包含最新的 likes 和 isLiked 状态
+   *
    * @param postId 帖子 ID
    */
-  async toggleLike(postId: string): Promise<LikeResponse> {
-    return this.client.post<LikeResponse>(`/community/posts/${postId}/like`)
+  async toggleLike(postId: string): Promise<Post> {
+    return this.client.post<Post>(`/community/posts/${postId}/like`)
   }
 
   /**

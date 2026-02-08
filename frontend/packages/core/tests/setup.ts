@@ -6,7 +6,29 @@
 
 import { vi, afterEach } from 'vitest'
 
-// 全局 mock 存储
+// ============ 全局 Console Mock ============
+// 必须在所有模块导入前设置，否则模块会绑定原始 console
+
+const originalConsole = { ...global.console }
+
+// 创建 mock 函数
+export const mockConsoleLog = vi.fn()
+export const mockConsoleWarn = vi.fn()
+export const mockConsoleError = vi.fn()
+
+// 替换全局 console 方法
+global.console.log = mockConsoleLog
+global.console.warn = mockConsoleWarn
+global.console.error = mockConsoleError
+
+// 导出恢复函数
+export function restoreConsole() {
+  global.console.log = originalConsole.log
+  global.console.warn = originalConsole.warn
+  global.console.error = originalConsole.error
+}
+
+// ============ 全局 Mock 存储 ============
 const mockStorage: Record<string, string> = {}
 
 /**

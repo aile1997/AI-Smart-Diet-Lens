@@ -14,7 +14,56 @@ const STORAGE_PREFIX = 'secure_'
 const ENCRYPTION_KEY = '__DIET_LENS__'
 
 /**
+ * UTF-8 兼容的 Base64 编码
+ * 支持中文和 Unicode 字符
+ *
+ * @param str 原始字符串
+ * @returns Base64 编码后的字符串
+ */
+function base64Encode(str: string): string {
+  // 使用 TextEncoder 将字符串转换为 UTF-8 字节数组
+  const encoder = new TextEncoder()
+  const data = encoder.encode(str)
+
+  // 将字节数组转换为二进制字符串
+  let binary = ''
+  for (let i = 0; i < data.length; i++) {
+    binary += String.fromCharCode(data[i])
+  }
+
+  // 使用 btoa 进行 Base64 编码
+  return btoa(binary)
+}
+
+/**
+ * UTF-8 兼容的 Base64 解码
+ * 支持中文和 Unicode 字符
+ *
+ * @param base64 Base64 编码的字符串
+ * @returns 解码后的原始字符串
+ */
+function base64Decode(base64: string): string {
+  try {
+    // 使用 atob 进行 Base64 解码
+    const binary = atob(base64)
+
+    // 将二进制字符串转换为字节数组
+    const bytes = new Uint8Array(binary.length)
+    for (let i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i)
+    }
+
+    // 使用 TextDecoder 将字节数组转换为字符串
+    const decoder = new TextDecoder()
+    return decoder.decode(bytes)
+  } catch {
+    return ''
+  }
+}
+
+/**
  * 简单的异或加密（仅用于演示，生产环境请使用 AES）
+ * 支持 UTF-8 编码
  *
  * @param data 原始数据
  * @param key 加密密钥
@@ -27,11 +76,12 @@ function xorEncrypt(data: string, key: string): string {
       data.charCodeAt(i) ^ key.charCodeAt(i % key.length)
     )
   }
-  return btoa(result) // Base64 编码
+  return base64Encode(result) // 使用 UTF-8 兼容的 Base64 编码
 }
 
 /**
  * 简单的异或解密
+ * 支持 UTF-8 编码
  *
  * @param encrypted 加密的数据
  * @param key 解密密钥
@@ -39,7 +89,7 @@ function xorEncrypt(data: string, key: string): string {
  */
 function xorDecrypt(encrypted: string, key: string): string {
   try {
-    const data = atob(encrypted) // Base64 解码
+    const data = base64Decode(encrypted) // 使用 UTF-8 兼容的 Base64 解码
     let result = ''
     for (let i = 0; i < data.length; i++) {
       result += String.fromCharCode(

@@ -1,7 +1,7 @@
 import { Controller, Post, Body, Get, Query } from '@nestjs/common'
 import { Throttle } from '@nestjs/throttler'
 import { AuthService } from './auth.service'
-import { SendCodeDto, EmailLoginDto, WechatLoginDto } from './dto/login.dto'
+import { SendCodeDto, EmailLoginDto, PasswordRegisterDto, PasswordLoginDto, WechatLoginDto, SimpleLoginDto } from './dto/login.dto'
 import { ApiResponse } from '../../common/api-response'
 import { ApiTags, ApiOperation, ApiResponse as SwaggerApiResponse, ApiBody } from '@nestjs/swagger'
 
@@ -25,13 +25,43 @@ export class AuthController {
   }
 
   /**
+   * POST /api/auth/register/password
+   * 邮箱 + 密码 + 验证码注册 (限流: 每 IP 每分钟 3 次)
+   * 标准的 APP 注册流程
+   */
+  @Post('register/password')
+  @Throttle({ short: { limit: 3, ttl: 60000 } })
+  @ApiOperation({ summary: '密码注册', description: '使用邮箱、密码和验证码注册新账号（标准注册流程）' })
+  @ApiBody({ type: PasswordRegisterDto })
+  @SwaggerApiResponse({ status: 201, description: '注册成功，返回 JWT Token 和用户信息' })
+  async registerWithPassword(@Body() dto: PasswordRegisterDto) {
+    const result = await this.authService.registerWithPassword(dto.email, dto.password, dto.code)
+    return ApiResponse.ok(result)
+  }
+
+  /**
+   * POST /api/auth/login/password
+   * 邮箱 + 密码登录 (限流: 每 IP 每分钟 10 次)
+   * 主要的登录方式
+   */
+  @Post('login/password')
+  @Throttle({ short: { limit: 10, ttl: 60000 } })
+  @ApiOperation({ summary: '密码登录', description: '使用邮箱和密码登录（主要登录方式）' })
+  @ApiBody({ type: PasswordLoginDto })
+  @SwaggerApiResponse({ status: 200, description: '登录成功，返回 JWT Token 和用户信息' })
+  async loginWithPassword(@Body() dto: PasswordLoginDto) {
+    const result = await this.authService.loginWithPassword(dto.email, dto.password)
+    return ApiResponse.ok(result)
+  }
+
+  /**
    * POST /api/auth/login/email
    * 邮箱验证码登录 (限流: 每 IP 每分钟 10 次)
    * 注意：仅限已注册用户，新用户请先注册
    */
   @Post('login/email')
   @Throttle({ short: { limit: 10, ttl: 60000 } })
-  @ApiOperation({ summary: '邮箱登录', description: '使用邮箱和验证码登录（仅限已注册用户）' })
+  @ApiOperation({ summary: '验证码登录', description: '使用邮箱和验证码登录（备用登录方式）' })
   @ApiBody({ type: EmailLoginDto })
   @SwaggerApiResponse({ status: 200, description: '登录成功，返回 JWT Token 和用户信息' })
   async loginWithEmail(@Body() dto: EmailLoginDto) {
@@ -63,7 +93,22 @@ export class AuthController {
   @ApiBody({ type: WechatLoginDto })
   @SwaggerApiResponse({ status: 200, description: '登录成功，返回 JWT Token' })
   async loginWithWechat(@Body() dto: WechatLoginDto) {
-    const result = await this.authService.loginWithWechat(dto.code, dto.openid)
+    const result = await this.authService.loginWithWechat(dto.code)
+    return ApiResponse.ok(result)
+  }
+
+  /**
+   * POST /api/auth/login/simple
+   * 简化登录 - 只需要邮箱
+   * 如果用户不存在则自动创建，存在则直接登录
+   */
+  @Post('login/simple')
+  @Throttle({ short: { limit: 20, ttl: 60000 } })
+  @ApiOperation({ summary: '简化登录', description: '使用邮箱直接登录（无需验证码），用户不存在则自动创建' })
+  @ApiBody({ type: SimpleLoginDto })
+  @SwaggerApiResponse({ status: 200, description: '登录成功，返回 JWT Token 和用户信息' })
+  async loginSimple(@Body() dto: SimpleLoginDto) {
+    const result = await this.authService.loginSimple(dto.email)
     return ApiResponse.ok(result)
   }
 

@@ -6,33 +6,31 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 
-// Mock API
-vi.mock('../../src/api')
+// 使用 vi.hoisted 创建 mock 函数（在模块导入前执行）
+const mockGetSummary = vi.hoisted(() => vi.fn())
 
-// 暂时跳过 useDashboard 测试，需要修复模块加载问题
-describe.skip('useDashboard', () => {
-  let useDashboard: () => ReturnType<typeof import('../../src/composables/useDashboard').useDashboard>
-  let mockGetSummary: ReturnType<typeof vi.fn>
+// Mock API 模块
+vi.mock('../../src/api', () => ({
+  getApi: vi.fn(() => ({
+    get: vi.fn(),
+    post: vi.fn(),
+    put: vi.fn(),
+    delete: vi.fn(),
+    patch: vi.fn(),
+  })),
+  DashboardService: class {
+    constructor() {}
+    getSummary = mockGetSummary
+  },
+  initApi: vi.fn(),
+}))
 
+import { useDashboard } from '../../src/composables/useDashboard'
+
+describe('useDashboard', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-
-    // Mock API
-    mockGetSummary = vi.fn()
-
-    vi.doMock('../../src/api', () => ({
-      getApi: () => ({
-        constructor: vi.fn().mockImplementation(() => ({})),
-      }),
-      DashboardService: class {
-        constructor() {}
-        getSummary = mockGetSummary
-      }
-    }))
   })
-
-  // Import after mocking
-  useDashboard = () => require('../../src/composables/useDashboard').useDashboard()
 
   describe('初始状态', () => {
     it('应有正确的初始状态', () => {
@@ -60,27 +58,30 @@ describe.skip('useDashboard', () => {
       const dashboard = useDashboard()
 
       const mockData = {
+        ui_strategy: 'LOSE_WEIGHT' as const,
+        date: '2024-01-15',
         hero_component: {
-          type: 'hero_component',
+          type: 'CALORIE_RING' as const,
           data: {
             primary: {
-              type: 'calories',
+              label: '热量',
               current: 1500,
-              target: 2000
+              target: 2000,
+              unit: 'kcal'
             },
             secondary: {
-              type: 'protein',
+              label: '蛋白质',
               current: 120,
-              target: 180
+              target: 180,
+              unit: 'g'
             }
           }
         },
         widgets: {
           steps: { current: 5000, target: 10000 },
           water: { current: 6, target: 8 },
-          sleep: { hours: 7, quality: 'GOOD' }
-        },
-        ui_strategy: 'LOSE_WEIGHT'
+          sleep: { hours: 7, quality: 'GOOD' as const }
+        }
       }
 
       mockGetSummary.mockResolvedValue(mockData)
@@ -96,12 +97,19 @@ describe.skip('useDashboard', () => {
       const dashboard = useDashboard()
 
       mockGetSummary.mockResolvedValue({
+        ui_strategy: 'MAINTAIN' as const,
+        date: '2024-01-15',
         hero_component: {
-          type: 'hero_component',
+          type: 'CALORIE_RING' as const,
           data: {
-            primary: { current: 1500, target: 2000 },
-            secondary: { current: 120, target: 180 }
+            primary: { label: '热量', current: 1500, target: 2000, unit: 'kcal' },
+            secondary: { label: '蛋白质', current: 120, target: 180, unit: 'g' }
           }
+        },
+        widgets: {
+          steps: { current: 0, target: 10000 },
+          water: { current: 0, target: 8 },
+          sleep: { hours: 0, quality: 'FAIR' as const }
         }
       })
 
@@ -118,12 +126,19 @@ describe.skip('useDashboard', () => {
       const dashboard = useDashboard()
 
       mockGetSummary.mockResolvedValue({
+        ui_strategy: 'MAINTAIN' as const,
+        date: '2024-01-15',
         hero_component: {
-          type: 'hero_component',
+          type: 'CALORIE_RING' as const,
           data: {
-            primary: { current: 1500, target: 2000 },
-            secondary: { current: 90, target: 180 }
+            primary: { label: '热量', current: 1500, target: 2000, unit: 'kcal' },
+            secondary: { label: '蛋白质', current: 90, target: 180, unit: 'g' }
           }
+        },
+        widgets: {
+          steps: { current: 0, target: 10000 },
+          water: { current: 0, target: 8 },
+          sleep: { hours: 0, quality: 'FAIR' as const }
         }
       })
 
@@ -149,7 +164,22 @@ describe.skip('useDashboard', () => {
     it('应支持按日期获取数据', async () => {
       const dashboard = useDashboard()
 
-      mockGetSummary.mockResolvedValue({})
+      mockGetSummary.mockResolvedValue({
+        ui_strategy: 'MAINTAIN' as const,
+        date: '2024-01-15',
+        hero_component: {
+          type: 'CALORIE_RING' as const,
+          data: {
+            primary: { label: '热量', current: 0, target: 2000, unit: 'kcal' },
+            secondary: { label: '蛋白质', current: 0, target: 180, unit: 'g' }
+          }
+        },
+        widgets: {
+          steps: { current: 0, target: 10000 },
+          water: { current: 0, target: 8 },
+          sleep: { hours: 0, quality: 'FAIR' as const }
+        }
+      })
 
       await dashboard.fetchDashboard('2024-01-15')
 
@@ -161,7 +191,22 @@ describe.skip('useDashboard', () => {
     it('应重新获取仪表盘数据', async () => {
       const dashboard = useDashboard()
 
-      mockGetSummary.mockResolvedValue({})
+      mockGetSummary.mockResolvedValue({
+        ui_strategy: 'MAINTAIN' as const,
+        date: '2024-01-15',
+        hero_component: {
+          type: 'CALORIE_RING' as const,
+          data: {
+            primary: { label: '热量', current: 0, target: 2000, unit: 'kcal' },
+            secondary: { label: '蛋白质', current: 0, target: 180, unit: 'g' }
+          }
+        },
+        widgets: {
+          steps: { current: 0, target: 10000 },
+          water: { current: 0, target: 8 },
+          sleep: { hours: 0, quality: 'FAIR' as const }
+        }
+      })
 
       await dashboard.refresh()
 
@@ -174,7 +219,20 @@ describe.skip('useDashboard', () => {
       const dashboard = useDashboard()
 
       mockGetSummary.mockResolvedValue({
-        ui_strategy: 'LOSE_WEIGHT'
+        ui_strategy: 'LOSE_WEIGHT' as const,
+        date: '2024-01-15',
+        hero_component: {
+          type: 'CALORIE_RING' as const,
+          data: {
+            primary: { label: '热量', current: 0, target: 2000, unit: 'kcal' },
+            secondary: { label: '蛋白质', current: 0, target: 180, unit: 'g' }
+          }
+        },
+        widgets: {
+          steps: { current: 0, target: 10000 },
+          water: { current: 0, target: 8 },
+          sleep: { hours: 0, quality: 'FAIR' as const }
+        }
       })
 
       await dashboard.fetchDashboard()
@@ -185,7 +243,22 @@ describe.skip('useDashboard', () => {
     it('默认应为 MAINTAIN 策略', async () => {
       const dashboard = useDashboard()
 
-      mockGetSummary.mockResolvedValue({})
+      mockGetSummary.mockResolvedValue({
+        ui_strategy: 'MAINTAIN' as const,
+        date: '2024-01-15',
+        hero_component: {
+          type: 'CALORIE_RING' as const,
+          data: {
+            primary: { label: '热量', current: 0, target: 2000, unit: 'kcal' },
+            secondary: { label: '蛋白质', current: 0, target: 180, unit: 'g' }
+          }
+        },
+        widgets: {
+          steps: { current: 0, target: 10000 },
+          water: { current: 0, target: 8 },
+          sleep: { hours: 0, quality: 'FAIR' as const }
+        }
+      })
 
       await dashboard.fetchDashboard()
 

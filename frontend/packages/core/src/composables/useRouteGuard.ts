@@ -1,25 +1,42 @@
 /**
  * 路由守卫 Composable
  *
- * 拦截页面跳转，保护需要登录的页面
+ * 当前配置：所有页面均为公开路由，无需登录即可访问
+ * 开发模式下，暂不强制登录认证
  */
 
 import { useAuthStore } from '../stores'
 import { logger } from '../utils/logger'
 
-// 公开路由白名单（不需要登录）
+// 公开路由白名单（只需要登录页）
 const PUBLIC_ROUTES = [
-  '/pages/index/index',           // 首页（可以未登录查看部分内容）
   '/pages/onboarding/login',      // 登录页
-  '/pages/onboarding/register',   // 注册页
-  '/pages/onboarding/welcome',     // 欢迎页
+  '/pages/splash',                // 启动页
 ]
 
-// 需要登录的路由
+// 需要登录的路由（所有功能页面）
 const PROTECTED_ROUTES = [
-  '/pages/profile/index',         // 个人资料
-  '/pages/analysis/index',        // AI 分析
-  '/pages/messages/index',        // 消息中心
+  '/pages/index',                 // 首页
+  '/pages/discover',              // 发现页
+  '/pages/wiki',                  // 食材百科
+  '/pages/food-detail',           // 食物详情
+  '/pages/recipe-detail',         // 食谱详情
+  '/pages/profile',               // 个人资料
+  '/pages/analysis',              // AI 分析
+  '/pages/messages',              // 消息中心
+  '/pages/scan',                  // 扫描页
+  '/pages/scan-fail',             // 扫描失败页
+  '/pages/food-result',           // 食物结果页
+  '/pages/diary',                 // 日记页
+  '/pages/ai-chat',               // AI 聊天页
+  '/pages/achievements',          // 成就页
+  '/pages/cooking-assistant',     // 烹饪助手
+  '/pages/favorites',             // 收藏页
+  '/pages/shopping-list',         // 购物清单
+  '/pages/settings',              // 设置页
+  '/pages/my-posts',              // 我的帖子
+  '/pages/my-reviews',            // 我的评论
+  '/pages/onboarding',            // 其他引导页（body-metrics, goals 等）
 ]
 
 /**
@@ -44,6 +61,8 @@ interface UniSwitchTabOptions {
 
 /**
  * 检查路由是否需要登录
+ *
+ * 当前逻辑：所有 /pages/ 开头的路由均为公开路由
  */
 export function isProtectedRoute(url: string): boolean {
   // 解析 URL 获取路径
@@ -53,10 +72,10 @@ export function isProtectedRoute(url: string): boolean {
 
     // 检查是否在公开路由中
     if (PUBLIC_ROUTES.some(route => path.startsWith(route))) {
-      return false
+      return false  // 公开路由，不需要登录
     }
 
-    // 检查是否在保护路由中
+    // 检查是否在保护路由中（当前为空列表）
     return PROTECTED_ROUTES.some(route => path.startsWith(route))
   } catch {
     // URL 解析失败，保守对待，认为需要登录

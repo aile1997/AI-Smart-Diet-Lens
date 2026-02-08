@@ -144,7 +144,7 @@ onMounted(() => {
             <text class="text-base font-medium">设置</text>
           </view>
         </view>
-        <text class="text-slate-900 tracking-tight text-[32px] font-bold leading-tight">系统设置</text>
+        <text class="text-slate-900 tracking-tight text-3xl font-bold leading-tight">系统设置</text>
       </view>
     </view>
 
@@ -153,13 +153,13 @@ onMounted(() => {
       <view class="mx-4 overflow-hidden rounded-xl bg-white shadow-card">
         <view class="flex items-center gap-4 p-4">
           <view class="w-14 h-14 rounded-full bg-[#34C759]/10 flex items-center justify-center text-[#34C759]">
-            <text class="material-symbols-outlined filled text-[28px]">person</text>
+            <text class="material-symbols-outlined filled text-3xl">person</text>
           </view>
           <view class="flex-1">
             <text class="text-slate-900 text-lg font-medium block">{{ userName }}</text>
             <text class="text-slate-500 text-sm">查看和编辑个人资料</text>
           </view>
-          <text class="material-symbols-outlined text-slate-400 text-[20px]">chevron_right</text>
+          <text class="material-symbols-outlined text-slate-400 text-xl">chevron_right</text>
         </view>
       </view>
 
@@ -169,7 +169,7 @@ onMounted(() => {
         <view class="flex items-center justify-between p-4 border-b border-slate-100">
           <view class="flex items-center gap-4 overflow-hidden">
             <view class="flex items-center justify-center rounded-lg bg-[#34C759]/10 w-8 h-8 text-[#34C759]">
-              <text class="material-symbols-outlined filled text-[20px]">favorite</text>
+              <text class="material-symbols-outlined filled text-xl">favorite</text>
             </view>
             <view>
               <text class="text-slate-900 text-base font-medium block">同步 Apple Health</text>
@@ -188,7 +188,7 @@ onMounted(() => {
         >
           <view class="flex items-center gap-4 overflow-hidden">
             <view class="flex items-center justify-center rounded-lg bg-[#34C759]/10 w-8 h-8 text-[#34C759]">
-              <text class="material-symbols-outlined filled text-[20px]">notifications</text>
+              <text class="material-symbols-outlined filled text-xl">notifications</text>
             </view>
             <view>
               <text class="text-slate-900 text-base font-medium block">通知权限</text>
@@ -197,7 +197,7 @@ onMounted(() => {
           </view>
           <view class="flex items-center gap-2">
             <text class="text-slate-500 text-sm font-medium">去设置</text>
-            <text class="material-symbols-outlined text-slate-400 text-[20px]">chevron_right</text>
+            <text class="material-symbols-outlined text-slate-400 text-xl">chevron_right</text>
           </view>
         </view>
       </view>
@@ -210,7 +210,7 @@ onMounted(() => {
         >
           <view class="flex items-center gap-4 overflow-hidden">
             <view class="flex items-center justify-center rounded-lg bg-[#34C759]/10 w-8 h-8 text-[#34C759]">
-              <text class="material-symbols-outlined text-[20px]">cleaning_services</text>
+              <text class="material-symbols-outlined text-xl">cleaning_services</text>
             </view>
             <view>
               <text class="text-slate-900 text-base font-medium block">清除缓存</text>
@@ -219,7 +219,7 @@ onMounted(() => {
           </view>
           <view class="flex items-center gap-2">
             <text class="text-slate-500 text-sm font-medium">{{ cacheSize }}</text>
-            <text class="material-symbols-outlined text-slate-400 text-[20px]">chevron_right</text>
+            <text class="material-symbols-outlined text-slate-400 text-xl">chevron_right</text>
           </view>
         </view>
       </view>
@@ -228,7 +228,7 @@ onMounted(() => {
       <view class="mt-6 flex flex-col items-center justify-center gap-2 px-4 pb-8">
         <view class="h-16 w-16 rounded-[14px] bg-white shadow-sm flex items-center justify-center mb-2 overflow-hidden border border-slate-100">
           <view class="h-full w-full bg-gradient-to-br from-blue-400 to-[#34C759] flex items-center justify-center">
-            <text class="material-symbols-outlined text-white text-[32px]">local_dining</text>
+            <text class="material-symbols-outlined text-white text-3xl">local_dining</text>
           </view>
         </view>
         <text class="text-sm font-semibold text-slate-900">AI Smart-Diet Lens</text>

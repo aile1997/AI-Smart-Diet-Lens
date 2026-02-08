@@ -25,7 +25,7 @@ export const useAuthStore = defineStore('auth', () => {
   const canSendCode = ref(true)
   const codeCooldown = ref(0)
 
-  // 计算属性
+  // 计算属性 - 检查用户是否已登录
   const isLoggedIn = computed(() => !!token.value)
 
   // 方法
@@ -109,6 +109,90 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   /**
+   * 邮箱验证码注册
+   */
+  async function registerWithEmail(email: string, code: string) {
+    loading.value = true
+    errorCode.value = null
+
+    try {
+      const api = getApi()
+      const authService = new AuthService(api)
+      const result = await authService.registerWithEmail(email, code)
+
+      // 保存 Token（使用加密存储）
+      token.value = result.token
+      tokenStorage.setToken(result.token)
+
+      // 重新初始化 API 客户端（带新 token）
+      initApi(() => result.token)
+
+      return { success: true, user: result.user }
+    } catch (error) {
+      errorCode.value = (error as Error).message
+      return { success: false, error: (error as Error).message }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  /**
+   * 邮箱+密码+验证码注册
+   */
+  async function registerWithPassword(email: string, password: string, code: string) {
+    loading.value = true
+    errorCode.value = null
+
+    try {
+      const api = getApi()
+      const authService = new AuthService(api)
+      const result = await authService.registerWithPassword(email, password, code)
+
+      // 保存 Token（使用加密存储）
+      token.value = result.token
+      tokenStorage.setToken(result.token)
+
+      // 重新初始化 API 客户端（带新 token）
+      initApi(() => result.token)
+
+      return { success: true, user: result.user }
+    } catch (error) {
+      errorCode.value = (error as Error).message
+      return { success: false, error: (error as Error).message }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  /**
+   * 简化登录 - 只需要邮箱
+   */
+  async function loginSimple(email: string) {
+    loading.value = true
+    errorCode.value = null
+
+    try {
+      const api = getApi()
+      const authService = new AuthService(api)
+      const result = await authService.loginSimple(email)
+
+      // 保存 Token（使用加密存储）
+      token.value = result.token
+      tokenStorage.setToken(result.token)
+
+      // 重新初始化 API 客户端（带新 token）
+      initApi(() => result.token)
+
+      return { success: true, user: result.user }
+    } catch (error) {
+      errorCode.value = (error as Error).message
+      return { success: false, error: (error as Error).message }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  /**
    * 邮箱验证码登录
    */
   async function loginWithEmail(email: string, code: string) {
@@ -137,16 +221,44 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   /**
-   * 微信授权登录
+   * 微信授权登录（微信内置浏览器）
    */
-  async function loginWithWechat(code: string, openid?: string) {
+  async function loginWithWechat(code: string) {
     loading.value = true
     errorCode.value = null
 
     try {
       const api = getApi()
       const authService = new AuthService(api)
-      const result = await authService.loginWithWechat(code, openid)
+      const result = await authService.loginWithWechat(code)
+
+      // 保存 Token（使用加密存储）
+      token.value = result.token
+      tokenStorage.setToken(result.token)
+
+      // 重新初始化 API 客户端（带新 token）
+      initApi(() => result.token)
+
+      return { success: true, user: result.user }
+    } catch (error) {
+      errorCode.value = (error as Error).message
+      return { success: false, error: (error as Error).message }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  /**
+   * 邮箱+密码登录
+   */
+  async function loginWithPassword(email: string, password: string) {
+    loading.value = true
+    errorCode.value = null
+
+    try {
+      const api = getApi()
+      const authService = new AuthService(api)
+      const result = await authService.loginWithPassword(email, password)
 
       // 保存 Token（使用加密存储）
       token.value = result.token
@@ -185,7 +297,11 @@ export const useAuthStore = defineStore('auth', () => {
     // 方法
     initAuth,
     sendCode,
+    loginSimple,
+    registerWithEmail,
+    registerWithPassword,
     loginWithEmail,
+    loginWithPassword,
     loginWithWechat,
     logout,
   }

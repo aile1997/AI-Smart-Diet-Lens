@@ -43,7 +43,7 @@ describe('DashboardService', () => {
 
     beforeEach(() => {
       mockPrismaService.user.findUnique = jest.fn().mockResolvedValue({
-        goal: 'FAT_LOSS',
+        goal: 'lose_weight',  // 数据库存储的值
         dailyCalorieTarget: 2000,
         proteinTarget: 150,
         carbsTarget: 200,
@@ -82,16 +82,16 @@ describe('DashboardService', () => {
       expect(result).toHaveProperty('widgets')
     })
 
-    it('should return FAT_LOSS strategy with CALORIE_RING component', async () => {
+    it('should return LOSE_WEIGHT strategy with CALORIE_RING component', async () => {
       const result = await service.getSummary(mockUserId, mockDate)
 
-      expect(result.ui_strategy).toBe('FAT_LOSS')
+      expect(result.ui_strategy).toBe('LOSE_WEIGHT')
       expect(result.hero_component.type).toBe('CALORIE_RING')
     })
 
-    it('should return MUSCLE_GAIN strategy with DUAL_BAR_CHART component', async () => {
+    it('should return GAIN_MUSCLE strategy with DUAL_BAR_CHART component', async () => {
       mockPrismaService.user.findUnique = jest.fn().mockResolvedValue({
-        goal: 'MUSCLE_GAIN',
+        goal: 'gain_muscle',  // 数据库存储的值
         dailyCalorieTarget: 2700,
         proteinTarget: 180,
         carbsTarget: 300,
@@ -100,7 +100,7 @@ describe('DashboardService', () => {
 
       const result = await service.getSummary(mockUserId, mockDate)
 
-      expect(result.ui_strategy).toBe('MUSCLE_GAIN')
+      expect(result.ui_strategy).toBe('GAIN_MUSCLE')  // API 返回的值
       expect(result.hero_component.type).toBe('DUAL_BAR_CHART')
     })
 
@@ -122,14 +122,14 @@ describe('DashboardService', () => {
 
       const result = await service.getSummary(mockUserId, mockDate)
 
-      // FAT_LOSS 模式: primary 是 Calories, secondary 是 Protein
+      // LOSE_WEIGHT 模式: primary 是 Calories, secondary 是 Protein
       expect(result.hero_component.data.primary.current).toBe(800) // 500 + 300
       expect(result.hero_component.data.secondary.current).toBe(50) // 20 + 30
     })
 
     it('should not include smart_alert when no alerts triggered', async () => {
       mockPrismaService.user.findUnique = jest.fn().mockResolvedValue({
-        goal: 'MUSCLE_GAIN',
+        goal: 'gain_muscle',  // 数据库存储的值
         dailyCalorieTarget: 2700,
         proteinTarget: 180,
         carbsTarget: 300,

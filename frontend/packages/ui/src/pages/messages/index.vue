@@ -45,8 +45,8 @@ async function fetchNotifications() {
   try {
     const api = getApi()
     const notificationsService = new NotificationsService(api)
-    const data = await notificationsService.getList()
-    notifications.value = data
+    const response = await notificationsService.getMessages()
+    notifications.value = response?.messages || []
   } catch (err) {
     const message = err instanceof Error ? err.message : '获取通知失败'
     error.value = message
@@ -61,7 +61,7 @@ async function markAllRead() {
   try {
     const api = getApi()
     const notificationsService = new NotificationsService(api)
-    await notificationsService.markAllRead()
+    await notificationsService.markAllAsRead()
 
     // 更新本地状态
     notifications.value.forEach(n => n.isRead = true)
@@ -130,12 +130,12 @@ onMounted(() => {
       <!-- Header -->
       <view class="sticky top-0 z-30 px-4 pt-14 pb-4 bg-[#F5F7F8]/90 backdrop-blur-md flex items-center justify-between">
         <view @tap="navigateBack" class="w-10 h-10 -ml-2 rounded-full flex items-center justify-center text-slate-800 active:bg-black/5 active:bg-black/10 transition-colors">
-          <text class="material-symbols-outlined text-[22px]">arrow_back_ios_new</text>
+          <text class="material-symbols-outlined text-2xl">arrow_back_ios_new</text>
         </view>
-        <text class="text-[17px] font-bold text-slate-900 tracking-tight absolute left-1/2 -translate-x-1/2">消息中心</text>
+        <text class="text-base font-bold text-slate-900 tracking-tight absolute left-1/2 -translate-x-1/2">消息中心</text>
         <view class="w-10 h-10 flex items-center justify-center">
           <view @tap="markAllRead" class="text-slate-900">
-            <text class="material-symbols-outlined text-[24px]">mark_chat_read</text>
+            <text class="material-symbols-outlined text-2xl">mark_chat_read</text>
           </view>
         </view>
       </view>
@@ -144,7 +144,7 @@ onMounted(() => {
       <view class="px-5 mb-6 mt-2">
         <view class="relative group">
           <view class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-            <text class="material-symbols-outlined text-gray-400 text-[20px]">search</text>
+            <text class="material-symbols-outlined text-gray-400 text-xl">search</text>
           </view>
           <input
             v-model="searchQuery"
@@ -189,7 +189,7 @@ onMounted(() => {
                 item.type === 'reminder' ? 'bg-blue-50 text-blue-500 border-blue-100' : '',
                 item.type === 'system' ? 'bg-sage-50 text-sage-500 border-sage-100' : ''
               ]">
-                <text class="material-symbols-outlined filled text-[24px]">
+                <text class="material-symbols-outlined filled text-2xl">
                   {{ item.type === 'achievement' ? 'emoji_events' : item.type === 'reminder' ? 'notifications' : 'info' }}
                 </text>
               </view>
@@ -197,10 +197,10 @@ onMounted(() => {
             </view>
             <view class="flex-1 min-w-0">
               <view class="flex justify-between items-center mb-1">
-                <text class="font-bold text-[16px] text-slate-900">{{ item.title }}</text>
-                <text class="text-[12px] text-gray-400 font-medium">{{ formatTime(item.createdAt) }}</text>
+                <text class="font-bold text-base text-slate-900">{{ item.title }}</text>
+                <text class="text-xs text-gray-400 font-medium">{{ formatTime(item.createdAt) }}</text>
               </view>
-              <text class="text-[14px] text-gray-500 leading-snug block">{{ item.content }}</text>
+              <text class="text-sm text-gray-500 leading-snug block">{{ item.content }}</text>
             </view>
           </view>
         </view>

@@ -105,7 +105,8 @@ export function useDiary() {
           title: entry.items[0]?.name || '未知食物',
           desc: `${entry.items.reduce((sum, item) => sum + item.portion, 0)}g`,
           c: entry.totalCalories,
-          img: entry.imageKey || 'https://via.placeholder.com/100',
+          // 使用食物图片，如果没有则使用默认静态图片
+          img: entry.imageKey || '/static/images/food/food_1.jpg',
         })),
       }))
   })
@@ -260,6 +261,39 @@ export function useDiary() {
     return fetchAll(selectedDate.value)
   }
 
+  /**
+   * 今天已记录的餐次数量
+   */
+  const todayMealCount = computed(() => {
+    if (!entries.value || entries.value.length === 0) {
+      return 0
+    }
+    // 统计不同的餐别类型数量
+    const uniqueMealTypes = new Set(entries.value.map(e => e.mealType))
+    return uniqueMealTypes.size
+  })
+
+  /**
+   * 获取下一餐的提示文案
+   */
+  const nextMealPrompt = computed(() => {
+    const count = todayMealCount.value
+    const prompts = [
+      '记录您的第一顿餐食，解锁个性化分析建议',
+      '记录您的第二顿餐食，完善今日营养数据',
+      '记录您的第三顿餐食，追踪全天热量摄入',
+      '记录您的第四顿餐食，保持健康饮食习惯',
+    ]
+    return prompts[count] || '继续记录您的饮食，保持健康生活'
+  })
+
+  /**
+   * 是否需要记录餐食（今天还没有记录）
+   */
+  const needsFirstMeal = computed(() => {
+    return todayMealCount.value === 0
+  })
+
   return {
     // 状态
     loading,
@@ -270,6 +304,9 @@ export function useDiary() {
     // 计算属性
     macros,
     meals,
+    todayMealCount,
+    nextMealPrompt,
+    needsFirstMeal,
     // 方法
     fetchEntries,
     fetchSummary,

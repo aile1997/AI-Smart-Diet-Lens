@@ -36,7 +36,7 @@ export class DiaryService {
       })
 
       if (!existingFood) {
-        // 创建新食物记录
+        // 创建新食物记录，包含图片 URL
         const newFood = await this.prisma.food.create({
           data: {
             name: dto.items[0].food_name,
@@ -45,6 +45,7 @@ export class DiaryService {
             protein: (dto.items[0].macros.protein / dto.items[0].portion_g) * 100,
             carbs: (dto.items[0].macros.carbs / dto.items[0].portion_g) * 100,
             fat: (dto.items[0].macros.fat / dto.items[0].portion_g) * 100,
+            imageUrl: dto.image_key,  // 保存图片 URL
           },
         })
         foodId = newFood.id
@@ -100,12 +101,10 @@ export class DiaryService {
   async getDailySummary(userId: string, date: string): Promise<DailySummary> {
     const entries = await this.getDailyList(userId, date)
 
-    const total_nutrition = {
-      calories: entries.reduce((sum, e) => sum + e.calories, 0),
-      protein: entries.reduce((sum, e) => sum + e.protein, 0),
-      carbs: entries.reduce((sum, e) => sum + e.carbs, 0),
-      fat: entries.reduce((sum, e) => sum + e.fat, 0),
-    }
+    const totalCalories = entries.reduce((sum, e) => sum + e.calories, 0)
+    const totalProtein = entries.reduce((sum, e) => sum + e.protein, 0)
+    const totalCarbs = entries.reduce((sum, e) => sum + e.carbs, 0)
+    const totalFat = entries.reduce((sum, e) => sum + e.fat, 0)
 
     // 获取用户目标
     const user = await this.prisma.user.findUnique({
@@ -116,8 +115,11 @@ export class DiaryService {
     return {
       date,
       entries,
-      total_nutrition,
-      target_calories: user?.dailyCalorieTarget || 2000,
+      totalCalories,
+      targetCalories: user?.dailyCalorieTarget || 2000,
+      totalProtein,
+      totalCarbs,
+      totalFat,
     }
   }
 

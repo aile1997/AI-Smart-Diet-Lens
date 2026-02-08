@@ -2,9 +2,10 @@ import { Module } from '@nestjs/common'
 import { ChatService } from './chat.service'
 import { ChatController } from './chat.controller'
 import { PrismaModule } from '../../common/prisma.module'
+import { ConfigModule } from '@nestjs/config'
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, ConfigModule],
   controllers: [ChatController],
   providers: [ChatService],
   exports: [ChatService],

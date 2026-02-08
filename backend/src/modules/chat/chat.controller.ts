@@ -30,7 +30,21 @@ export class ChatController {
     @CurrentUser() user: UserPayload,
     @Body() dto: SendMessageDto,
   ) {
+    console.log('')
+    console.log('█'.repeat(70))
+    console.log('[ChatController] ████ POST /api/ai/chat/message ████')
+    console.log('[ChatController] 时间:', new Date().toISOString())
+    console.log('[ChatController] userId:', user?.sub || 'UNDEFINED!')
+    console.log('[ChatController] message:', dto.message)
+    console.log('[ChatController] context 长度:', dto.context?.length || 0)
+    console.log('█'.repeat(70))
+
     const response = await this.chatService.processMessage(user.sub, dto)
+
+    console.log('[ChatController] 返回响应, reply 长度:', response.reply?.length)
+    console.log('█'.repeat(70))
+    console.log('')
+
     return ApiResponse.ok(response)
   }
 
@@ -66,7 +80,20 @@ export class ChatController {
     @CurrentUser() user: UserPayload,
     @Query('limit') limit?: number,
   ) {
+    console.log('')
+    console.log('▓'.repeat(70))
+    console.log('[ChatController] ▓▓▓ GET /api/ai/chat/history ▓▓▓')
+    console.log('[ChatController] 时间:', new Date().toISOString())
+    console.log('[ChatController] userId:', user?.sub || 'UNDEFINED!')
+    console.log('[ChatController] limit:', limit || 10)
+    console.log('▓'.repeat(70))
+
     const history = await this.chatService.getChatHistory(user.sub, limit || 10)
+
+    console.log('[ChatController] 返回历史, 消息数量:', history.messages.length)
+    console.log('▓'.repeat(70))
+    console.log('')
+
     return ApiResponse.ok(history)
   }
 

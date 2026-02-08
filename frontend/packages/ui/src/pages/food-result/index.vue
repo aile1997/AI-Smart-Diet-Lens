@@ -4,13 +4,20 @@
  *
  * AI 识别后确认营养信息，调整份量并记录
  */
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useDiary } from '@diet-lens/core'
 
-/** 餐别类型 */
-type MealType = 'breakfast' | 'lunch' | 'dinner' | 'snack'
+// 使用 useDiary 组合函数
+const { addEntry } = useDiary()
+
+/** 餐别类型（小写，用于本地逻辑） */
+type LocalMealType = 'breakfast' | 'lunch' | 'dinner' | 'snack'
+
+/** 餐别类型（大写，用于 API） */
+type ApiMealType = 'BREAKFAST' | 'LUNCH' | 'DINNER' | 'SNACK'
 
 /** 根据当前时间获取餐别 */
-function getCurrentMealType(): MealType {
+function getCurrentMealType(): LocalMealType {
   const hour = new Date().getHours()
   if (hour >= 5 && hour < 10) return 'breakfast'
   if (hour >= 10 && hour < 14) return 'lunch'
@@ -19,7 +26,7 @@ function getCurrentMealType(): MealType {
 }
 
 /** 获取餐别中文名称 */
-function getMealTypeName(type: MealType): string {
+function getMealTypeName(type: LocalMealType): string {
   const names = {
     breakfast: '早餐',
     lunch: '午餐',
@@ -29,32 +36,94 @@ function getMealTypeName(type: MealType): string {
   return names[type]
 }
 
+/** 将本地餐别类型转换为 API 餐别类型 */
+function toApiMealType(type: LocalMealType): ApiMealType {
+  const map: Record<LocalMealType, ApiMealType> = {
+    breakfast: 'BREAKFAST',
+    lunch: 'LUNCH',
+    dinner: 'DINNER',
+    snack: 'SNACK'
+  }
+  return map[type]
+}
+
 // 当前餐别
-const currentMealType = computed<MealType>(() => getCurrentMealType())
+const currentMealType = computed<LocalMealType>(() => getCurrentMealType())
 const currentMealName = computed(() => getMealTypeName(currentMealType.value))
 
-// 份量和营养数据
-const portion = ref<number>(250)
-const basePortion = 250
-const baseCalories = 450
+// 传递的食物数据（从 URL 参数解析）
+const foodData = ref<{
+  foodName: string
+  calories: number
+  protein: number
+  carbs: number
+  fat: number
+  imageUrl?: string
+} | null>(null)
 
-// 营养素基础数据（每250g）
-const baseNutrients = {
-  protein: 35,
-  carbs: 12,
-  fat: 18,
-  sodium: 450,
-  fiber: 6.2,
-  sugar: 3.1
-}
+// 加载状态
+const isLoading = ref(true)
+
+// 份量和营养数据
+const portion = ref<number>(100)  // 默认 100g
+const basePortion = 100  // 识别数据通常基于 100g
+
+// 从 URL 参数中解析食物数据
+onMounted(() => {
+  const pages = getCurrentPages()
+  const currentPage = pages[pages.length - 1]
+  const options = (currentPage as any).options || {}
+
+  if (options.data) {
+    try {
+      const decoded = decodeURIComponent(options.data)
+      foodData.value = JSON.parse(decoded)
+      console.log('识别的食物数据:', foodData.value)
+    } catch (error) {
+      console.error('解析食物数据失败:', error)
+      // 使用默认数据
+      foodData.value = {
+        foodName: '未知食物',
+        calories: 100,
+        protein: 0,
+        carbs: 0,
+        fat: 0,
+        imageUrl: undefined
+      }
+    }
+  } else {
+    // 没有 data 参数，使用默认值
+    foodData.value = {
+      foodName: '未知食物',
+      calories: 100,
+      protein: 0,
+      carbs: 0,
+      fat: 0,
+      imageUrl: undefined
+    }
+  }
+
+  isLoading.value = false
+})
+
+// 基础营养数据（基于 100g）
+const baseCalories = computed(() => foodData.value?.calories || 100)
+const baseNutrients = computed(() => ({
+  protein: foodData.value?.protein || 0,
+  carbs: foodData.value?.carbs || 0,
+  fat: foodData.value?.fat || 0,
+  sodium: 0,  // AI 识别不提供
+  fiber: 0,   // AI 识别不提供
+  sugar: 0    // AI 识别不提供
+}))
 
 // 计算实际营养值（根据份量比例）
 const ratio = computed(() => portion.value / basePortion)
-const calories = computed(() => Math.round(baseCalories * ratio.value))
+const calories = computed(() => Math.round(baseCalories.value * ratio.value))
 
-const protein = computed(() => Math.round(baseNutrients.protein * ratio.value))
-const carbs = computed(() => Math.round(baseNutrients.carbs * ratio.value))
-const fat = computed(() => Math.round(baseNutrients.fat * ratio.value))
+const protein = computed(() => Math.round(baseNutrients.value.protein * ratio.value))
+const carbs = computed(() => Math.round(baseNutrients.value.carbs * ratio.value))
+const fat = computed(() => Math.round(baseNutrients.value.fat * ratio.value))
 
 // 每日目标
 const dailyTargets = {
@@ -68,14 +137,6 @@ const proteinPercent = computed(() => Math.min((protein.value / dailyTargets.pro
 const carbsPercent = computed(() => Math.min((carbs.value / dailyTargets.carbs) * 100, 100))
 const fatPercent = computed(() => Math.min((fat.value / dailyTargets.fat) * 100, 100))
 
-// 微量营养素展开状态
-const showMicronutrients = ref(false)
-
-// 计算微量营养素值（避免模板中的类型错误）
-const sodium = computed(() => Math.round(baseNutrients.sodium * ratio.value))
-const fiber = computed(() => (baseNutrients.fiber * ratio.value).toFixed(1))
-const sugar = computed(() => (baseNutrients.sugar * ratio.value).toFixed(1))
-
 const navigateBack = () => {
   uni.navigateBack()
 }
@@ -86,36 +147,83 @@ const retakePhoto = () => {
   uni.switchTab({ url: '/pages/scan/index' })
 }
 
-const saveToDiary = () => {
-  // TODO: 保存到日记
-  // diary 是 tabBar 页面，需要使用 switchTab
-  uni.switchTab({ url: '/pages/diary/index' })
+const saveToDiary = async () => {
+  if (!foodData.value) {
+    uni.showToast({ title: '没有食物数据', icon: 'none' })
+    return
+  }
+
+  try {
+    // 显示加载提示
+    uni.showLoading({ title: '保存中...' })
+
+    // 调用 API 保存数据
+    await addEntry({
+      mealType: toApiMealType(currentMealType.value),
+      items: [
+        {
+          name: foodData.value.foodName,
+          portion: portion.value,
+          calories: calories.value,
+          protein: protein.value,
+          carbs: carbs.value,
+          fat: fat.value,
+        }
+      ],
+      imageKey: foodData.value.imageUrl,
+    })
+
+    uni.hideLoading()
+
+    // 显示成功提示
+    uni.showToast({ title: '已保存到日记', icon: 'success' })
+
+    // 延迟导航，让用户看到成功提示
+    setTimeout(() => {
+      // diary 是 tabBar 页面，需要使用 switchTab
+      uni.switchTab({ url: '/pages/diary/index' })
+    }, 500)
+  } catch (err) {
+    uni.hideLoading()
+    console.error('保存到日记失败:', err)
+    uni.showToast({ title: '保存失败，请重试', icon: 'none' })
+  }
 }
 </script>
 
 <template>
   <view class="relative h-screen w-full flex flex-col bg-[#F5F7F6]">
+    <!-- 加载状态 -->
+    <view v-if="isLoading" class="flex-1 flex items-center justify-center">
+      <text class="text-slate-400">加载中...</text>
+    </view>
+
+    <!-- 主内容 -->
+    <view v-else class="flex flex-col h-full">
     <!-- Top Image Area -->
     <view class="relative h-[35vh] w-full shrink-0">
-      <view class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD4okC0hHdn3KHTuhDrx6xp8mDEkn5jbe7BZiwHFYNGahUNYOKaU-P-wp4QPUaoE_-BCukvONG3Sae8E0mfPO3Y_06RQNmL_7k9xY0yDEjb9STqrajykm7h_P-GJy90l1QKgmPIELcCu7QWIpKcVFjc2MXU46MW4pZAX078eN02KA6KUebKHDU54pfwir8U9sU5ic4ki7-QYykkUCwsS62DQoA5oakcMbvNAQx_f69msJTTsiOE_gZU36fX8O86ZT3UGhSn1MTjx7GG')">
+      <view
+        class="absolute inset-0 bg-cover bg-center"
+        :style="{ backgroundImage: foodData?.imageUrl ? `url('${foodData.imageUrl}')` : `url('/static/images/food/food_7.jpg')` }"
+      >
         <view class="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60"></view>
       </view>
 
       <view class="absolute top-0 left-0 right-0 p-4 pt-12 flex justify-between items-start z-10">
         <view @tap="navigateBack" class="flex items-center justify-center w-10 h-10 rounded-full bg-white/20 backdrop-blur-md text-white active:bg-white/30 transition-colors">
-          <text class="material-symbols-outlined text-[24px]">arrow_back</text>
+          <text class="material-symbols-outlined text-2xl">arrow_back</text>
         </view>
         <view @tap="retakePhoto" class="flex items-center gap-2 px-4 h-10 rounded-full bg-white/20 backdrop-blur-md text-white active:bg-white/30 transition-colors">
-          <text class="material-symbols-outlined text-[20px]">photo_camera</text>
+          <text class="material-symbols-outlined text-xl">photo_camera</text>
           <text class="text-sm font-semibold">重拍</text>
         </view>
       </view>
 
       <view class="absolute bottom-10 left-6 z-10">
         <view class="flex items-center gap-2 mb-1">
-          <text class="px-2 py-0.5 rounded text-[10px] font-bold bg-[#649678] text-white uppercase tracking-wider">AI 置信度 98%</text>
+          <text class="px-2 py-0.5 rounded text-[10px] font-bold bg-[#38e07b] text-white uppercase tracking-wider">AI 置信度 98%</text>
         </view>
-        <text class="text-3xl font-bold text-white leading-tight shadow-sm">香煎三文鱼<br/>轻食沙拉碗</text>
+        <text class="text-xl font-bold text-white leading-tight shadow-sm">{{ foodData?.foodName || '未知食物' }}</text>
       </view>
     </view>
 
@@ -129,11 +237,14 @@ const saveToDiary = () => {
         <!-- Total Calories -->
         <view class="flex items-end justify-between mb-8">
           <view>
-            <text class="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">总热量</text>
-            <text class="text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">{{ calories }} <text class="text-2xl font-semibold text-slate-400 dark:text-slate-500 ml-1">千卡</text></text>
+            <text class="text-xs font-medium text-slate-500 dark:text-slate-400 block mb-1">总热量</text>
+            <view class="flex items-baseline gap-1">
+              <text class="text-2xl font-extrabold text-slate-900 dark:text-white leading-none">{{ calories }}</text>
+              <text class="text-xs font-medium text-slate-400">/ {{ Math.round(baseCalories.value) }} kcal</text>
+            </view>
           </view>
           <view class="text-right pb-1">
-            <view class="flex items-center gap-1 justify-end text-[#649678] font-bold">
+            <view class="flex items-center gap-1 justify-end text-[#38e07b] font-bold">
               <text class="material-symbols-outlined text-sm font-variation-FILL-1">check_circle</text>
               <text>健康推荐</text>
             </view>
@@ -144,14 +255,14 @@ const saveToDiary = () => {
         <!-- Portion Slider -->
         <view class="mb-8 p-5 bg-[#F5F7F6] dark:bg-[#121A16] rounded-2xl border border-slate-100 dark:border-slate-800">
           <view class="flex justify-between items-center mb-4">
-            <text class="text-base font-bold text-slate-900 dark:text-white">食用份量</text>
+            <text class="text-sm font-bold text-slate-900 dark:text-white">食用份量</text>
             <view class="flex items-center gap-2 bg-white dark:bg-[#1E2924] px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
               <input
                 v-model.number="portion"
                 class="w-12 text-right bg-transparent font-bold outline-none text-slate-900 dark:text-white p-0 border-none focus:ring-0"
                 type="number"
               />
-              <text class="text-sm font-medium text-slate-400">克</text>
+              <text class="text-xs font-medium text-slate-400">克</text>
             </view>
           </view>
           <view class="relative h-6 flex items-center">
@@ -160,14 +271,14 @@ const saveToDiary = () => {
               :min="50"
               :max="500"
               :step="10"
-              active-color="#649678"
+              active-color="#38e07b"
               @change="(e: any) => portion = e.detail.value"
               class="w-full h-1 bg-transparent appearance-none z-20 absolute accent-primary"
             />
             <view class="absolute top-1/2 left-0 right-0 h-1 bg-slate-200 dark:bg-slate-700 -translate-y-1/2 rounded-full z-10"></view>
-            <view class="absolute top-1/2 left-0 h-1 bg-[#649678] -translate-y-1/2 rounded-full z-10" :style="{ width: `${(portion / 500) * 100}%` }"></view>
+            <view class="absolute top-1/2 left-0 h-1 bg-[#38e07b] -translate-y-1/2 rounded-full z-10" :style="{ width: `${(portion / 500) * 100}%` }"></view>
           </view>
-          <view class="flex justify-between mt-2 text-xs font-medium text-slate-400">
+          <view class="flex justify-between mt-2 text-[10px] font-medium text-slate-400">
             <text>50克</text>
             <text>500克</text>
           </view>
@@ -175,22 +286,22 @@ const saveToDiary = () => {
 
         <!-- Core Nutrients -->
         <view class="space-y-6">
-          <text class="text-sm uppercase tracking-wider font-bold text-slate-500 dark:text-slate-400">核心营养素</text>
+          <text class="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-slate-400">核心营养素</text>
 
           <!-- Protein -->
           <view class="group">
             <view class="flex justify-between items-end mb-2">
               <view class="flex items-center gap-2">
-                <view class="w-2 h-2 rounded-full bg-[#649678]"></view>
-                <text class="font-semibold text-slate-700 dark:text-slate-200">蛋白质</text>
+                <view class="w-2 h-2 rounded-full bg-[#38e07b]"></view>
+                <text class="text-sm font-semibold text-slate-700 dark:text-slate-200">蛋白质</text>
               </view>
               <view class="text-right">
-                <text class="text-lg font-bold text-slate-900 dark:text-white">{{ protein }}g</text>
-                <text class="text-xs font-medium text-slate-400 ml-1">/ {{ dailyTargets.protein }}g</text>
+                <text class="text-sm font-bold text-slate-900 dark:text-white">{{ protein }}g</text>
+                <text class="text-[10px] font-medium text-slate-400 ml-1">/ {{ dailyTargets.protein }}g</text>
               </view>
             </view>
-            <view class="w-full bg-slate-100 dark:bg-[#121A16] rounded-full h-2.5 overflow-hidden">
-              <view class="bg-[#649678] h-full rounded-full animate-fill" :style="{ '--target-width': `${proteinPercent}%` }"></view>
+            <view class="w-full bg-slate-100 dark:bg-[#121A16] rounded-full h-1.5 overflow-hidden">
+              <view class="bg-[#38e07b] h-full rounded-full animate-fill" :style="{ '--target-width': `${proteinPercent}%` }"></view>
             </view>
           </view>
 
@@ -199,14 +310,14 @@ const saveToDiary = () => {
             <view class="flex justify-between items-end mb-2">
               <view class="flex items-center gap-2">
                 <view class="w-2 h-2 rounded-full bg-amber-400"></view>
-                <text class="font-semibold text-slate-700 dark:text-slate-200">碳水化合物</text>
+                <text class="text-sm font-semibold text-slate-700 dark:text-slate-200">碳水化合物</text>
               </view>
               <view class="text-right">
-                <text class="text-lg font-bold text-slate-900 dark:text-white">{{ carbs }}g</text>
-                <text class="text-xs font-medium text-slate-400 ml-1">/ {{ dailyTargets.carbs }}g</text>
+                <text class="text-sm font-bold text-slate-900 dark:text-white">{{ carbs }}g</text>
+                <text class="text-[10px] font-medium text-slate-400 ml-1">/ {{ dailyTargets.carbs }}g</text>
               </view>
             </view>
-            <view class="w-full bg-slate-100 dark:bg-[#121A16] rounded-full h-2.5 overflow-hidden">
+            <view class="w-full bg-slate-100 dark:bg-[#121A16] rounded-full h-1.5 overflow-hidden">
               <view class="bg-amber-400 h-full rounded-full animate-fill" :style="{ '--target-width': `${carbsPercent}%` }"></view>
             </view>
           </view>
@@ -216,14 +327,14 @@ const saveToDiary = () => {
             <view class="flex justify-between items-end mb-2">
               <view class="flex items-center gap-2">
                 <view class="w-2 h-2 rounded-full bg-sky-400"></view>
-                <text class="font-semibold text-slate-700 dark:text-slate-200">脂肪</text>
+                <text class="text-sm font-semibold text-slate-700 dark:text-slate-200">脂肪</text>
               </view>
               <view class="text-right">
-                <text class="text-lg font-bold text-slate-900 dark:text-white">{{ fat }}g</text>
-                <text class="text-xs font-medium text-slate-400 ml-1">/ {{ dailyTargets.fat }}g</text>
+                <text class="text-sm font-bold text-slate-900 dark:text-white">{{ fat }}g</text>
+                <text class="text-[10px] font-medium text-slate-400 ml-1">/ {{ dailyTargets.fat }}g</text>
               </view>
             </view>
-            <view class="w-full bg-slate-100 dark:bg-[#121A16] rounded-full h-2.5 overflow-hidden">
+            <view class="w-full bg-slate-100 dark:bg-[#121A16] rounded-full h-1.5 overflow-hidden">
               <view class="bg-sky-400 h-full rounded-full animate-fill" :style="{ '--target-width': `${fatPercent}%` }"></view>
             </view>
           </view>
@@ -231,33 +342,13 @@ const saveToDiary = () => {
 
         <view class="h-px w-full bg-slate-100 dark:bg-slate-800 my-8"></view>
 
-        <!-- Micronutrients -->
-        <view>
-          <view
-            @tap="showMicronutrients = !showMicronutrients"
-            class="flex items-center justify-between cursor-pointer hover:opacity-70 transition-opacity"
-          >
-            <text class="text-sm uppercase tracking-wider font-bold text-slate-500 dark:text-slate-400">微量营养素</text>
-            <text
-              :class="[
-                'material-symbols-outlined text-slate-400 transition-transform duration-200',
-                showMicronutrients ? 'rotate-180' : ''
-              ]"
-            >expand_more</text>
-          </view>
-
-          <view v-show="showMicronutrients" class="grid grid-cols-3 gap-4 mt-4">
-            <view class="bg-[#F5F7F6] dark:bg-[#121A16] p-3 rounded-xl text-center border border-slate-100 dark:border-slate-800">
-              <text class="text-xs text-slate-500 mb-1">钠</text>
-              <text class="font-bold text-slate-900 dark:text-white">{{ sodium }}mg</text>
-            </view>
-            <view class="bg-[#F5F7F6] dark:bg-[#121A16] p-3 rounded-xl text-center border border-slate-100 dark:border-slate-800">
-              <text class="text-xs text-slate-500 mb-1">膳食纤维</text>
-              <text class="font-bold text-slate-900 dark:text-white">{{ fiber }}g</text>
-            </view>
-            <view class="bg-[#F5F7F6] dark:bg-[#121A16] p-3 rounded-xl text-center border border-slate-100 dark:border-slate-800">
-              <text class="text-xs text-slate-500 mb-1">糖分</text>
-              <text class="font-bold text-slate-900 dark:text-white">{{ sugar }}g</text>
+        <!-- AI 识别提示 -->
+        <view class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4">
+          <view class="flex items-start gap-3">
+            <text class="material-symbols-outlined text-amber-600 dark:text-amber-400 text-lg">info</text>
+            <view class="flex-1">
+              <text class="text-xs font-semibold text-amber-800 dark:text-amber-300">AI 识别说明</text>
+              <text class="text-[10px] text-amber-700 dark:text-amber-400 mt-1 block">营养数据基于 AI 识别估算，仅供参考。建议根据实际食用份量调整。</text>
             </view>
           </view>
         </view>
@@ -267,12 +358,13 @@ const saveToDiary = () => {
       <view class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-white via-white to-transparent dark:from-[#1E2924] dark:via-[#1E2924] pt-10">
         <view
           @tap="saveToDiary"
-          class="w-full bg-[#649678] hover:bg-[#4a755c] text-white font-bold text-lg h-14 rounded-2xl shadow-lg flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+          class="w-full bg-[#38e07b] hover:bg-[#2dc070] text-[#122017] font-bold text-base h-12 rounded-2xl shadow-lg shadow-[#38e07b]/25 flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
         >
           <text>确认并记录到{{ currentMealName }}</text>
           <text class="material-symbols-outlined">check_circle</text>
         </view>
       </view>
+    </view>
     </view>
   </view>
 </template>

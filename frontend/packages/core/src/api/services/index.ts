@@ -13,11 +13,11 @@
  * ```
  */
 
-import { ApiClient, uniRequestAsFetch } from '../client'
-import type { OnUnauthorizedCallback } from '../types'
+import { ApiClient, uniRequestAsFetch } from "../client";
+import type { OnUnauthorizedCallback } from "../types";
 
 // 创建全局 API 实例
-let apiInstance: ApiClient | null = null
+let apiInstance: ApiClient | null = null;
 
 /**
  * 初始化 API 客户端
@@ -28,23 +28,23 @@ let apiInstance: ApiClient | null = null
 export function initApi(
   tokenGetter: () => string | null,
   options?: {
-    baseURL?: string
-    fetchProvider?: typeof fetch | ((url: string, config: RequestInit) => Promise<Response>)
-    onUnauthorized?: OnUnauthorizedCallback
-  }
+    baseURL?: string;
+    fetchProvider?: typeof fetch | ((url: string, config: RequestInit) => Promise<Response>);
+    onUnauthorized?: OnUnauthorizedCallback;
+  },
 ): ApiClient {
-  console.log('[initApi] Initializing API client...')
-  const baseURL = options?.baseURL || 'http://localhost:3000/api'
-  console.log('[initApi] baseURL:', baseURL)
-  console.log('[initApi] fetchProvider:', !!options?.fetchProvider)
+  console.log("[initApi] Initializing API client...");
+  const baseURL = options?.baseURL || "https://api.aichangzhang.com:8443/api";
+  console.log("[initApi] baseURL:", baseURL);
+  console.log("[initApi] fetchProvider:", !!options?.fetchProvider);
   apiInstance = new ApiClient({
     baseURL,
     tokenGetter,
     fetchProvider: options?.fetchProvider,
     onUnauthorized: options?.onUnauthorized,
-  })
-  console.log('[initApi] API client created:', !!apiInstance)
-  return apiInstance
+  });
+  console.log("[initApi] API client created:", !!apiInstance);
+  return apiInstance;
 }
 
 /**
@@ -53,7 +53,7 @@ export function initApi(
  */
 export function setOnUnauthorizedCallback(callback: OnUnauthorizedCallback) {
   if (apiInstance) {
-    apiInstance.setOnUnauthorized(callback)
+    apiInstance.setOnUnauthorized(callback);
   }
 }
 
@@ -61,43 +61,43 @@ export function setOnUnauthorizedCallback(callback: OnUnauthorizedCallback) {
  * 获取 API 客户端实例
  */
 export function getApi(): ApiClient {
-  console.log('[getApi] Called, apiInstance:', !!apiInstance)
+  console.log("[getApi] Called, apiInstance:", !!apiInstance);
   if (!apiInstance) {
-    console.error('[getApi] API 未初始化！请先调用 initApi()')
-    throw new Error('API 未初始化，请先调用 initApi()')
+    console.error("[getApi] API 未初始化！请先调用 initApi()");
+    throw new Error("API 未初始化，请先调用 initApi()");
   }
-  console.log('[getApi] Returning apiInstance')
-  return apiInstance
+  console.log("[getApi] Returning apiInstance");
+  return apiInstance;
 }
 
 // 导出所有服务类（需要 API 实例）
-export { AuthService } from './auth.service'
-export { ChatService } from './chat.service'
-export { CommunityService } from './community.service'
-export { DashboardService } from './dashboard.service'
-export { FavoritesService } from './favorites.service'
-export { FoodService } from './food.service'
-export { NotificationsService } from './notifications.service'
-export { RecipeService } from './recipe.service'
-export { UploadService } from './upload.service'
-export { DiaryService } from './diary.service'
-export { UserService } from './user.service'
-export { GamificationService } from './gamification.service'
+export { AuthService } from "./auth.service";
+export { ChatService } from "./chat.service";
+export { CommunityService } from "./community.service";
+export { DashboardService } from "./dashboard.service";
+export { FavoritesService } from "./favorites.service";
+export { FoodService } from "./food.service";
+export { NotificationsService } from "./notifications.service";
+export { RecipeService } from "./recipe.service";
+export { UploadService } from "./upload.service";
+export { DiaryService } from "./diary.service";
+export { UserService } from "./user.service";
+export { GamificationService } from "./gamification.service";
 
 // 导出类型
-export type { LoginResponse, WechatLoginResponse } from './auth.service'
-export type { ChatMessage, ChatResponse } from './chat.service'
-export type { Post, Comment, LikeResponse, PostsResponse } from './community.service'
-export type { DashboardSummary } from './dashboard.service'
-export type { Favorite, FavoriteType, FavoritesResponse, CheckFavoritedResponse } from './favorites.service'
-export type { NutritionInfo, RecognizedFood, AnalyzeResponse, FoodSearchItem, FoodSearchResponse } from './food.service'
-export type { Notification, MessageType, NotificationsResponse, UnreadCountResponse } from './notifications.service'
-export type { Recipe, RecipeRecommendResponse } from './recipe.service'
-export type { PresignedUrlResponse, ConfirmUploadResponse } from './upload.service'
-export type { DiaryEntry, CreateDiaryEntryRequest, DailySummary, MealType, FoodItem } from './diary.service'
-export type { UserProfile, HealthMetrics, HealthSyncResponse } from './user.service'
-export type { Achievement, AchievementsResponse } from './gamification.service'
+export type { LoginResponse, WechatLoginResponse } from "./auth.service";
+export type { ChatMessage, ChatResponse } from "./chat.service";
+export type { Post, Comment, LikeResponse, PostsResponse } from "./community.service";
+export type { DashboardSummary } from "./dashboard.service";
+export type { Favorite, FavoriteType, FavoritesResponse, CheckFavoritedResponse } from "./favorites.service";
+export type { NutritionInfo, RecognizedFood, AnalyzeResponse, FoodSearchItem, FoodSearchResponse } from "./food.service";
+export type { Notification, MessageType, NotificationsResponse, UnreadCountResponse } from "./notifications.service";
+export type { Recipe, RecipeRecommendResponse } from "./recipe.service";
+export type { PresignedUrlResponse, ConfirmUploadResponse } from "./upload.service";
+export type { DiaryEntry, CreateDiaryEntryRequest, DailySummary, MealType, FoodItem } from "./diary.service";
+export type { UserProfile, HealthMetrics, HealthSyncResponse } from "./user.service";
+export type { Achievement, AchievementsResponse } from "./gamification.service";
 
 // 导出 ApiClient 和工具
-export { ApiClient, uniRequestAsFetch } from '../client'
-export type { ApiClientConfig, ApiRequestOptions, ApiResponse } from '../types'
+export { ApiClient, uniRequestAsFetch } from "../client";
+export type { ApiClientConfig, ApiRequestOptions, ApiResponse } from "../types";

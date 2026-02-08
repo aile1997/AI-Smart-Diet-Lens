@@ -3,6 +3,9 @@
 
 echo "📝 检查提交消息格式..."
 
+# 读取提交消息文件内容
+commit_msg=$(cat "$1")
+
 # 提交消息格式检查
 # 允许的格式:
 # - feat: 简短描述
@@ -13,19 +16,20 @@ echo "📝 检查提交消息格式..."
 # - refactor: 简短描述
 
 # 允许合并提交
-if echo "$1" | grep -qE "^Merge branch"; then
+if echo "$commit_msg" | grep -qE "^Merge branch"; then
   echo "✅ 合并提交，跳过检查"
   exit 0
 fi
 
 # 允许回退提交
-if echo "$1" | grep -qE "^Revert"; then
+if echo "$commit_msg" | grep -qE "^Revert"; then
   echo "✅ 回退提交，跳过检查"
   exit 0
 fi
 
-# 检查是否符合约定式提交格式
-if ! echo "$1" | grep -qE "^(feat|fix|docs|test|chore|refactor|style|perf|ci|build)(\(.+\))?: .{1,}"; then
+# 检查是否符合约定式提交格式（只检查第一行）
+first_line=$(echo "$commit_msg" | head -n 1)
+if ! echo "$first_line" | grep -qE "^(feat|fix|docs|test|chore|refactor|style|perf|ci|build)(\(.+\))?: .{1,}"; then
   echo "❌ 错误: 提交消息格式不符合约定式提交规范"
   echo ""
   echo "正确格式示例:"

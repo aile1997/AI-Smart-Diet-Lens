@@ -17,6 +17,10 @@ const { loading, error, messages, isTyping, sendMessage: sendChatMessage, fetchH
 const inputMessage = ref("");
 const textareaDisabled = ref(false);
 
+// 滚动位置 - 使用递增值确保每次都能触发滚动
+const scrollTop = ref(0);
+const scrollTrigger = ref(0);
+
 // 安全的消息列表（清理富文本内容）
 const safeMessages = computed(() => {
   return messages.value.map((msg) => ({
@@ -43,11 +47,9 @@ const sendMessage = async () => {
 // 滚动到底部
 const scrollToBottom = () => {
   nextTick(() => {
-    // 使用 uni.pageScrollTo 进行滚动
-    uni.pageScrollTo({
-      scrollTop: 999999,
-      duration: 300,
-    });
+    // 递增 scrollTrigger 确保每次都能触发滚动
+    scrollTrigger.value += 1;
+    scrollTop.value = scrollTrigger.value * 10000;
   });
 };
 
@@ -67,7 +69,7 @@ const navigateBack = () => {
 // 查看食谱详情
 const viewRecipe = (recipe: any) => {
   // 将食谱数据转换为 JSON 字符串并通过 URL 参数传递
-  const recipeData = encodeURIComponent(JSON.stringify(recipe))
+  const recipeData = encodeURIComponent(JSON.stringify(recipe));
   uni.navigateTo({
     url: `/pages/recipe-detail/index?data=${recipeData}`,
   });
@@ -80,14 +82,14 @@ const goToLogin = () => {
 
 // 页面加载时获取对话历史
 onMounted(async () => {
-  console.log('[ai-chat] 页面加载，登录状态:', isLoggedIn.value)
+  console.log("[ai-chat] 页面加载，登录状态:", isLoggedIn.value);
 
   if (isLoggedIn.value) {
-    console.log('[ai-chat] 已登录，开始获取对话历史...')
+    console.log("[ai-chat] 已登录，开始获取对话历史...");
     await fetchHistory();
-    console.log('[ai-chat] fetchHistory 完成，当前消息数量:', messages.value.length)
+    console.log("[ai-chat] fetchHistory 完成，当前消息数量:", messages.value.length);
   } else {
-    console.log('[ai-chat] 未登录，跳过获取历史')
+    console.log("[ai-chat] 未登录，跳过获取历史");
   }
 });
 </script>
@@ -122,7 +124,7 @@ onMounted(async () => {
       </view>
 
       <!-- Chat Messages -->
-      <scroll-view class="chat-scroll" scroll-y>
+      <scroll-view class="chat-scroll" scroll-y :scroll-top="scrollTop" :scroll-with-animation="true">
         <view class="date-badge">
           <text>今天</text>
         </view>
@@ -228,14 +230,11 @@ onMounted(async () => {
               :cursor-spacing="10"
             />
             <view class="input-mic">
-              <text class="material-symbols-outlined">mic</text>
+              <text class="icon-mic">🎤</text>
             </view>
           </view>
-          <view
-            @tap="sendMessage"
-            :class="['send-btn', isTyping ? 'send-btn-disabled' : 'send-btn-active']"
-          >
-            <text class="material-symbols-outlined filled">send</text>
+          <view @tap="sendMessage" :class="['send-btn', isTyping ? 'send-btn-disabled' : 'send-btn-active']">
+            <text class="icon-send">↑</text>
           </view>
         </view>
       </view>
@@ -257,7 +256,7 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: #F5F7F8;
+  background: #f5f7f8;
   overflow: hidden;
 }
 
@@ -295,7 +294,7 @@ onMounted(async () => {
 }
 
 .login-btn {
-  background: #34C759;
+  background: #34c759;
   color: white;
   padding: 12px 32px;
   border-radius: 9999px;
@@ -344,14 +343,19 @@ onMounted(async () => {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #34C759;
+  background: #34c759;
   box-shadow: 0 0 8px rgba(52, 199, 89, 0.6);
   animation: pulse 1.5s ease-in-out infinite;
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 /* Chat Scroll */
@@ -399,7 +403,7 @@ onMounted(async () => {
 
 .empty-icon .material-symbols-outlined {
   font-size: 32px;
-  color: #34C759;
+  color: #34c759;
 }
 
 .empty-title {
@@ -436,7 +440,7 @@ onMounted(async () => {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: linear-gradient(to bottom right, #34C759, #28a745);
+  background: linear-gradient(to bottom right, #34c759, #28a745);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -481,7 +485,7 @@ onMounted(async () => {
 }
 
 .user-bubble {
-  background: #34C759;
+  background: #34c759;
   color: white;
   border-radius: 16px 4px 16px 16px;
   box-shadow: 0 0 25px -5px rgba(52, 199, 89, 0.4);
@@ -595,7 +599,7 @@ onMounted(async () => {
 .recipe-action {
   font-size: 12px;
   font-weight: 700;
-  color: #34C759;
+  color: #34c759;
   display: flex;
   align-items: center;
 }
@@ -642,7 +646,9 @@ onMounted(async () => {
 }
 
 @keyframes typing-bounce {
-  0%, 60%, 100% {
+  0%,
+  60%,
+  100% {
     transform: translateY(0);
   }
   30% {
@@ -670,7 +676,7 @@ onMounted(async () => {
 
 .input-container {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   gap: 12px;
 }
 
@@ -680,8 +686,7 @@ onMounted(async () => {
   border-radius: 20px;
   display: flex;
   align-items: center;
-  padding: 0 16px;
-  min-height: 44px;
+  height: 44px;
   transition: background 0.2s;
 }
 
@@ -694,12 +699,12 @@ onMounted(async () => {
   flex: 1;
   background: transparent;
   border: none;
-  padding: 10px 0;
+  padding: 0;
   font-size: 15px;
   color: #1e293b;
-  line-height: 1.5;
-  min-height: 22px;
-  max-height: 100px;
+  line-height: 22px;
+  height: 22px;
+  max-height: 22px;
 }
 
 .input-textarea::placeholder {
@@ -708,14 +713,17 @@ onMounted(async () => {
 
 .input-mic {
   color: #94a3b8;
-  padding: 4px;
-  margin-left: 4px;
   display: flex;
   align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  margin-left: 4px;
 }
 
-.input-mic .material-symbols-outlined {
-  font-size: 20px;
+.input-mic .icon-mic {
+  font-size: 18px;
 }
 
 .send-btn {
@@ -731,7 +739,7 @@ onMounted(async () => {
 }
 
 .send-btn-active {
-  background: #34C759;
+  background: #34c759;
   box-shadow: 0 8px 16px -4px rgba(52, 199, 89, 0.3);
 }
 
@@ -743,12 +751,20 @@ onMounted(async () => {
   background: #cbd5e1;
 }
 
-.send-btn .material-symbols-outlined {
+.send-btn .icon-send {
   color: white;
   font-size: 20px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .filled {
-  font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 24;
+  font-variation-settings:
+    "FILL" 1,
+    "wght" 400,
+    "GRAD" 0,
+    "opsz" 24;
 }
 </style>

@@ -204,7 +204,7 @@ const saveToDiary = async () => {
     <view class="relative h-[35vh] w-full shrink-0">
       <view
         class="absolute inset-0 bg-cover bg-center"
-        :style="{ backgroundImage: foodData?.imageUrl ? `url('${foodData.imageUrl}')` : `url('/static/images/food/food_7.jpg')` }"
+        :style="{ backgroundImage: foodData?.imageUrl ? `url('${foodData.imageUrl}')` : `url('https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_7.jpg?imageMogr2/format/webp/quality/85')` }"
       >
         <view class="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60"></view>
       </view>

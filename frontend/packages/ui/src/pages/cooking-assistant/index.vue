@@ -54,7 +54,7 @@ const steps = ref<Step[]>([
     number: 1,
     title: "准备食材",
     description: "将三文鱼清洗干净，用厨房纸吸干水分。芦笋去除老根，洗净沥干。",
-    image: "/static/images/food/food_22.jpg",
+    image: "https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_22.jpg?imageMogr2/format/webp/quality/85",
   },
   {
     number: 2,
@@ -124,7 +124,7 @@ const viewNutritionDetail = () => {
   <view class="relative min-h-screen w-full flex flex-col bg-[#F5F7F8]">
     <!-- Top Image Section -->
     <view class="relative w-full h-[420px] shrink-0">
-      <view class="absolute inset-0 bg-cover bg-center" style="background-image: url(&quot;/static/images/food/food_10.jpg&quot;)">
+      <view class="absolute inset-0 bg-cover bg-center" style="background-image: url(&quot;https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_10.jpg?imageMogr2/format/webp/quality/85&quot;)">
         <view class="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80"></view>
       </view>
 

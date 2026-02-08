@@ -45,7 +45,7 @@ const retakePhoto = () => {
         <view class="relative z-10 w-full h-full rounded-2xl overflow-hidden bg-white/50 dark:bg-white/5 backdrop-blur-sm border border-white/20 dark:border-white/10 flex items-center justify-center">
           <!-- Blurred food image -->
           <image
-            src="/static/images/food/food_30.jpg"
+            src="https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_30.jpg?imageMogr2/format/webp/quality/85"
             class="bg-center bg-no-repeat bg-cover w-full h-full opacity-60"
             mode="aspectFill"
           />

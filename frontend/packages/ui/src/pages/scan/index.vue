@@ -283,7 +283,7 @@ const navigateBack = () => {
       <image v-if="imageUrl" :src="imageUrl" class="h-full w-full object-cover opacity-90" mode="aspectFill" />
       <image
         v-else
-        src="/static/images/food/food_21.jpg"
+        src="https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_21.jpg?imageMogr2/format/webp/quality/85"
         class="h-full w-full object-cover opacity-90"
         mode="aspectFill"
       />

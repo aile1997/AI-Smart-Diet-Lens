@@ -22,7 +22,7 @@ const recipeData = ref<RecipeCard | null>(null)
 // 默认食谱数据
 const defaultRecipe: RecipeCard = {
   name: '香煎三文鱼配芦笋',
-  image: '/static/images/food/food_10.jpg',
+  image: 'https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_10.jpg?imageMogr2/format/webp/quality/85',
   calories: 450,
   time: '20 分钟',
   difficulty: '简单',

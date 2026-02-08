@@ -22,7 +22,7 @@ const foodDatabase: Record<string, {
   tips: Array<{ icon: string; title: string; desc: string; color: string }>
 }> = {
   '奇亚籽': {
-    image: '/static/images/food/food_5.jpg',
+    image: 'https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_5.jpg?imageMogr2/format/webp/quality/85',
     scientificName: 'Salvia hispanica',
     calories: 486,
     protein: 16.5,
@@ -54,7 +54,7 @@ const foodDatabase: Record<string, {
     ]
   },
   '羽衣甘蓝': {
-    image: '/static/images/food/food_28.jpg',
+    image: 'https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_28.jpg?imageMogr2/format/webp/quality/85',
     scientificName: 'Brassica oleracea var. sabellica',
     calories: 35,
     protein: 2.9,
@@ -86,7 +86,7 @@ const foodDatabase: Record<string, {
     ]
   },
   '三文鱼沙拉': {
-    image: '/static/images/food/food_2.jpg',
+    image: 'https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_2.jpg?imageMogr2/format/webp/quality/85',
     scientificName: 'Salmo salar with greens',
     calories: 180,
     protein: 22,
@@ -118,7 +118,7 @@ const foodDatabase: Record<string, {
     ]
   },
   '轻食波奇碗': {
-    image: '/static/images/food/food_27.jpg',
+    image: 'https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_27.jpg?imageMogr2/format/webp/quality/85',
     scientificName: 'Poke Bowl',
     calories: 350,
     protein: 18,
@@ -150,7 +150,7 @@ const foodDatabase: Record<string, {
     ]
   },
   '混合蔬菜': {
-    image: '/static/images/food/food_7.jpg',
+    image: 'https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_7.jpg?imageMogr2/format/webp/quality/85',
     scientificName: 'Mixed Vegetables',
     calories: 45,
     protein: 2.5,
@@ -178,7 +178,7 @@ const foodDatabase: Record<string, {
     ]
   },
   '菠菜': {
-    image: '/static/images/food/food_12.jpg',
+    image: 'https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_12.jpg?imageMogr2/format/webp/quality/85',
     scientificName: 'Spinacia oleracea',
     calories: 23,
     protein: 2.9,
@@ -210,7 +210,7 @@ const foodDatabase: Record<string, {
     ]
   },
   '西兰花': {
-    image: '/static/images/food/food_13.jpg',
+    image: 'https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_13.jpg?imageMogr2/format/webp/quality/85',
     scientificName: 'Brassica oleracea var. italica',
     calories: 34,
     protein: 2.8,
@@ -242,7 +242,7 @@ const foodDatabase: Record<string, {
     ]
   },
   '鸡胸肉': {
-    image: '/static/images/food/food_29.jpg',
+    image: 'https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_29.jpg?imageMogr2/format/webp/quality/85',
     scientificName: 'Chicken Breast',
     calories: 165,
     protein: 31,
@@ -274,7 +274,7 @@ const foodDatabase: Record<string, {
     ]
   },
   '土鸡蛋': {
-    image: '/static/images/food/food_15.jpg',
+    image: 'https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_15.jpg?imageMogr2/format/webp/quality/85',
     scientificName: 'Gallus gallus domesticus',
     calories: 155,
     protein: 13,
@@ -306,7 +306,7 @@ const foodDatabase: Record<string, {
     ]
   },
   '燕麦粥': {
-    image: '/static/images/food/food_16.jpg',
+    image: 'https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_16.jpg?imageMogr2/format/webp/quality/85',
     scientificName: 'Avena sativa',
     calories: 389,
     protein: 16.9,
@@ -344,7 +344,7 @@ const foodName = ref('牛油果')
 const foodData = computed(() => foodDatabase[foodName.value])
 
 // 默认数据（当找不到匹配时）
-const defaultImage = '/static/images/food/food_1.jpg'
+const defaultImage = 'https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_1.jpg?imageMogr2/format/webp/quality/85'
 const displayImage = computed(() => foodData.value?.image || defaultImage)
 
 onMounted(() => {
@@ -376,17 +376,17 @@ const pairings = ref([
   {
     name: '水煮蛋',
     sub: '优质蛋白互补',
-    img: '/static/images/food/food_15.jpg'
+    img: 'https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_15.jpg?imageMogr2/format/webp/quality/85'
   },
   {
     name: '三文鱼沙拉',
     sub: '双重Omega-3',
-    img: '/static/images/food/food_2.jpg'
+    img: 'https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_2.jpg?imageMogr2/format/webp/quality/85'
   },
   {
     name: '混合蔬菜',
     sub: '清爽低卡',
-    img: '/static/images/food/food_7.jpg'
+    img: 'https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_7.jpg?imageMogr2/format/webp/quality/85'
   }
 ])
 

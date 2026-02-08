@@ -28,25 +28,25 @@ const wikiSeasonalItems = ref([
     name: "奇亚籽",
     score: 96,
     tags: ["超级食物", "Omega-3"],
-    image: "/static/images/food/food_5.jpg",
+    image: "https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_5.jpg?imageMogr2/format/webp/quality/85",
   },
   {
     name: "羽衣甘蓝",
     score: 94,
     tags: ["营养密度", "高纤维"],
-    image: "/static/images/food/food_28.jpg",
+    image: "https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_28.jpg?imageMogr2/format/webp/quality/85",
   },
   {
     name: "三文鱼沙拉",
     score: 94,
     tags: ["轻食", "Omega-3"],
-    image: "/static/images/food/food_2.jpg",
+    image: "https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_2.jpg?imageMogr2/format/webp/quality/85",
   },
   {
     name: "轻食波奇碗",
     score: 91,
     tags: ["均衡膳食", "植物蛋白"],
-    image: "/static/images/food/food_27.jpg",
+    image: "https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_27.jpg?imageMogr2/format/webp/quality/85",
   },
 ]);
 
@@ -60,7 +60,7 @@ const allWikiFoodItems = [
     category: "⚡️ 超级食物",
     tags: ["膳食纤维", "Omega-3"],
     desc: "需浸泡 10 分钟激活胶质，可加入酸奶或燕麦。",
-    image: "/static/images/food/food_5.jpg",
+    image: "https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_5.jpg?imageMogr2/format/webp/quality/85",
   },
   {
     name: "羽衣甘蓝",
@@ -69,7 +69,7 @@ const allWikiFoodItems = [
     category: "⚡️ 超级食物",
     tags: ["高纤维", "维生素K"],
     desc: "建议轻微橄榄油炒制，避免过温导致营养流失。",
-    image: "/static/images/food/food_28.jpg",
+    image: "https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_28.jpg?imageMogr2/format/webp/quality/85",
   },
   // --- 第二行 ---
   {
@@ -79,7 +79,7 @@ const allWikiFoodItems = [
     category: "💪 优质蛋白",
     tags: ["Omega-3", "优质蛋白"],
     desc: "搭配油醋汁食用，补充优质Omega-3脂肪酸。",
-    image: "/static/images/food/food_2.jpg",
+    image: "https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_2.jpg?imageMogr2/format/webp/quality/85",
   },
   {
     name: "轻食波奇碗",
@@ -88,7 +88,7 @@ const allWikiFoodItems = [
     category: "💪 优质蛋白",
     tags: ["植物蛋白", "均衡"],
     desc: "包含毛豆、玉米和鳄梨，植物蛋白丰富。",
-    image: "/static/images/food/food_27.jpg",
+    image: "https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_27.jpg?imageMogr2/format/webp/quality/85",
   },
 
   // --- 第四行 ---
@@ -99,7 +99,7 @@ const allWikiFoodItems = [
     category: "🥕 维生素",
     tags: ["高纤维", "维生素"],
     desc: "色彩越丰富，植物化学素摄入越全面。",
-    image: "/static/images/food/food_7.jpg",
+    image: "https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_7.jpg?imageMogr2/format/webp/quality/85",
   },
   {
     name: "菠菜",
@@ -108,7 +108,7 @@ const allWikiFoodItems = [
     category: "🥕 维生素",
     tags: ["铁", "叶酸"],
     desc: "含有草酸，烹饪前建议焯水去除涩味。",
-    image: "/static/images/food/food_12.jpg",
+    image: "https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_12.jpg?imageMogr2/format/webp/quality/85",
   },
   // --- 第五行 ---
   {
@@ -118,7 +118,7 @@ const allWikiFoodItems = [
     category: "🥕 维生素",
     tags: ["维生素C", "高纤维"],
     desc: "建议短时间蒸煮3-5分钟，保留最多营养。",
-    image: "/static/images/food/food_13.jpg",
+    image: "https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_13.jpg?imageMogr2/format/webp/quality/85",
   },
   {
     name: "鸡胸肉",
@@ -127,7 +127,7 @@ const allWikiFoodItems = [
     category: "💪 优质蛋白",
     tags: ["低脂", "高蛋白"],
     desc: "每100g含23g蛋白质，减脂期增肌首选。",
-    image: "/static/images/food/food_29.jpg",
+    image: "https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_29.jpg?imageMogr2/format/webp/quality/85",
   },
   // --- 第六行 ---
   {
@@ -137,7 +137,7 @@ const allWikiFoodItems = [
     category: "⚡️ 超级食物",
     tags: ["完全蛋白", "营养全面"],
     desc: "建议水煮控制在8分钟内，保留最多营养。",
-    image: "/static/images/food/food_15.jpg",
+    image: "https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_15.jpg?imageMogr2/format/webp/quality/85",
   },
   {
     name: "燕麦粥",
@@ -146,7 +146,7 @@ const allWikiFoodItems = [
     category: "📉 低GI",
     tags: ["膳食纤维", "饱腹感"],
     desc: "选传统燕麦片，避免速溶含糖版本。",
-    image: "/static/images/food/food_16.jpg",
+    image: "https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_16.jpg?imageMogr2/format/webp/quality/85",
   },
 ];
 

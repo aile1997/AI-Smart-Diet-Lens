@@ -27,7 +27,7 @@ const startTrial = () => {
       <view class="absolute inset-0 bg-black/20 z-10"></view>
       <!-- Background Image -->
       <image
-        src="/static/images/food/food_8.jpg"
+        src="https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_8.jpg?imageMogr2/format/webp/quality/85"
         class="w-full h-full bg-cover bg-center"
         mode="aspectFill"
       ></image>

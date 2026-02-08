@@ -25,13 +25,13 @@ const seasonalItems = [
     name: '牛油果 (Avocado)',
     score: 98,
     tags: ['优质脂肪'],
-    img: '/static/images/food/food_1.jpg'
+    img: 'https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_1.jpg?imageMogr2/format/webp/quality/85'
   },
   {
     name: '深海三文鱼',
     score: 95,
     tags: ['Omega-3'],
-    img: '/static/images/food/food_2.jpg'
+    img: 'https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_2.jpg?imageMogr2/format/webp/quality/85'
   }
 ]
 
@@ -42,14 +42,14 @@ const foodItems: FoodItem[] = [
     score: 94,
     tags: ['AI 小贴士'],
     desc: '建议水煮控制在 8 分钟内。',
-    img: '/static/images/food/food_3.jpg'
+    img: 'https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_3.jpg?imageMogr2/format/webp/quality/85'
   },
   {
     name: '野生蓝莓',
     sub: '花青素之王',
     score: 88,
     tags: ['抗氧化', '低糖'],
-    img: '/static/images/food/food_4.jpg'
+    img: 'https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_4.jpg?imageMogr2/format/webp/quality/85'
   },
   {
     name: '奇亚籽',
@@ -57,14 +57,14 @@ const foodItems: FoodItem[] = [
     score: 96,
     tags: ['AI 小贴士'],
     desc: '需浸泡 10 分钟激活胶质。',
-    img: '/static/images/food/food_5.jpg'
+    img: 'https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_5.jpg?imageMogr2/format/webp/quality/85'
   },
   {
     name: '羽衣甘蓝',
     sub: '维生素K之王',
     score: 92,
     tags: ['高纤维', '排毒'],
-    img: '/static/images/food/food_6.jpg'
+    img: 'https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_6.jpg?imageMogr2/format/webp/quality/85'
   }
 ]
 

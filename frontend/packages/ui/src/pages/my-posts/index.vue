@@ -22,7 +22,7 @@ interface PostItem {
 const posts = ref<PostItem[]>([
   {
     id: 1,
-    image: '/static/images/food/food_27.jpg',
+    image: 'https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_27.jpg?imageMogr2/format/webp/quality/85',
     title: '牛油果鲜虾能量碗',
     content: '午餐选择了富含优质脂肪的牛油果搭配高蛋白鲜虾，淋上自制油醋汁，清爽又饱腹。',
     aiScore: 98,
@@ -32,7 +32,7 @@ const posts = ref<PostItem[]>([
   },
   {
     id: 2,
-    image: '/static/images/food/food_28.jpg',
+    image: 'https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_28.jpg?imageMogr2/format/webp/quality/85',
     title: '轻断食：缤纷时蔬沙拉',
     content: '周一轻断食日，用五色蔬菜补充维生素，简单调味还原食材本味。',
     aiScore: 92,
@@ -42,7 +42,7 @@ const posts = ref<PostItem[]>([
   },
   {
     id: 3,
-    image: '/static/images/food/food_29.jpg',
+    image: 'https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_29.jpg?imageMogr2/format/webp/quality/85',
     title: '低温慢煮鸡胸肉',
     content: '尝试了新的低温慢煮法，鸡胸肉嫩滑多汁，完全不柴！健身后的完美补给。',
     aiScore: 88,

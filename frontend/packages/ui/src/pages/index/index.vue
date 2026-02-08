@@ -140,7 +140,7 @@ onShow(async () => {
       </view>
       <view class="relative group" @tap="navigateTo('/pages/profile/index')">
         <image
-          src="/static/images/food/food_9.jpg"
+          src="https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_9.jpg?imageMogr2/format/webp/quality/85"
           class="w-10 h-10 rounded-full border-2 border-white shadow-sm"
         ></image>
         <view class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-primary border-2 border-white rounded-full"></view>

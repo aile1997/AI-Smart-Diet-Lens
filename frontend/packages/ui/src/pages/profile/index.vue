@@ -211,7 +211,7 @@ const handleMenuClick = (item: any) => {
               <view
                 class="w-[72px] h-[72px] rounded-full bg-[#c5d8cb] flex items-center justify-center text-[#5a847b] shadow-inner overflow-hidden border-[3px] border-white"
               >
-                <image src="/static/images/food/food_9.jpg" class="w-full h-full object-cover" mode="aspectFill" />
+                <image src="https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_9.jpg?imageMogr2/format/webp/quality/85" class="w-full h-full object-cover" mode="aspectFill" />
               </view>
               <view class="absolute -bottom-1 -right-1 bg-[#5a847b] text-white p-1 rounded-full border-[2px] border-white flex items-center justify-center">
                 <text class="material-symbols-outlined text-xs">edit</text>

@@ -27,7 +27,7 @@ const reviewedList = ref<ReviewItem[]>([
   {
     id: 1,
     name: '牛油果全麦吐司',
-    image: '/static/images/food/food_23.jpg',
+    image: 'https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_23.jpg?imageMogr2/format/webp/quality/85',
     rating: 5,
     content: '非常清爽的早餐选择，牛油果熟度刚刚好，配上黑胡椒简直完美。热量也很低，适合减脂期。',
     date: '2小时前',
@@ -37,7 +37,7 @@ const reviewedList = ref<ReviewItem[]>([
   {
     id: 2,
     name: '彩虹藜麦沙拉',
-    image: '/static/images/food/food_24.jpg',
+    image: 'https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_24.jpg?imageMogr2/format/webp/quality/85',
     rating: 4,
     content: '食材很新鲜，但是酱汁稍微有点少。希望能增加一些低脂油醋汁的选项。整体口感还是很丰富的。',
     date: '昨天',
@@ -47,7 +47,7 @@ const reviewedList = ref<ReviewItem[]>([
   {
     id: 3,
     name: '韩式低脂拌饭',
-    image: '/static/images/food/food_25.jpg',
+    image: 'https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_25.jpg?imageMogr2/format/webp/quality/85',
     rating: 5,
     content: '味道出乎意料的好！完全感觉不到是减脂餐，强烈推荐大家尝试。特别是那个特制的拌饭酱，绝了。',
     date: '10月22日',

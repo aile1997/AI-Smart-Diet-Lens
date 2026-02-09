@@ -57,21 +57,23 @@ export class FoodService {
 
   /**
    * 调用阿里云 Qwen-VL 进行食物识别
+   * 使用像素级识别提示词，提供更专业的营养分析
    */
   private async callQwenVL(imageUrl: string): Promise<RecognizedFood[]> {
     try {
-      const prompt = `你是一个专业的营养分析助手。请分析图片中的食物，返回 JSON 格式：
+      const prompt = `你是一个具备"像素级"识别能力的顶级AI营养分析师。请仔细分析图片中的食物，尽可能识别出具体的菜品名称（例如识别出"香煎迷迭香羊排"而不是简单的"羊肉"）。
+
+请严格按照以下 JSON 格式返回，不要包含任何 Markdown 格式或多余文字：
 
 {
-  "food_name": "食物名称",
-  "calories_per_100g": 卡路里数值,
-  "protein_g": 蛋白质含量,
-  "carbs_g": 碳水含量,
-  "fat_g": 脂肪含量,
-  "portion_estimate_g": 估计份量
-}
-
-只返回 JSON，不要其他文字。`
+  "food_name": "菜品具体名称（尽可能详细，如：低脂牛油果全麦三明治）",
+  "calories_per_100g": 估算的每100g卡路里数值（整数）,
+  "protein_g": 蛋白质含量（数值）,
+  "carbs_g": 碳水含量（数值）,
+  "fat_g": 脂肪含量（数值）,
+  "portion_estimate_g": 估计盘中食物的总克数（整数）,
+  "health_tip": "一句话营养点评（例如：这道菜蛋白质丰富，但建议少喝汤以控制盐分摄入）"
+}`
 
       const completion = await this.qwen.chat.completions.create({
         model: 'qwen-vl-max',
@@ -111,7 +113,7 @@ export class FoodService {
             carbs: Math.round((parsed.carbs_g || 0) * ratio),
             fat: Math.round((parsed.fat_g || 0) * ratio),
           },
-          tips: '营养数据基于 AI 识别估算，仅供参考',
+          tips: parsed.health_tip || '营养数据基于 AI 识别估算，仅供参考',
         },
       ]
     } catch (error) {

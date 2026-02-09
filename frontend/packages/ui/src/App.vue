@@ -42,11 +42,16 @@ onHide(() => {
 
 /* ========== 页面基础 ========== */
 page {
-  background-color: #f8f8f8;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  /* 高级感背景色：不再是纯白，而是极淡的灰蓝/米白 */
+  background-color: #f5f7fa;
+  /* Apple 风格字体组合，解决"安卓默认字体丑"的问题 */
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica,
+    Segoe UI, Arial, Roboto, 'PingFang SC', 'miui', 'Hiragino Sans GB', 'Microsoft Yahei',
+    sans-serif;
   font-size: 14px;
-  line-height: 1.5;
+  line-height: 1.6;
   letter-spacing: 0.01em;
+  color: #1a1a1a;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -130,6 +135,77 @@ uni-tabbar,
 }
 
 /* ========== 高级感增强样式 ========== */
+
+/* 全局通用的"高级感"卡片类 */
+.glass-card {
+  background: #ffffff;
+  border-radius: 16px; /* 更大的圆角 */
+  /* 关键：高级的弥散阴影，不是黑乎乎的一坨 */
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  margin: 10px;
+  padding: 15px;
+  /* 可选：如果你想要毛玻璃效果（性能消耗稍大） */
+  /* backdrop-filter: blur(10px); */
+}
+
+/* 主按钮升级：渐变色 + 阴影 */
+.btn-primary {
+  /* 这是一个非常高级的"健康绿"渐变 */
+  background: linear-gradient(135deg, #34C759 0%, #30B550 100%);
+  color: white;
+  border-radius: 50px; /* 胶囊形状更现代 */
+  box-shadow: 0 4px 15px rgba(52, 199, 89, 0.4); /* 按钮发光效果 */
+  font-weight: 600;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(52, 199, 89, 0.5);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(52, 199, 89, 0.3);
+}
+
+/* 标题增强 */
+.text-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a1a;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
+
+/* 输入框美化 */
+input,
+textarea {
+  background: #f9f9f9;
+  border: 1px solid #eaeaea;
+  border-radius: 12px;
+  padding: 10px 15px;
+  transition: all 0.3s ease;
+  font-size: 15px;
+  color: #1e293b;
+}
+
+input:focus,
+textarea:focus {
+  background: #fff;
+  border-color: #34C759; /* 聚焦变色 */
+  box-shadow: 0 0 0 3px rgba(52, 199, 89, 0.1);
+  outline: none;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #94a3b8;
+}
+
+/* 精致阴影系统 */
 
 /* 精致阴影系统 */
 .shadow-soft {

@@ -34,7 +34,7 @@ export function initApi(
   },
 ): ApiClient {
   console.log("[initApi] Initializing API client...");
-  const baseURL = options?.baseURL || "https://api.aichangzhang.com:8443/api";
+  const baseURL = options?.baseURL || "http://localhost:3000/api";
   console.log("[initApi] baseURL:", baseURL);
   console.log("[initApi] fetchProvider:", !!options?.fetchProvider);
   apiInstance = new ApiClient({

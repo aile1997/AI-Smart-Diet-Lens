@@ -111,6 +111,38 @@ export function validateCode(code: string): ValidationResult {
 }
 
 /**
+ * 验证邮箱或手机号格式（统一账号验证）
+ *
+ * @param account 邮箱或手机号
+ * @returns 验证结果
+ */
+export function validateAccount(account: string): ValidationResult {
+  if (!account || typeof account !== 'string') {
+    return { valid: false, message: '请输入手机号或邮箱' }
+  }
+
+  const trimmed = account.trim()
+
+  if (!trimmed) {
+    return { valid: false, message: '请输入手机号或邮箱' }
+  }
+
+  // 先尝试手机号验证
+  const phoneResult = validatePhone(trimmed)
+  if (phoneResult.valid) {
+    return { valid: true }
+  }
+
+  // 再尝试邮箱验证
+  const emailResult = validateEmail(trimmed)
+  if (emailResult.valid) {
+    return { valid: true }
+  }
+
+  return { valid: false, message: '请输入正确的手机号或邮箱' }
+}
+
+/**
  * 验证密码强度
  *
  * @param password 密码

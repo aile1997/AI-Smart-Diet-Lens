@@ -2,45 +2,45 @@
 /**
  * 登录页面 - 简化版
  *
- * 只需要输入邮箱即可登录
+ * 支持手机号或邮箱登录
  * 如果用户不存在则自动创建
  */
 import { ref, computed } from "vue";
-import { useAuthStore, validateEmail } from "@diet-lens/core";
+import { useAuthStore, validateAccount } from "@diet-lens/core";
 
 const authStore = useAuthStore();
 
 // 表单状态
-const email = ref<string>("");
-const emailError = ref<string>("");
+const account = ref<string>("");
+const accountError = ref<string>("");
 
 // 计算属性
-const canLogin = computed(() => email.value && !authStore.loading);
+const canLogin = computed(() => account.value && !authStore.loading);
 
 /**
- * 验证邮箱
+ * 验证账号（手机号或邮箱）
  */
-const validateEmailInput = (): boolean => {
-  const result = validateEmail(email.value);
+const validateAccountInput = (): boolean => {
+  const result = validateAccount(account.value);
   if (!result.valid) {
-    emailError.value = result.message || "邮箱格式不正确";
+    accountError.value = result.message || "账号格式不正确";
     return false;
   }
-  emailError.value = "";
+  accountError.value = "";
   return true;
 };
 
 /**
- * 简化登录 - 只需要邮箱
+ * 简化登录 - 只需要手机号或邮箱
  */
 const handleLogin = async () => {
-  // 验证邮箱格式
-  if (!validateEmailInput()) {
+  // 验证账号格式
+  if (!validateAccountInput()) {
     return;
   }
   if (!canLogin.value) return;
 
-  const result = await authStore.loginSimple(email.value);
+  const result = await authStore.loginSimple(account.value);
 
   if (result.success) {
     uni.showToast({
@@ -81,19 +81,19 @@ const handleLogin = async () => {
       <text class="text-gray-400 mt-2 font-medium">请登录您的健康账号</text>
     </view>
 
-    <!-- 邮箱登录 -->
+    <!-- 账号登录 -->
     <view class="space-y-4 flex-1">
-      <!-- 邮箱输入 -->
+      <!-- 手机号/邮箱输入 -->
       <view class="relative">
         <input
-          v-model="email"
-          @blur="validateEmailInput"
+          v-model="account"
+          @blur="validateAccountInput"
           class="w-full h-14 px-5 bg-white border-none rounded-2xl shadow-sm text-base placeholder:text-gray-400 transition-all"
-          :class="{ 'border-2 border-red-400': emailError }"
-          placeholder="请输入邮箱"
+          :class="{ 'border-2 border-red-400': accountError }"
+          placeholder="请输入手机号 / 邮箱"
           type="text"
         />
-        <text v-if="emailError" class="text-red-500 text-xs mt-1 block">{{ emailError }}</text>
+        <text v-if="accountError" class="text-red-500 text-xs mt-1 block">{{ accountError }}</text>
       </view>
 
       <!-- 登录按钮 -->
@@ -110,7 +110,7 @@ const handleLogin = async () => {
     <!-- Footer -->
     <view class="pb-10 pt-6 text-center">
       <text class="text-xs text-gray-400">
-        只需要邮箱即可登录，首次使用自动创建账号
+        支持手机号或邮箱登录，首次使用自动创建账号
       </text>
       <view class="mt-8 flex justify-center">
         <text class="text-[10px] text-gray-300 font-medium uppercase tracking-widest">

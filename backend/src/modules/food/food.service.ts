@@ -108,7 +108,7 @@ export class FoodService {
           portion_g: portion_g,
           confidence: 0.9,
           nutrition: {
-            calories: Math.round(parsed.calories_per_100g || 0),
+            calories: Math.round((parsed.calories_per_100g || 0) * ratio),
             protein: Math.round((parsed.protein_g || 0) * ratio),
             carbs: Math.round((parsed.carbs_g || 0) * ratio),
             fat: Math.round((parsed.fat_g || 0) * ratio),

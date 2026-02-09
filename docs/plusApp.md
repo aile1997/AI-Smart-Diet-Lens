@@ -106,7 +106,7 @@ page {
     Segoe UI, Arial, Roboto, 'PingFang SC', 'miui', 'Hiragino Sans GB', 'Microsoft Yahei',
     sans-serif;
   /* 高级感背景色：不再是纯白，而是极淡的灰蓝/米白 */
-  background-color: #f5f7fa; 
+  background-color: #F5F7FA; 
   color: #333;
   line-height: 1.6;
 }

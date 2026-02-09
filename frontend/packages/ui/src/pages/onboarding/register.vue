@@ -4,136 +4,136 @@
  *
  * 邮箱+密码+验证码注册流程
  */
-import { ref } from 'vue'
-import { useAuthStore } from '@diet-lens/core'
+import { ref } from "vue";
+import { useAuthStore } from "@diet-lens/core";
 
-const authStore = useAuthStore()
-const email = ref<string>('')
-const code = ref<string>('')
-const password = ref<string>('')
-const confirmPassword = ref<string>('')
-const agreePrivacy = ref<boolean>(false)
-const countdown = ref<number>(0)
-const passwordError = ref<string>('')
-const confirmPasswordError = ref<string>('')
+const authStore = useAuthStore();
+const email = ref<string>("");
+const code = ref<string>("");
+const password = ref<string>("");
+const confirmPassword = ref<string>("");
+const agreePrivacy = ref<boolean>(false);
+const countdown = ref<number>(0);
+const passwordError = ref<string>("");
+const confirmPasswordError = ref<string>("");
 
 const navigateBack = () => {
-  uni.navigateBack()
-}
+  uni.navigateBack();
+};
 
 const navigateToLogin = () => {
-  uni.redirectTo({ url: '/pages/onboarding/login' })
-}
+  uni.redirectTo({ url: "/pages/onboarding/login" });
+};
 
 const navigateToBodyMetrics = () => {
-  uni.navigateTo({ url: '/pages/onboarding/body-metrics' })
-}
+  uni.navigateTo({ url: "/pages/onboarding/body-metrics" });
+};
 
 /**
  * 验证密码
  */
 const validatePassword = (): boolean => {
   if (!password.value) {
-    passwordError.value = '请输入密码'
-    return false
+    passwordError.value = "请输入密码";
+    return false;
   }
   if (password.value.length < 6) {
-    passwordError.value = '密码至少 6 位'
-    return false
+    passwordError.value = "密码至少 6 位";
+    return false;
   }
-  passwordError.value = ''
-  return true
-}
+  passwordError.value = "";
+  return true;
+};
 
 /**
  * 验证确认密码
  */
 const validateConfirmPassword = (): boolean => {
   if (!confirmPassword.value) {
-    confirmPasswordError.value = '请再次输入密码'
-    return false
+    confirmPasswordError.value = "请再次输入密码";
+    return false;
   }
   if (confirmPassword.value !== password.value) {
-    confirmPasswordError.value = '两次密码不一致'
-    return false
+    confirmPasswordError.value = "两次密码不一致";
+    return false;
   }
-  confirmPasswordError.value = ''
-  return true
-}
+  confirmPasswordError.value = "";
+  return true;
+};
 
 // 获取验证码
 const handleGetCode = async () => {
   if (!email.value) {
-    uni.showToast({ title: '请输入邮箱', icon: 'none' })
-    return
+    uni.showToast({ title: "请输入邮箱", icon: "none" });
+    return;
   }
 
-  const result = await authStore.sendCode(email.value)
+  const result = await authStore.sendCode(email.value);
   if (result.success) {
-    uni.showToast({ title: '验证码已发送', icon: 'success' })
+    uni.showToast({ title: "验证码已发送", icon: "success" });
     // 开始倒计时
-    countdown.value = 60
+    countdown.value = 60;
     const timer = setInterval(() => {
-      countdown.value--
+      countdown.value--;
       if (countdown.value <= 0) {
-        clearInterval(timer)
+        clearInterval(timer);
       }
-    }, 1000)
+    }, 1000);
   } else {
-    uni.showToast({ title: result.error || '发送失败', icon: 'none' })
+    uni.showToast({ title: result.error || "发送失败", icon: "none" });
   }
-}
+};
 
 // 注册
 const handleRegister = async () => {
   // 验证邮箱
   if (!email.value) {
-    uni.showToast({ title: '请输入邮箱', icon: 'none' })
-    return
+    uni.showToast({ title: "请输入邮箱", icon: "none" });
+    return;
   }
 
   // 验证验证码
   if (!code.value) {
-    uni.showToast({ title: '请输入验证码', icon: 'none' })
-    return
+    uni.showToast({ title: "请输入验证码", icon: "none" });
+    return;
   }
 
   // 验证密码
-  const isPasswordValid = validatePassword()
+  const isPasswordValid = validatePassword();
   if (!isPasswordValid) {
-    return
+    return;
   }
 
   // 验证确认密码
-  const isConfirmPasswordValid = validateConfirmPassword()
+  const isConfirmPasswordValid = validateConfirmPassword();
   if (!isConfirmPasswordValid) {
-    return
+    return;
   }
 
   if (!agreePrivacy.value) {
-    uni.showToast({ title: '请同意用户协议', icon: 'none' })
-    return
+    uni.showToast({ title: "请同意用户协议", icon: "none" });
+    return;
   }
 
   // 使用邮箱+密码+验证码注册
-  const result = await authStore.registerWithPassword(email.value, password.value, code.value)
+  const result = await authStore.registerWithPassword(email.value, password.value, code.value);
 
   if (result.success) {
     // 注册成功，检查是否需要完成入职引导
     if (result.user?.needOnboarding) {
-      navigateToBodyMetrics()
+      navigateToBodyMetrics();
     } else {
       // 已完成入职引导，跳转到首页
-      uni.switchTab({ url: '/pages/index/index' })
+      uni.switchTab({ url: "/pages/index/index" });
     }
   } else {
-    uni.showToast({ title: result.error || '注册失败', icon: 'none' })
+    uni.showToast({ title: result.error || "注册失败", icon: "none" });
   }
-}
+};
 </script>
 
 <template>
-  <view class="relative w-full min-h-screen flex flex-col px-6 pt-12 pb-10 max-w-md mx-auto bg-[#F5F7F8]">
+  <view class="relative w-full min-h-screen flex flex-col px-6 pt-12 pb-10 max-w-md mx-auto bg-[#F5F7FA]">
     <!-- Back Button -->
     <view class="mb-8">
       <view @tap="navigateBack" class="flex items-center text-primary -ml-1 active:opacity-70">
@@ -178,12 +178,10 @@ const handleRegister = async () => {
             @tap="handleGetCode"
             :class="[
               'px-5 h-[54px] border font-semibold rounded-2xl text-sm whitespace-nowrap flex items-center justify-center transition-colors',
-              countdown > 0
-                ? 'bg-[#F5F7F8] border-[#E5E5EA] text-[#8E8E93]'
-                : 'bg-white border-primary text-primary active:bg-primary/5'
+              countdown > 0 ? 'bg-[#F5F7FA] border-[#E5E5EA] text-[#8E8E93]' : 'bg-white border-primary text-primary active:bg-primary/5',
             ]"
           >
-            {{ countdown > 0 ? `${countdown}秒` : '获取验证码' }}
+            {{ countdown > 0 ? `${countdown}秒` : "获取验证码" }}
           </view>
         </view>
       </view>
@@ -224,14 +222,11 @@ const handleRegister = async () => {
 
       <!-- Privacy Agreement -->
       <view class="flex items-start gap-3 mt-2 px-1">
-        <view
-          @tap="agreePrivacy = !agreePrivacy"
-          class="relative flex items-center"
-        >
+        <view @tap="agreePrivacy = !agreePrivacy" class="relative flex items-center">
           <view
             :class="[
               'w-5 h-5 rounded-md border flex items-center justify-center transition-all',
-              agreePrivacy ? 'bg-primary border-primary' : 'border-[#D1D1D6]'
+              agreePrivacy ? 'bg-primary border-primary' : 'border-[#D1D1D6]',
             ]"
           >
             <text v-if="agreePrivacy" class="material-symbols-outlined text-white text-sm">check</text>
@@ -252,9 +247,7 @@ const handleRegister = async () => {
         注册
       </view>
       <view class="flex justify-center">
-        <view @tap="navigateToLogin" class="text-sm font-medium text-[#1C1C1E]">
-          已有账号？<text class="text-primary">立即登录</text>
-        </view>
+        <view @tap="navigateToLogin" class="text-sm font-medium text-[#1C1C1E]"> 已有账号？<text class="text-primary">立即登录</text> </view>
       </view>
     </view>
 

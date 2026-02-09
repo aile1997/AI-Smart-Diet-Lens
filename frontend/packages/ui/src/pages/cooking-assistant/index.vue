@@ -121,10 +121,15 @@ const viewNutritionDetail = () => {
 </script>
 
 <template>
-  <view class="relative min-h-screen w-full flex flex-col bg-[#F5F7F8]">
+  <view class="relative min-h-screen w-full flex flex-col bg-[#F5F7FA]">
     <!-- Top Image Section -->
     <view class="relative w-full h-[420px] shrink-0">
-      <view class="absolute inset-0 bg-cover bg-center" style="background-image: url(&quot;https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_10.jpg?imageMogr2/format/webp/quality/85&quot;)">
+      <view
+        class="absolute inset-0 bg-cover bg-center"
+        style="
+          background-image: url(&quot;https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_10.jpg?imageMogr2/format/webp/quality/85&quot;);
+        "
+      >
         <view class="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80"></view>
       </view>
 
@@ -339,7 +344,7 @@ const viewNutritionDetail = () => {
     </view>
 
     <!-- Sticky Footer -->
-    <view class="fixed bottom-0 left-0 right-0 p-4 pt-0 bg-gradient-to-t from-[#F5F7F8] via-[#F5F7F8] to-transparent z-30 pointer-events-none">
+    <view class="fixed bottom-0 left-0 right-0 p-4 pt-0 bg-gradient-to-t from-[#F5F7FA] via-[#F5F7FA] to-transparent z-30 pointer-events-none">
       <view
         class="pointer-events-auto max-w-[480px] mx-auto flex items-center justify-between gap-4 p-4 rounded-2xl bg-white/90 backdrop-blur-xl border border-gray-200/50 shadow-2xl"
       >

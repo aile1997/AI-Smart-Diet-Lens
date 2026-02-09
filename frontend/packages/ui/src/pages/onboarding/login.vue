@@ -69,7 +69,7 @@ const handleLogin = async () => {
 </script>
 
 <template>
-  <view class="flex-1 w-full max-w-[430px] mx-auto px-8 flex flex-col bg-[#F5F7F8]">
+  <view class="flex-1 w-full max-w-[430px] mx-auto px-8 flex flex-col bg-[#F5F7FA]">
     <!-- Header -->
     <view class="pt-16 pb-8 flex flex-col items-center">
       <view class="w-20 h-20 bg-white rounded-3xl shadow-sm flex items-center justify-center mb-6">
@@ -109,13 +109,9 @@ const handleLogin = async () => {
 
     <!-- Footer -->
     <view class="pb-10 pt-6 text-center">
-      <text class="text-xs text-gray-400">
-        支持手机号或邮箱登录，首次使用自动创建账号
-      </text>
+      <text class="text-xs text-gray-400"> 支持手机号或邮箱登录，首次使用自动创建账号 </text>
       <view class="mt-8 flex justify-center">
-        <text class="text-[10px] text-gray-300 font-medium uppercase tracking-widest">
-          AI Smart-Diet Engine
-        </text>
+        <text class="text-[10px] text-gray-300 font-medium uppercase tracking-widest"> AI Smart-Diet Engine </text>
       </view>
     </view>
   </view>

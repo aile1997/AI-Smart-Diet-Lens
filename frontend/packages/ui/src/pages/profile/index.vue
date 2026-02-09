@@ -172,7 +172,7 @@ const handleMenuClick = (item: any) => {
 </script>
 
 <template>
-  <view class="page-container pb-24 overflow-y-auto bg-[#F5F7F8]">
+  <view class="page-container pb-24 overflow-y-auto bg-[#F5F7FA]">
     <!-- 未登录提示 -->
     <view v-if="!isLoggedIn" class="flex flex-col items-center justify-center px-10" style="min-height: 80vh">
       <text class="material-symbols-outlined text-slate-300 text-6xl mb-4">lock</text>
@@ -183,7 +183,7 @@ const handleMenuClick = (item: any) => {
 
     <template v-else>
       <!-- Header -->
-      <view class="sticky top-0 z-30 px-6 pt-14 pb-4 bg-[#F5F7F8]/90 backdrop-blur-md flex justify-between items-center">
+      <view class="sticky top-0 z-30 px-6 pt-14 pb-4 bg-[#F5F7FA]/90 backdrop-blur-md flex justify-between items-center">
         <text class="text-3xl font-extrabold text-[#273936] tracking-tight">个人中心</text>
         <view class="flex items-center gap-3">
           <view
@@ -211,7 +211,11 @@ const handleMenuClick = (item: any) => {
               <view
                 class="w-[72px] h-[72px] rounded-full bg-[#c5d8cb] flex items-center justify-center text-[#5a847b] shadow-inner overflow-hidden border-[3px] border-white"
               >
-                <image src="https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_9.jpg?imageMogr2/format/webp/quality/85" class="w-full h-full object-cover" mode="aspectFill" />
+                <image
+                  src="https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_9.jpg?imageMogr2/format/webp/quality/85"
+                  class="w-full h-full object-cover"
+                  mode="aspectFill"
+                />
               </view>
               <view class="absolute -bottom-1 -right-1 bg-[#5a847b] text-white p-1 rounded-full border-[2px] border-white flex items-center justify-center">
                 <text class="material-symbols-outlined text-xs">edit</text>
@@ -364,10 +368,7 @@ const handleMenuClick = (item: any) => {
             </view>
           </view>
 
-          <view
-            @tap="logout"
-            class="w-full py-3.5 rounded-xl text-center text-sm font-semibold text-red-500 bg-red-50/50 active:bg-red-50 transition-colors"
-          >
+          <view @tap="logout" class="w-full py-3.5 rounded-xl text-center text-sm font-semibold text-red-500 bg-red-50/50 active:bg-red-50 transition-colors">
             退出登录
           </view>
         </view>

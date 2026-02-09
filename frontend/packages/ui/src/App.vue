@@ -30,8 +30,6 @@ onHide(() => {
 <template></template>
 
 <style>
-@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap");
-
 /* ========== 全局重置 ========== */
 *,
 *::before,
@@ -45,9 +43,8 @@ page {
   /* 高级感背景色：不再是纯白，而是极淡的灰蓝/米白 */
   background-color: #f5f7fa;
   /* Apple 风格字体组合，解决"安卓默认字体丑"的问题 */
-  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica,
-    Segoe UI, Arial, Roboto, 'PingFang SC', 'miui', 'Hiragino Sans GB', 'Microsoft Yahei',
-    sans-serif;
+  font-family: -apple-system, sans-serif;
+
   font-size: 14px;
   line-height: 1.6;
   letter-spacing: 0.01em;
@@ -152,7 +149,7 @@ uni-tabbar,
 /* 主按钮升级：渐变色 + 阴影 */
 .btn-primary {
   /* 这是一个非常高级的"健康绿"渐变 */
-  background: linear-gradient(135deg, #34C759 0%, #30B550 100%);
+  background: linear-gradient(135deg, #34c759 0%, #30b550 100%);
   color: white;
   border-radius: 50px; /* 胶囊形状更现代 */
   box-shadow: 0 4px 15px rgba(52, 199, 89, 0.4); /* 按钮发光效果 */
@@ -195,7 +192,7 @@ textarea {
 input:focus,
 textarea:focus {
   background: #fff;
-  border-color: #34C759; /* 聚焦变色 */
+  border-color: #34c759; /* 聚焦变色 */
   box-shadow: 0 0 0 3px rgba(52, 199, 89, 0.1);
   outline: none;
 }
@@ -209,18 +206,21 @@ textarea::placeholder {
 
 /* 精致阴影系统 */
 .shadow-soft {
-  box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.04),
-              0 1px 4px -1px rgba(0, 0, 0, 0.02);
+  box-shadow:
+    0 2px 8px -2px rgba(0, 0, 0, 0.04),
+    0 1px 4px -1px rgba(0, 0, 0, 0.02);
 }
 
 .shadow-card {
-  box-shadow: 0 4px 16px -4px rgba(0, 0, 0, 0.06),
-              0 2px 8px -2px rgba(0, 0, 0, 0.03);
+  box-shadow:
+    0 4px 16px -4px rgba(0, 0, 0, 0.06),
+    0 2px 8px -2px rgba(0, 0, 0, 0.03);
 }
 
 .shadow-elevated {
-  box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.08),
-              0 4px 12px -4px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 8px 24px -6px rgba(0, 0, 0, 0.08),
+    0 4px 12px -4px rgba(0, 0, 0, 0.04);
 }
 
 /* 内阴影（用于输入框等） */
@@ -247,9 +247,10 @@ textarea::placeholder {
 }
 
 .transition-colors {
-  transition: background-color 0.2s ease,
-              color 0.2s ease,
-              border-color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .transition-transform {
@@ -270,20 +271,20 @@ button:active,
 
 /* 优雅的渐变背景 */
 .gradient-primary {
-  background: linear-gradient(135deg, #34C759 0%, #30B550 100%);
+  background: linear-gradient(135deg, #34c759 0%, #30b550 100%);
 }
 
 .gradient-warm {
-  background: linear-gradient(135deg, #FF9500 0%, #FF6B00 100%);
+  background: linear-gradient(135deg, #ff9500 0%, #ff6b00 100%);
 }
 
 .gradient-cool {
-  background: linear-gradient(135deg, #5AC8FA 0%, #007AFF 100%);
+  background: linear-gradient(135deg, #5ac8fa 0%, #007aff 100%);
 }
 
 /* 文字渐变 */
 .text-gradient {
-  background: linear-gradient(135deg, #34C759 0%, #30B550 100%);
+  background: linear-gradient(135deg, #34c759 0%, #30b550 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -300,7 +301,8 @@ button:active,
 
 /* 脉冲动画 */
 @keyframes pulse-glow {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
     box-shadow: 0 0 20px rgba(52, 199, 89, 0.3);
   }
@@ -316,7 +318,8 @@ button:active,
 
 /* 浮动动画 */
 @keyframes float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
@@ -339,12 +342,7 @@ button:active,
 }
 
 .shimmer {
-  background: linear-gradient(
-    90deg,
-    rgba(200, 200, 200, 0.1) 0%,
-    rgba(200, 200, 200, 0.3) 50%,
-    rgba(200, 200, 200, 0.1) 100%
-  );
+  background: linear-gradient(90deg, rgba(200, 200, 200, 0.1) 0%, rgba(200, 200, 200, 0.3) 50%, rgba(200, 200, 200, 0.1) 100%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
@@ -360,9 +358,13 @@ button:active,
   inset: 0;
   border-radius: inherit;
   padding: 1px;
-  background: linear-gradient(135deg, #34C759, #5AC8FA);
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  background: linear-gradient(135deg, #34c759, #5ac8fa);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   opacity: 0;

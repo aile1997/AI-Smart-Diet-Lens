@@ -4,148 +4,149 @@
  *
  * 显示用户对食谱/食材的评价
  */
-import { ref } from 'vue'
-import BottomNav from '@/components/BottomNav.vue'
+import { ref } from "vue";
+import BottomNav from "@/components/BottomNav.vue";
 
 // 评价数据
 interface ReviewItem {
-  id: number
-  name: string
-  image: string
-  rating: number
-  content: string
-  date: string
-  tags: string[]
-  hasMerchantReply: boolean
+  id: number;
+  name: string;
+  image: string;
+  rating: number;
+  content: string;
+  date: string;
+  tags: string[];
+  hasMerchantReply: boolean;
 }
 
 // 当前标签
-const activeTab = ref<'reviewed' | 'pending'>('reviewed')
+const activeTab = ref<"reviewed" | "pending">("reviewed");
 
 // 已评价数据
 const reviewedList = ref<ReviewItem[]>([
   {
     id: 1,
-    name: '牛油果全麦吐司',
-    image: 'https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_23.jpg?imageMogr2/format/webp/quality/85',
+    name: "牛油果全麦吐司",
+    image: "https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_23.jpg?imageMogr2/format/webp/quality/85",
     rating: 5,
-    content: '非常清爽的早餐选择，牛油果熟度刚刚好，配上黑胡椒简直完美。热量也很低，适合减脂期。',
-    date: '2小时前',
-    tags: ['早餐', '低卡'],
-    hasMerchantReply: false
+    content: "非常清爽的早餐选择，牛油果熟度刚刚好，配上黑胡椒简直完美。热量也很低，适合减脂期。",
+    date: "2小时前",
+    tags: ["早餐", "低卡"],
+    hasMerchantReply: false,
   },
   {
     id: 2,
-    name: '彩虹藜麦沙拉',
-    image: 'https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_24.jpg?imageMogr2/format/webp/quality/85',
+    name: "彩虹藜麦沙拉",
+    image: "https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_24.jpg?imageMogr2/format/webp/quality/85",
     rating: 4,
-    content: '食材很新鲜，但是酱汁稍微有点少。希望能增加一些低脂油醋汁的选项。整体口感还是很丰富的。',
-    date: '昨天',
-    tags: ['午餐'],
-    hasMerchantReply: false
+    content: "食材很新鲜，但是酱汁稍微有点少。希望能增加一些低脂油醋汁的选项。整体口感还是很丰富的。",
+    date: "昨天",
+    tags: ["午餐"],
+    hasMerchantReply: false,
   },
   {
     id: 3,
-    name: '韩式低脂拌饭',
-    image: 'https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_25.jpg?imageMogr2/format/webp/quality/85',
+    name: "韩式低脂拌饭",
+    image: "https://smart-diet-1622598684-1309736368.cos.ap-beijing.myqcloud.com/public_assets/food/food_25.jpg?imageMogr2/format/webp/quality/85",
     rating: 5,
-    content: '味道出乎意料的好！完全感觉不到是减脂餐，强烈推荐大家尝试。特别是那个特制的拌饭酱，绝了。',
-    date: '10月22日',
+    content: "味道出乎意料的好！完全感觉不到是减脂餐，强烈推荐大家尝试。特别是那个特制的拌饭酱，绝了。",
+    date: "10月22日",
     tags: [],
-    hasMerchantReply: true
+    hasMerchantReply: true,
   },
   {
     id: 4,
-    name: '羽衣甘蓝排毒饮',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBu9V8WE-Psw8QVhR5drvEb9VYsj49zw7dqUVntHP439U63rlurpNI5OCy-LiZqieSl2FdAEtsIg1fYTqV6ulfKl_X4_7rx0ousU38vMqfIKVo0tp3T9SdUGvzQ7Jc6gTr9MgSXHW4qj5IqpPmEaddDkE_GQech9k_OcOJk2xNnLCBkM3WH_JEysAj09jjCMf10jUhZd0vh9jIqdaX3dGWdzXRF8cYDcYyTcszLuNgiQrdWewq07JEtRjMIWsQISGM-TB9TdqhRjcfi',
+    name: "羽衣甘蓝排毒饮",
+    image:
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuBu9V8WE-Psw8QVhR5drvEb9VYsj49zw7dqUVntHP439U63rlurpNI5OCy-LiZqieSl2FdAEtsIg1fYTqV6ulfKl_X4_7rx0ousU38vMqfIKVo0tp3T9SdUGvzQ7Jc6gTr9MgSXHW4qj5IqpPmEaddDkE_GQech9k_OcOJk2xNnLCBkM3WH_JEysAj09jjCMf10jUhZd0vh9jIqdaX3dGWdzXRF8cYDcYyTcszLuNgiQrdWewq07JEtRjMIWsQISGM-TB9TdqhRjcfi",
     rating: 3,
-    content: '健康是健康，但是味道真的有点难以接受... 建议加点苹果或者香蕉中和一下苦味。',
-    date: '10月18日',
-    tags: ['饮品'],
-    hasMerchantReply: false
-  }
-])
+    content: "健康是健康，但是味道真的有点难以接受... 建议加点苹果或者香蕉中和一下苦味。",
+    date: "10月18日",
+    tags: ["饮品"],
+    hasMerchantReply: false,
+  },
+]);
 
 // 待评价数据
 const pendingList = ref([
   {
     id: 101,
-    name: '等待评价的食谱',
-    image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200',
+    name: "等待评价的食谱",
+    image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200",
     rating: 0,
-    content: '',
-    date: '',
+    content: "",
+    date: "",
     tags: [],
-    hasMerchantReply: false
+    hasMerchantReply: false,
   },
   {
     id: 102,
-    name: '等待评价的食谱',
-    image: 'https://images.unsplash.com/photo-1511690656952-34342bb5c489?w=200',
+    name: "等待评价的食谱",
+    image: "https://images.unsplash.com/photo-1511690656952-34342bb5c489?w=200",
     rating: 0,
-    content: '',
-    date: '',
+    content: "",
+    date: "",
     tags: [],
-    hasMerchantReply: false
+    hasMerchantReply: false,
   },
   {
     id: 103,
-    name: '等待评价的食谱',
-    image: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=200',
+    name: "等待评价的食谱",
+    image: "https://images.unsplash.com/photo-1525351484163-7529414344d8?w=200",
     rating: 0,
-    content: '',
-    date: '',
+    content: "",
+    date: "",
     tags: [],
-    hasMerchantReply: false
-  }
-])
+    hasMerchantReply: false,
+  },
+]);
 
 // 返回
 const navigateBack = () => {
-  uni.navigateBack()
-}
+  uni.navigateBack();
+};
 
 // 切换标签
-const switchTab = (tab: 'reviewed' | 'pending') => {
-  activeTab.value = tab
-}
+const switchTab = (tab: "reviewed" | "pending") => {
+  activeTab.value = tab;
+};
 
 // 渲染星星
 const renderStars = (rating: number) => {
-  const stars = []
+  const stars = [];
   for (let i = 1; i <= 5; i++) {
-    stars.push(i <= rating)
+    stars.push(i <= rating);
   }
-  return stars
-}
+  return stars;
+};
 
 // 点击待评价项目
 const handlePendingClick = (item: ReviewItem) => {
   uni.navigateTo({
-    url: `/pages/recipe-detail/index`
-  })
-}
+    url: `/pages/recipe-detail/index`,
+  });
+};
 
 // 更多操作
 const showMore = (id: number) => {
   uni.showActionSheet({
-    itemList: ['编辑评价', '删除评价'],
+    itemList: ["编辑评价", "删除评价"],
     success: (res) => {
       if (res.tapIndex === 0) {
-        uni.showToast({ title: '编辑评价', icon: 'none' })
+        uni.showToast({ title: "编辑评价", icon: "none" });
       } else if (res.tapIndex === 1) {
-        reviewedList.value = reviewedList.value.filter(r => r.id !== id)
-        uni.showToast({ title: '已删除', icon: 'success' })
+        reviewedList.value = reviewedList.value.filter((r) => r.id !== id);
+        uni.showToast({ title: "已删除", icon: "success" });
       }
-    }
-  })
-}
+    },
+  });
+};
 </script>
 
 <template>
-  <view class="page-container pb-24 overflow-y-auto no-scrollbar bg-[#F5F7F8]">
+  <view class="page-container pb-24 overflow-y-auto no-scrollbar bg-[#F5F7FA]">
     <!-- Header -->
-    <view class="sticky top-0 z-30 px-4 pt-12 pb-4 bg-[#F5F7F8]/95 backdrop-blur-md flex justify-between items-center">
+    <view class="sticky top-0 z-30 px-4 pt-12 pb-4 bg-[#F5F7FA]/95 backdrop-blur-md flex justify-between items-center">
       <view @tap="navigateBack" class="w-10 h-10 -ml-2 rounded-full flex items-center justify-center text-slate-800 active:scale-95 transition-transform">
         <text class="material-symbols-outlined">arrow_back_ios_new</text>
       </view>
@@ -211,11 +212,7 @@ const showMore = (id: number) => {
         <!-- Footer -->
         <view class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
           <view class="flex gap-2">
-            <view
-              v-for="tag in item.tags"
-              :key="tag"
-              class="px-2.5 py-1 rounded-md bg-[#f4f7f5] text-[#5a847b] text-[10px] font-medium"
-            >
+            <view v-for="tag in item.tags" :key="tag" class="px-2.5 py-1 rounded-md bg-[#f4f7f5] text-[#5a847b] text-[10px] font-medium">
               {{ tag }}
             </view>
           </view>

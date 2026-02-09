@@ -4,106 +4,97 @@
  *
  * 显示用户收藏的食谱和食材
  */
-import { ref, computed, onMounted } from 'vue'
-import { useAuthStore, useFavorites, type FavoriteType } from '@diet-lens/core'
-import BottomNav from '@/components/BottomNav.vue'
+import { ref, computed, onMounted } from "vue";
+import { useAuthStore, useFavorites, type FavoriteType } from "@diet-lens/core";
+import BottomNav from "@/components/BottomNav.vue";
 
-const authStore = useAuthStore()
-const isLoggedIn = computed(() => authStore.isLoggedIn)
+const authStore = useAuthStore();
+const isLoggedIn = computed(() => authStore.isLoggedIn);
 
-const {
-  loading,
-  error,
-  selectedType,
-  currentList,
-  isEmpty,
-  fetchFavorites,
-  removeFavorite: removeFav,
-  switchType,
-  refresh,
-} = useFavorites()
+const { loading, error, selectedType, currentList, isEmpty, fetchFavorites, removeFavorite: removeFav, switchType, refresh } = useFavorites();
 
 // 搜索关键词
-const searchQuery = ref('')
+const searchQuery = ref("");
 
 // 过滤后的列表
 const filteredList = computed(() => {
   if (!searchQuery.value.trim()) {
-    return currentList.value
+    return currentList.value;
   }
-  return currentList.value.filter(item =>
-    item.name.toLowerCase().includes(searchQuery.value.toLowerCase())
-  )
-})
+  return currentList.value.filter((item) => item.name.toLowerCase().includes(searchQuery.value.toLowerCase()));
+});
 
 // 返回
 const navigateBack = () => {
-  const pages = getCurrentPages()
+  const pages = getCurrentPages();
   if (pages.length > 1) {
-    uni.navigateBack()
+    uni.navigateBack();
   } else {
-    uni.reLaunch({ url: '/pages/index/index' })
+    uni.reLaunch({ url: "/pages/index/index" });
   }
-}
+};
 
 // 切换标签
-const switchTab = async (tab: 'recipe' | 'food') => {
-  await switchType(tab as FavoriteType)
-}
+const switchTab = async (tab: "recipe" | "food") => {
+  await switchType(tab as FavoriteType);
+};
 
 // 取消收藏
 const removeFavorite = async (id: string) => {
   try {
-    await removeFav(id)
+    await removeFav(id);
     uni.showToast({
-      title: '已取消收藏',
-      icon: 'success'
-    })
+      title: "已取消收藏",
+      icon: "success",
+    });
   } catch (err) {
     uni.showToast({
-      title: '操作失败',
-      icon: 'none'
-    })
+      title: "操作失败",
+      icon: "none",
+    });
   }
-}
+};
 
 // 点击项目
 const handleItemClick = (item: any) => {
-  if (selectedType.value === 'recipe') {
+  if (selectedType.value === "recipe") {
     uni.navigateTo({
-      url: `/pages/recipe-detail/index?id=${item.itemId}`
-    })
+      url: `/pages/recipe-detail/index?id=${item.itemId}`,
+    });
   } else {
     uni.navigateTo({
-      url: `/pages/food-detail/index?name=${encodeURIComponent(item.name)}`
-    })
+      url: `/pages/food-detail/index?name=${encodeURIComponent(item.name)}`,
+    });
   }
-}
+};
 
 // 下拉刷新
 const onRefresh = async () => {
-  await refresh()
-  uni.stopPullDownRefresh()
-}
+  await refresh();
+  uni.stopPullDownRefresh();
+};
 
 // 跳转到登录页
 const goToLogin = () => {
-  uni.navigateTo({ url: '/pages/onboarding/login' })
-}
+  uni.navigateTo({ url: "/pages/onboarding/login" });
+};
 
 // 页面加载时获取收藏列表
 onMounted(async () => {
   if (isLoggedIn.value) {
-    await fetchFavorites()
+    await fetchFavorites();
   }
-})
+});
 </script>
 
 <template>
-  <view class="page-container pb-24 overflow-y-auto no-scrollbar bg-[#F5F7F8]">
+  <view class="page-container pb-24 overflow-y-auto no-scrollbar bg-[#F5F7FA]">
     <!-- Header -->
-    <view class="sticky top-0 z-30 px-4 pt-12 pb-4 bg-[#F5F7F8]/95 backdrop-blur-md flex justify-between items-center">
-      <view @tap="navigateBack" class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-[#5a847b] active:scale-95 transition-transform">
+    <view class="sticky top-0 z-30 px-4 pt-12 pb-4 bg-[#F5F7FA]/95 backdrop-blur-md flex justify-between items-center">
+      <view
+        @tap="navigateBack"
+        class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-[#5a847b] active:scale-95 transition-transform"
+      >
         <text class="material-symbols-outlined">arrow_back</text>
       </view>
       <text class="text-xl font-bold text-slate-900 tracking-tight">我的收藏</text>
@@ -113,13 +104,11 @@ onMounted(async () => {
     </view>
 
     <!-- 未登录提示 -->
-    <view v-if="!isLoggedIn" class="flex flex-col items-center justify-center px-10" style="min-height: 60vh;">
+    <view v-if="!isLoggedIn" class="flex flex-col items-center justify-center px-10" style="min-height: 60vh">
       <text class="material-symbols-outlined text-slate-300 text-6xl mb-4">lock</text>
       <text class="text-base font-medium text-slate-600 mb-2">需要登录</text>
       <text class="text-sm text-slate-400 text-center mb-6">请先登录以查看您的收藏</text>
-      <view class="bg-[#34C759] text-white py-3 px-8 rounded-full font-medium" @tap="goToLogin">
-        去登录
-      </view>
+      <view class="bg-[#34C759] text-white py-3 px-8 rounded-full font-medium" @tap="goToLogin"> 去登录 </view>
     </view>
 
     <template v-else>
@@ -170,7 +159,7 @@ onMounted(async () => {
           <text class="material-symbols-outlined text-slate-300 text-4xl">favorite_border</text>
         </view>
         <text class="text-slate-600 text-base font-medium mb-2">暂无收藏</text>
-        <text class="text-slate-400 text-sm text-center">{{ selectedType === 'recipe' ? '快去收藏喜欢的食谱吧' : '快去收藏喜欢的食材吧' }}</text>
+        <text class="text-slate-400 text-sm text-center">{{ selectedType === "recipe" ? "快去收藏喜欢的食谱吧" : "快去收藏喜欢的食材吧" }}</text>
       </view>
 
       <!-- Content Grid -->
@@ -183,12 +172,7 @@ onMounted(async () => {
             class="bg-white p-3 rounded-2xl shadow-soft active:scale-[0.98] transition-transform"
           >
             <view class="relative aspect-[1/1] rounded-xl overflow-hidden bg-gray-100 mb-3">
-              <image
-                v-if="item.image"
-                :src="item.image"
-                class="w-full h-full"
-                mode="aspectFill"
-              />
+              <image v-if="item.image" :src="item.image" class="w-full h-full" mode="aspectFill" />
               <view v-else class="w-full h-full flex items-center justify-center bg-slate-100">
                 <text class="material-symbols-outlined text-slate-300 text-4xl">image</text>
               </view>

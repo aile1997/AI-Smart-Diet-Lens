@@ -131,9 +131,9 @@ onShow(async () => {
 </script>
 
 <template>
-  <view class="page-container pb-24 overflow-y-auto bg-[#F5F7F6]">
+  <view class="page-container pb-24 overflow-y-auto bg-[#F5F7FA]">
     <!-- Header -->
-    <view class="flex items-center justify-between px-6 pt-12 pb-4 bg-[#F5F7F6]/90 sticky top-0 z-30 backdrop-blur-md">
+    <view class="flex items-center justify-between px-6 pt-12 pb-4 bg-[#F5F7FA]/90 sticky top-0 z-30 backdrop-blur-md">
       <view class="flex flex-col">
         <text class="text-xs font-semibold text-slate-500 mb-0.5">{{ chineseDate }}</text>
         <text class="text-xl font-bold text-[#0e1a13] leading-tight">{{ greeting }}，{{ userName }}</text>
@@ -252,7 +252,7 @@ onShow(async () => {
 
               <button
                 class="flex-1 flex-row items-center justify-center rounded-xl bg-transparent py-3.5 text-sm font-bold text-primary transition-all"
-                style="border: 2px solid #e2e8f0;"
+                style="border: 2px solid #e2e8f0"
                 hover-class="bg-primary/5 scale-[0.98]"
                 :hover-stay-time="100"
                 @tap="goToCookingAssistant"
@@ -282,7 +282,7 @@ onShow(async () => {
               </view>
             </view>
             <text class="text-base font-bold text-[#0e1a13] dark:text-white mb-1">
-              {{ todayMealCount === 0 ? '您的餐盘是空的' : `已记录 ${todayMealCount} 餐` }}
+              {{ todayMealCount === 0 ? "您的餐盘是空的" : `已记录 ${todayMealCount} 餐` }}
             </text>
             <text class="text-sm text-slate-500 dark:text-sage-400 max-w-[200px] leading-relaxed">
               {{ nextMealPrompt }}

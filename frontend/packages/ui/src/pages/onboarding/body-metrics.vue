@@ -4,29 +4,29 @@
  *
  * 使用 picker-view 组件实现滚动选择
  */
-import { ref, computed, onMounted } from 'vue'
-import { logger } from '@diet-lens/core'
-import { getApi } from '@diet-lens/core'
-import type { ApiClient } from '@diet-lens/core'
+import { ref, computed, onMounted } from "vue";
+import { logger } from "@diet-lens/core";
+import { getApi } from "@diet-lens/core";
+import type { ApiClient } from "@diet-lens/core";
 
 // 身体指标（可选）
-const height = ref<number>(175)
-const weight = ref<number>(70)
-const age = ref<number>(28)
+const height = ref<number>(175);
+const weight = ref<number>(70);
+const age = ref<number>(28);
 
 // picker-view 索引
-const heightIndex = ref(75) // 175 - 100
-const weightIndex = ref(40) // 70 - 30
-const ageIndex = ref(18) // 28 - 10
+const heightIndex = ref(75); // 175 - 100
+const weightIndex = ref(40); // 70 - 30
+const ageIndex = ref(18); // 28 - 10
 
 // 生成数值数组
-const heightValues = Array.from({ length: 151 }, (_, i) => 100 + i) // 100-250
-const weightValues = Array.from({ length: 171 }, (_, i) => 30 + i) // 30-200
-const ageValues = Array.from({ length: 91 }, (_, i) => 10 + i) // 10-100
+const heightValues = Array.from({ length: 151 }, (_, i) => 100 + i); // 100-250
+const weightValues = Array.from({ length: 171 }, (_, i) => 30 + i); // 30-200
+const ageValues = Array.from({ length: 91 }, (_, i) => 10 + i); // 10-100
 
 // 调试：验证数据是否正确初始化
 onMounted(() => {
-  logger.debug('[body-metrics] 初始化完成', {
+  logger.debug("[body-metrics] 初始化完成", {
     heightValues: heightValues.length,
     weightValues: weightValues.length,
     ageValues: ageValues.length,
@@ -35,53 +35,53 @@ onMounted(() => {
     ageIndex: ageIndex.value,
     currentHeight: heightValues[heightIndex.value],
     currentWeight: weightValues[weightIndex.value],
-    currentAge: ageValues[ageIndex.value]
-  })
-})
+    currentAge: ageValues[ageIndex.value],
+  });
+});
 
 /**
  * picker-view 统一变化事件
  * e.detail.value 是一个数组 [heightIndex, weightIndex, ageIndex]
  */
 const onPickerChange = (e: any) => {
-  const [hIdx, wIdx, aIdx] = e.detail.value
-  heightIndex.value = hIdx
-  weightIndex.value = wIdx
-  ageIndex.value = aIdx
-  height.value = heightValues[hIdx]
-  weight.value = weightValues[wIdx]
-  age.value = ageValues[aIdx]
-}
+  const [hIdx, wIdx, aIdx] = e.detail.value;
+  heightIndex.value = hIdx;
+  weightIndex.value = wIdx;
+  ageIndex.value = aIdx;
+  height.value = heightValues[hIdx];
+  weight.value = weightValues[wIdx];
+  age.value = ageValues[aIdx];
+};
 
 // picker-view 指示器样式
-const indicatorStyle = 'height: 50px;'
+const indicatorStyle = "height: 50px;";
 
 // BMR 计算公式 (Mifflin-St Jeor)
 const bmr = computed<number>(() => {
-  return Math.round(10 * weight.value + 6.25 * height.value - 5 * age.value + 5)
-})
+  return Math.round(10 * weight.value + 6.25 * height.value - 5 * age.value + 5);
+});
 
 const navigateBack = () => {
-  uni.navigateBack()
-}
+  uni.navigateBack();
+};
 
 const handleSkip = () => {
-  uni.navigateTo({ url: '/pages/onboarding/goals' })
-}
+  uni.navigateTo({ url: "/pages/onboarding/goals" });
+};
 
 const handleContinue = async () => {
   try {
-    const api = getApi() as ApiClient
-    await api.patch('/user/profile/metrics', {
+    const api = getApi() as ApiClient;
+    await api.patch("/user/profile/metrics", {
       height: height.value,
       weight: weight.value,
-    })
-    logger.debug('保存身体指标成功', { height: height.value, weight: weight.value })
+    });
+    logger.debug("保存身体指标成功", { height: height.value, weight: weight.value });
   } catch (err) {
-    logger.error('保存身体指标失败:', err)
+    logger.error("保存身体指标失败:", err);
   }
-  uni.navigateTo({ url: '/pages/onboarding/goals' })
-}
+  uni.navigateTo({ url: "/pages/onboarding/goals" });
+};
 </script>
 
 <template>
@@ -119,12 +119,7 @@ const handleContinue = async () => {
       <!-- Picker View Container -->
       <view class="picker-container">
         <!-- Picker View -->
-        <picker-view
-          class="picker-view"
-          :indicator-style="indicatorStyle"
-          :value="[heightIndex, weightIndex, ageIndex]"
-          @change="onPickerChange"
-        >
+        <picker-view class="picker-view" :indicator-style="indicatorStyle" :value="[heightIndex, weightIndex, ageIndex]" @change="onPickerChange">
           <!-- Height Column -->
           <picker-view-column class="picker-column">
             <view class="picker-item" v-for="(item, index) in heightValues" :key="item">
@@ -189,7 +184,7 @@ const handleContinue = async () => {
 <style scoped>
 .page {
   min-height: 100vh;
-  background: #F5F7F8;
+  background: #f5f7fa;
   display: flex;
   flex-direction: column;
 }
@@ -200,7 +195,7 @@ const handleContinue = async () => {
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px 8px;
-  background: #F5F7F8;
+  background: #f5f7fa;
 }
 
 .back-btn {
@@ -233,7 +228,7 @@ const handleContinue = async () => {
 }
 
 .dot.active {
-  background: #34C759;
+  background: #34c759;
 }
 
 /* Content */
@@ -252,7 +247,7 @@ const handleContinue = async () => {
   display: inline-block;
   padding: 4px 10px;
   background: rgba(52, 199, 89, 0.1);
-  color: #34C759;
+  color: #34c759;
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.05em;
@@ -294,7 +289,7 @@ const handleContinue = async () => {
   gap: 4px;
   padding: 4px 10px;
   background: rgba(52, 199, 89, 0.1);
-  color: #34C759;
+  color: #34c759;
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.05em;
@@ -367,7 +362,7 @@ const handleContinue = async () => {
 .picker-text.picker-selected {
   font-size: 24px;
   font-weight: 700;
-  color: #34C759;
+  color: #34c759;
 }
 
 .picker-unit {
@@ -377,7 +372,7 @@ const handleContinue = async () => {
 
 .picker-unit.picker-selected {
   font-size: 14px;
-  color: #34C759;
+  color: #34c759;
   font-weight: 600;
 }
 
@@ -416,7 +411,7 @@ const handleContinue = async () => {
   right: 0;
   padding: 12px 16px;
   padding-bottom: calc(12px + env(safe-area-inset-bottom));
-  background: #F5F7F8;
+  background: #f5f7fa;
   box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.04);
 }
 
@@ -444,7 +439,7 @@ const handleContinue = async () => {
 
 .btn-primary {
   flex: 2;
-  background: #34C759;
+  background: #34c759;
   color: white;
   gap: 4px;
 }

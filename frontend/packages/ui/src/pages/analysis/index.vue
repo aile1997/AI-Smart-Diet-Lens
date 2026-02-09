@@ -59,7 +59,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <view class="page-container pb-24 overflow-y-auto no-scrollbar bg-[#F5F7F8]">
+  <view class="page-container pb-24 overflow-y-auto no-scrollbar bg-[#F5F7FA]">
     <!-- 未登录提示 -->
     <view v-if="!isLoggedIn" class="flex flex-col items-center justify-center px-10" style="min-height: 60vh">
       <text class="material-symbols-outlined text-slate-300 text-6xl mb-4">lock</text>
@@ -83,7 +83,7 @@ onMounted(async () => {
     <!-- 主内容 -->
     <template v-else>
       <!-- Header -->
-      <view class="sticky top-0 z-30 px-6 pt-14 pb-4 bg-[#F5F7F8]/90 backdrop-blur-md flex flex-col items-center">
+      <view class="sticky top-0 z-30 px-6 pt-14 pb-4 bg-[#F5F7FA]/90 backdrop-blur-md flex flex-col items-center">
         <text class="text-lg font-bold text-slate-900 mb-4">AI 营养分析洞察</text>
         <view class="flex w-full bg-slate-200/50 p-1 rounded-xl">
           <view

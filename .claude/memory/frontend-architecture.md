@@ -1,9 +1,6 @@
 # AI Smart Diet Lens - 前端架构文档
 
-> **项目**: AI Smart Diet Lens
-> **技术栈**: UniApp + Vue 3 + TypeScript + UnoCSS
-> **最后更新**: 2026-02-06
-> **版本**: 3.0.0
+> **项目**: AI Smart Diet Lens **技术栈**: UniApp + Vue 3 + TypeScript + UnoCSS **最后更新**: 2026-02-06 **版本**: 3.0.0
 
 ---
 
@@ -73,30 +70,30 @@ frontend/packages/ui/src/
 
 ### Tab 页面 (5个)
 
-| 页面 | 路径 | 功能 | 导航标识 |
-|:-----|:-----|:-----|:---------|
-| **首页** | `/pages/index/index` | 热量环形图、健康指标、AI助手入口 | `home` |
-| **日记** | `/pages/diary/index` | 每日营养记录、周视图、餐食详情 | `menu_book` |
-| **识别** | `/pages/scan/index` | 相机拍照、相册选择、AI识别 | `photo_camera` (FAB) |
-| **发现** | `/pages/discover/index` | 百科搜索 + 社区动态 (双标签) | `explore` |
-| **我的** | `/pages/profile/index` | 个人信息、成就、设置入口 | `person` |
+| 页面     | 路径                    | 功能                             | 导航标识             |
+| :------- | :---------------------- | :------------------------------- | :------------------- |
+| **首页** | `/pages/index/index`    | 热量环形图、健康指标、AI助手入口 | `home`               |
+| **日记** | `/pages/diary/index`    | 每日营养记录、周视图、餐食详情   | `menu_book`          |
+| **识别** | `/pages/scan/index`     | 相机拍照、相册选择、AI识别       | `photo_camera` (FAB) |
+| **发现** | `/pages/discover/index` | 百科搜索 + 社区动态 (双标签)     | `explore`            |
+| **我的** | `/pages/profile/index`  | 个人信息、成就、设置入口         | `person`             |
 
 ### 功能页面
 
-| 页面 | 路径 | 功能 | 导航来源 |
-|:-----|:-----|:-----|:---------|
-| **AI营养师对话** | `/pages/ai-chat/index` | 对话式获取个性化餐单 | 首页「对话定制」 |
-| **消息中心** | `/pages/messages/index` | 系统通知 | 个人中心 |
-| **设置** | `/pages/settings/index` | 个人信息、健康同步、通知设置 | 个人中心 |
-| **数据分析** | `/pages/analysis/index` | 营养趋势、周/月切换、AI建议 | 日记页 |
-| **营养确认** | `/pages/food-result/index` | 识别后确认营养、调整份量 | 拍照识别 |
-| **食材详情** | `/pages/food-detail/index` | 单个食材的详细营养信息 | 发现/百科 |
-| **成就系统** | `/pages/achievements/index` | 勋章展示、成就进度 | 个人中心 |
-| **AI烹饪助手** | `/pages/cooking-assistant/index` | 智能食谱推荐、烹饪指导 | 首页「直接生成」 |
-| **食谱详情** | `/pages/recipe-detail/index` | 食谱步骤、食材清单 | 烹饪助手 |
-| **识别失败** | `/pages/scan-fail/index` | 重试、手动输入 | 拍照识别 |
-| **我的收藏** | `/pages/favorites/index` | 收藏的食谱/食材 | 个人中心 |
-| **我的发布** | `/pages/my-posts/index` | 用户发布的社区动态 | 个人中心 |
+| 页面             | 路径                             | 功能                         | 导航来源         |
+| :--------------- | :------------------------------- | :--------------------------- | :--------------- |
+| **AI营养师对话** | `/pages/ai-chat/index`           | 对话式获取个性化餐单         | 首页「对话定制」 |
+| **消息中心**     | `/pages/messages/index`          | 系统通知                     | 个人中心         |
+| **设置**         | `/pages/settings/index`          | 个人信息、健康同步、通知设置 | 个人中心         |
+| **数据分析**     | `/pages/analysis/index`          | 营养趋势、周/月切换、AI建议  | 日记页           |
+| **营养确认**     | `/pages/food-result/index`       | 识别后确认营养、调整份量     | 拍照识别         |
+| **食材详情**     | `/pages/food-detail/index`       | 单个食材的详细营养信息       | 发现/百科        |
+| **成就系统**     | `/pages/achievements/index`      | 勋章展示、成就进度           | 个人中心         |
+| **AI烹饪助手**   | `/pages/cooking-assistant/index` | 智能食谱推荐、烹饪指导       | 首页「直接生成」 |
+| **食谱详情**     | `/pages/recipe-detail/index`     | 食谱步骤、食材清单           | 烹饪助手         |
+| **识别失败**     | `/pages/scan-fail/index`         | 重试、手动输入               | 拍照识别         |
+| **我的收藏**     | `/pages/favorites/index`         | 收藏的食谱/食材              | 个人中心         |
+| **我的发布**     | `/pages/my-posts/index`          | 用户发布的社区动态           | 个人中心         |
 
 ---
 
@@ -112,6 +109,7 @@ frontend/packages/ui/src/
 ```
 
 **导航项配置**:
+
 ```typescript
 const navItems: NavItem[] = [
   { path: "/pages/index/index", icon: "home", label: "首页" },
@@ -128,8 +126,8 @@ const navItems: NavItem[] = [
 
 ### 核心组件
 
-| 组件 | 路径 | 功能说明 |
-|:-----|:-----|:---------|
+| 组件          | 路径                        | 功能说明                             |
+| :------------ | :-------------------------- | :----------------------------------- |
 | **BottomNav** | `/components/BottomNav.vue` | 自定义底部导航，5个Tab + FAB相机按钮 |
 
 ---
@@ -142,16 +140,16 @@ const navItems: NavItem[] = [
 
 ```css
 /* 主色调 Sage Green */
---primary: #649678;           /* 主色 */
---primary-light: #38e07b;     /* 亮色 (激活状态) */
---primary-dark: #4a755c;      /* 暗色 */
+--primary: #649678; /* 主色 */
+--primary-light: #38e07b; /* 亮色 (激活状态) */
+--primary-dark: #4a755c; /* 暗色 */
 
 /* 中性色 */
---bg-base: #F5F7F8;           /* 页面背景 */
---bg-white: #FFFFFF;          /* 卡片背景 */
---text-primary: #1C1C1E;      /* 主标题 */
---text-secondary: #5a847b;    /* 次要文字 */
---border-color: #e5e7eb;     /* 边框 */
+--bg-base: #f5f7fa; /* 页面背景 */
+--bg-white: #ffffff; /* 卡片背景 */
+--text-primary: #1c1c1e; /* 主标题 */
+--text-secondary: #5a847b; /* 次要文字 */
+--border-color: #e5e7eb; /* 边框 */
 ```
 
 #### 图标系统
@@ -185,11 +183,11 @@ const navItems: NavItem[] = [
 
 本项目采用三层 API 文档结构：
 
-| 文档 | 用途 | 位置 |
-|:-----|:-----|:-----|
-| **API 契约文档** | 后端接口定义、架构原则、错误码 | [`docs/api-contracts-final.md`](../../docs/api-contracts-final.md) |
-| **前端集成文档** (本文档) | TypeScript 类型、ApiClient 封装、使用示例 | 当前文档 |
-| **Swagger** | 实时可交互的 API 文档 | `http://localhost:3000/api-docs` |
+| 文档                      | 用途                                      | 位置                                                               |
+| :------------------------ | :---------------------------------------- | :----------------------------------------------------------------- |
+| **API 契约文档**          | 后端接口定义、架构原则、错误码            | [`docs/api-contracts-final.md`](../../docs/api-contracts-final.md) |
+| **前端集成文档** (本文档) | TypeScript 类型、ApiClient 封装、使用示例 | 当前文档                                                           |
+| **Swagger**               | 实时可交互的 API 文档                     | `http://localhost:3000/api-docs`                                   |
 
 ### HTTP 请求封装
 
@@ -199,90 +197,87 @@ const navItems: NavItem[] = [
 // packages/core/src/api/client.ts
 
 interface ApiRequestOptions extends RequestInit {
-  params?: Record<string, string | number>
+  params?: Record<string, string | number>;
 }
 
 class ApiClient {
-  private baseURL: string
-  private tokenGetter: () => string | null
+  private baseURL: string;
+  private tokenGetter: () => string | null;
 
   constructor(baseURL: string, tokenGetter: () => string | null) {
-    this.baseURL = baseURL
-    this.tokenGetter = tokenGetter
+    this.baseURL = baseURL;
+    this.tokenGetter = tokenGetter;
   }
 
   private buildUrl(path: string, params?: Record<string, string | number>): string {
-    const url = new URL(path, this.baseURL)
+    const url = new URL(path, this.baseURL);
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
-        url.searchParams.append(key, String(value))
-      })
+        url.searchParams.append(key, String(value));
+      });
     }
-    return url.toString()
+    return url.toString();
   }
 
   async request<T>(endpoint: string, options: ApiRequestOptions = {}): Promise<T> {
-    const token = this.tokenGetter()
+    const token = this.tokenGetter();
     const headers: HeadersInit = {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       ...options.headers,
-    }
+    };
 
     if (token) {
-      headers['Authorization'] = `Bearer ${token}`
+      headers["Authorization"] = `Bearer ${token}`;
     }
 
-    const url = this.buildUrl(endpoint, options.params)
+    const url = this.buildUrl(endpoint, options.params);
 
     const response = await fetch(url, {
       ...options,
       headers,
-    })
+    });
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: '请求失败' }))
-      throw new Error(error.message || '请求失败')
+      const error = await response.json().catch(() => ({ message: "请求失败" }));
+      throw new Error(error.message || "请求失败");
     }
 
-    const result: ApiResponse<T> = await response.json()
+    const result: ApiResponse<T> = await response.json();
 
     if (!result.success) {
-      throw new Error(result.error || '请求失败')
+      throw new Error(result.error || "请求失败");
     }
 
-    return result.data as T
+    return result.data as T;
   }
 
   async get<T>(endpoint: string, options?: ApiRequestOptions): Promise<T> {
-    return this.request<T>(endpoint, { ...options, method: 'GET' })
+    return this.request<T>(endpoint, { ...options, method: "GET" });
   }
 
   async post<T>(endpoint: string, data?: unknown, options?: ApiRequestOptions): Promise<T> {
     return this.request<T>(endpoint, {
       ...options,
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify(data),
-    })
+    });
   }
 
   async patch<T>(endpoint: string, data?: unknown, options?: ApiRequestOptions): Promise<T> {
     return this.request<T>(endpoint, {
       ...options,
-      method: 'PATCH',
+      method: "PATCH",
       body: JSON.stringify(data),
-    })
+    });
   }
 
   async delete<T>(endpoint: string, options?: ApiRequestOptions): Promise<T> {
-    return this.request<T>(endpoint, { ...options, method: 'DELETE' })
+    return this.request<T>(endpoint, { ...options, method: "DELETE" });
   }
 }
 
 // API 服务实例
-export const api = new ApiClient(
-  'https://api.dietlens.com/api',
-  () => uni.getStorageSync('token') || null
-)
+export const api = new ApiClient("https://api.dietlens.com/api", () => uni.getStorageSync("token") || null);
 ```
 
 ### 服务层示例
@@ -299,25 +294,25 @@ export class ChatService {
    * 发送对话消息
    */
   async sendMessage(message: string, context?: Array<{ role: string; content: string }>) {
-    return api.post<ChatResponse>('/ai/chat/message', { message, context })
+    return api.post<ChatResponse>("/ai/chat/message", { message, context });
   }
 
   /**
    * 获取对话历史
    */
   async getHistory() {
-    return api.get<ChatMessage[]>('/ai/chat/history')
+    return api.get<ChatMessage[]>("/ai/chat/history");
   }
 
   /**
    * 清空对话历史
    */
   async clearHistory() {
-    return api.delete<{ success: boolean }>('/ai/chat/history')
+    return api.delete<{ success: boolean }>("/ai/chat/history");
   }
 }
 
-export const chatService = new ChatService()
+export const chatService = new ChatService();
 ```
 
 #### 社区服务
@@ -330,48 +325,48 @@ export class CommunityService {
    * 获取帖子列表
    */
   async getPosts(page = 1, limit = 10, tag?: string) {
-    return api.get<Post[]>('/community/posts', {
-      params: tag ? { page, limit, tag } : { page, limit }
-    })
+    return api.get<Post[]>("/community/posts", {
+      params: tag ? { page, limit, tag } : { page, limit },
+    });
   }
 
   /**
    * 发布帖子
    */
   async createPost(content: string, images?: string[], tags?: string[]) {
-    return api.post<Post>('/community/posts', { content, images, tags })
+    return api.post<Post>("/community/posts", { content, images, tags });
   }
 
   /**
    * 点赞/取消点赞
    */
   async toggleLike(postId: string) {
-    return api.post<{ liked: boolean; likesCount: number }>(`/community/posts/${postId}/like`)
+    return api.post<{ liked: boolean; likesCount: number }>(`/community/posts/${postId}/like`);
   }
 
   /**
    * 添加评论
    */
   async addComment(postId: string, content: string) {
-    return api.post<Comment>(`/community/posts/${postId}/comments`, { content })
+    return api.post<Comment>(`/community/posts/${postId}/comments`, { content });
   }
 
   /**
    * 删除帖子
    */
   async deletePost(postId: string) {
-    return api.delete<{ success: boolean }>(`/community/posts/${postId}`)
+    return api.delete<{ success: boolean }>(`/community/posts/${postId}`);
   }
 
   /**
    * 获取我的帖子
    */
   async getMyPosts() {
-    return api.get<Post[]>('/community/posts/my')
+    return api.get<Post[]>("/community/posts/my");
   }
 }
 
-export const communityService = new CommunityService()
+export const communityService = new CommunityService();
 ```
 
 #### 收藏服务
@@ -383,36 +378,33 @@ export class FavoritesService {
   /**
    * 获取收藏列表
    */
-  async getFavorites(type?: 'recipe' | 'food') {
-    return api.get<Favorite[]>('/favorites/', type ? { params: { type } } : undefined)
+  async getFavorites(type?: "recipe" | "food") {
+    return api.get<Favorite[]>("/favorites/", type ? { params: { type } } : undefined);
   }
 
   /**
    * 添加收藏
    */
-  async addFavorite(itemId: string, type: 'recipe' | 'food') {
-    return api.post<Favorite>('/favorites/', { itemId, type })
+  async addFavorite(itemId: string, type: "recipe" | "food") {
+    return api.post<Favorite>("/favorites/", { itemId, type });
   }
 
   /**
    * 取消收藏
    */
   async removeFavorite(id: string) {
-    return api.delete<{ success: boolean }>(`/favorites/${id}`)
+    return api.delete<{ success: boolean }>(`/favorites/${id}`);
   }
 
   /**
    * 检查是否已收藏
    */
-  async checkFavorited(itemId: string, type?: 'recipe' | 'food') {
-    return api.get<{ isFavorited: boolean }>(
-      `/favorites/check/${itemId}`,
-      type ? { params: { type } } : undefined
-    )
+  async checkFavorited(itemId: string, type?: "recipe" | "food") {
+    return api.get<{ isFavorited: boolean }>(`/favorites/check/${itemId}`, type ? { params: { type } } : undefined);
   }
 }
 
-export const favoritesService = new FavoritesService()
+export const favoritesService = new FavoritesService();
 ```
 
 #### 消息通知服务
@@ -425,39 +417,39 @@ export class NotificationsService {
    * 获取消息列表
    */
   async getMessages(type?: MessageType) {
-    return api.get<Message[]>('/notifications/', type ? { params: { type } } : undefined)
+    return api.get<Message[]>("/notifications/", type ? { params: { type } } : undefined);
   }
 
   /**
    * 获取未读数量
    */
   async getUnreadCount() {
-    return api.get<{ count: number }>('/notifications/unread-count')
+    return api.get<{ count: number }>("/notifications/unread-count");
   }
 
   /**
    * 标记消息已读
    */
   async markAsRead(messageId: string) {
-    return api.patch<{ success: boolean }>(`/notifications/${messageId}/read`)
+    return api.patch<{ success: boolean }>(`/notifications/${messageId}/read`);
   }
 
   /**
    * 全部标记已读
    */
   async markAllAsRead() {
-    return api.patch<{ success: boolean }>('/notifications/read-all')
+    return api.patch<{ success: boolean }>("/notifications/read-all");
   }
 
   /**
    * 删除消息
    */
   async deleteMessage(messageId: string) {
-    return api.delete<{ success: boolean }>(`/notifications/${messageId}`)
+    return api.delete<{ success: boolean }>(`/notifications/${messageId}`);
   }
 }
 
-export const notificationsService = new NotificationsService()
+export const notificationsService = new NotificationsService();
 ```
 
 #### 文件上传服务
@@ -471,28 +463,28 @@ export class UploadService {
    */
   async uploadImage(file: File, filename: string): Promise<string> {
     // 1. 获取预签名 URL
-    const presignData = await api.post<{ url: string; key: string }>('/upload/presign-url', {
+    const presignData = await api.post<{ url: string; key: string }>("/upload/presign-url", {
       filename,
       contentType: file.type,
-    })
+    });
 
     // 2. 直接上传到 S3
     await fetch(presignData.url, {
-      method: 'PUT',
+      method: "PUT",
       body: file,
-      headers: { 'Content-Type': file.type },
-    })
+      headers: { "Content-Type": file.type },
+    });
 
     // 3. 确认上传完成
-    const confirmData = await api.post<{ url: string }>('/upload/confirm-upload', {
+    const confirmData = await api.post<{ url: string }>("/upload/confirm-upload", {
       key: presignData.key,
-    })
+    });
 
-    return confirmData.url
+    return confirmData.url;
   }
 }
 
-export const uploadService = new UploadService()
+export const uploadService = new UploadService();
 ```
 
 ### 在页面中使用
@@ -529,77 +521,77 @@ const sendMessage = async (content: string) => {
 ```typescript
 // 通用响应
 interface ApiResponse<T> {
-  success: boolean
-  data?: T
-  message?: string
-  error?: string
+  success: boolean;
+  data?: T;
+  message?: string;
+  error?: string;
 }
 
 // AI 对话
 interface ChatResponse {
-  reply: string
+  reply: string;
   recipeCard?: {
-    name: string
-    image: string
-    calories: number
-    time: string
-    difficulty: string
-    description: string
-  }
+    name: string;
+    image: string;
+    calories: number;
+    time: string;
+    difficulty: string;
+    description: string;
+  };
 }
 
 interface ChatMessage {
-  id: string
-  isUser: boolean
-  content: string
-  timestamp: string
+  id: string;
+  isUser: boolean;
+  content: string;
+  timestamp: string;
 }
 
 // 社区
 interface Post {
-  id: string
-  content: string
-  images: string[]
-  tags: string[]
-  likes: number
-  isLiked: boolean
-  createdAt: string
+  id: string;
+  content: string;
+  images: string[];
+  tags: string[];
+  likes: number;
+  isLiked: boolean;
+  createdAt: string;
   user: {
-    id: string
-    nickname: string
-    avatar?: string
-  }
+    id: string;
+    nickname: string;
+    avatar?: string;
+  };
 }
 
 interface Comment {
-  id: string
-  content: string
-  createdAt: string
+  id: string;
+  content: string;
+  createdAt: string;
   user: {
-    id: string
-    nickname: string
-    avatar?: string
-  }
+    id: string;
+    nickname: string;
+    avatar?: string;
+  };
 }
 
 // 收藏
 interface Favorite {
-  id: string
-  itemId: string
-  type: 'recipe' | 'food'
-  createdAt: string
+  id: string;
+  itemId: string;
+  type: "recipe" | "food";
+  createdAt: string;
 }
 
 // 消息通知
-type MessageType = 'achievement' | 'reminder' | 'system'
+type MessageType = "achievement" | "reminder" | "system";
 
 interface Message {
-  id: string
-  type: MessageType
-  title: string
-  content: string
-  isRead: boolean
-  createdAt: string
+  id: string;
+  type: MessageType;
+  title: string;
+  content: string;
+  isRead: boolean;
+  createdAt: string;
 }
 ```
 
@@ -612,18 +604,18 @@ interface Message {
 ```typescript
 // Tab 页面切换 (使用 switchTab)
 uni.switchTab({
-  url: '/pages/index/index'
-})
+  url: "/pages/index/index",
+});
 
 // 普通页面跳转 (使用 navigateTo)
 uni.navigateTo({
-  url: '/pages/ai-chat/index'
-})
+  url: "/pages/ai-chat/index",
+});
 
 // 返回上一页
 uni.navigateBack({
-  delta: 1
-})
+  delta: 1,
+});
 ```
 
 ---
@@ -655,14 +647,13 @@ uni.navigateBack({
 
 ## 版本历史
 
-| 版本 | 日期 | 说明 |
-|:-----|:-----|:-----|
-| 1.0.0 | 2026-02-06 | 初始版本，完成18个UI页面 |
-| 2.0.0 | 2026-02-06 | 更新发现页为双模式架构，新增收藏/发布/评价页面 |
-| 2.1.0 | 2026-02-06 | 简化发现页架构（移除冗余子标签），新增AI营养师对话页面 |
+| 版本  | 日期       | 说明                                                                               |
+| :---- | :--------- | :--------------------------------------------------------------------------------- |
+| 1.0.0 | 2026-02-06 | 初始版本，完成18个UI页面                                                           |
+| 2.0.0 | 2026-02-06 | 更新发现页为双模式架构，新增收藏/发布/评价页面                                     |
+| 2.1.0 | 2026-02-06 | 简化发现页架构（移除冗余子标签），新增AI营养师对话页面                             |
 | 3.0.0 | 2026-02-06 | 精简 API 文档，保留前端集成指南；后端 API 文档独立到 `docs/api-contracts-final.md` |
 
 ---
 
-**文档维护者**: Architect
-**最后更新**: 2026-02-06
+**文档维护者**: Architect **最后更新**: 2026-02-06
